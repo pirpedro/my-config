@@ -1,0 +1,11 @@
+#!/bin/bash
+source functions.sh
+
+case "$1" in
+install)
+	if [ $(isMac) ]
+
+;;
+remove)
+;;
+esac
