@@ -1,5 +1,5 @@
 #!/bin/bash
-source functions.sh
+source $2/functions.sh
 
 setEnvMac(){
 	if [ $(exists launchctl) == "1" ]; then

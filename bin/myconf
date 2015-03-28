@@ -1,11 +1,14 @@
 #!/bin/bash
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+MYCONF_PATH=${DIR%/bin}
+
 FILES=;
 #keeps the action information (install|remove)
 ACTION="$1";
 TARGET=$2;
 #directory where the script will search for conf files to load
-PACKAGE_LOCATION="./packages";
+PACKAGE_LOCATION="$MYCONF_PATH/packages";
 #extension of the conf files
 EXT=".sh"
 
@@ -34,7 +37,7 @@ load(){
 				chmod +x $file
 			fi
                         echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Started..."
-                        sudo $file $ACTION		
+                        sudo $file $ACTION $MYCONF_PATH 		
 			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."	
 		fi
 	done

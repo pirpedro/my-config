@@ -21,6 +21,12 @@ exists(){
 
 }
 
+myPath(){
+	SCRIPT=$(readlink -f "$1")
+	SCRIPTPATH=$(dirname "$SCRIPT")
+	echo $SCRIPTPATH
+}
+
 myEnv(){
 	
 	if [ $(isMac) == "1" ]; then
@@ -41,5 +47,5 @@ includePath(){
 		if [ $(exists export) == "1" ]; then
 			export PATH=$PATH:$1
 		fi
-	}
+	fi
 }
