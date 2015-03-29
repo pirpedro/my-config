@@ -56,6 +56,14 @@ if [ ! -e $BASH_PROFILE ]; then
 	touch $BASH_PROFILE
 fi
 
+formatNumber(){
+	if [ $1 -lt 10 ]; then
+		echo 0$1
+	else
+		echo $1
+	fi
+}
+
 case "$1" in
 install)
 	load;      
@@ -63,8 +71,31 @@ install)
 remove)
         load;
 ;;
+position)
+	if [ -z $2 ] && [ -z $3 ]; then
+		echo "You need to pass the script and the position to realocate"
+		exit 0
+	fi
+	cd $PACKAGE_LOCATION
+	GLOBIGNORE="*-$2$EXT"
+	FILES=($( ls *$EXT));
+        GLOBIGNORE=""
+	FILE=""
+	i=0
+	for FILE in "${FILES[@]}"
+	do
+		if [ $i = $3  ]; then
+			((i++))			
+		fi
+		mv $FILE $(formatNumber $i)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT 
+
+		((i++))
+	done
+	FILE=$( ls *-$2$EXT)
+	mv $FILE $(formatNumber $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT 
+;;
 *)
-        echo "Usage: '$0' {install|remove} {all | <specific script>}"
+        echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
         exit 64
 ;;
 esac
