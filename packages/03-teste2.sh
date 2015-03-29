@@ -1,11 +1,9 @@
 #!/bin/bash
-
 source $2/functions.sh
 
 case "$1" in
 install)
-	myEnv FOCAVAR foquinha
-
+	echo $FOCAVAR
 ;;
 remove)
 ;;

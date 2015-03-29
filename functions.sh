@@ -1,5 +1,7 @@
 #!/bin/bash
 
+BASH_PROFILE=$HOME/.profile
+
 isMac(){
    if [[ "$OSTYPE" == "darwin"* ]]; then
      echo 1;
@@ -21,12 +23,6 @@ exists(){
 
 }
 
-myPath(){
-	SCRIPT=$(readlink -f "$1")
-	SCRIPTPATH=$(dirname "$SCRIPT")
-	echo $SCRIPTPATH
-}
-
 myEnv(){
 	
 	if [ $(isMac) == "1" ]; then
@@ -40,12 +36,34 @@ myEnv(){
 
 		echo setenv $1 $2 >> /etc/launchd.conf
 	fi
+
+	if [ ! -e $BASH_PROFILE ]; then
+		touch $BASH_PROFILE
+	fi
+	
+	export $1=$2
+	echo export $1=$2 >> $BASH_PROFILE
+
 }
 
-includePath(){
-	if [ ${$PATH/$1} = "$PATH" ]; then
-		if [ $(exists export) == "1" ]; then
-			export PATH=$PATH:$1
-		fi
-	fi
+myPathRemove(){
+	local IFS=':'
+        local NEWPATH
+        local DIR
+        local PATHVARIABLE=${2:-PATH}
+        for DIR in ${!PATHVARIABLE} ; do
+                if [ "$DIR" != "$1" ] ; then
+                  NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
+                fi
+        done
+        export $PATHVARIABLE="$NEWPATH"
 }
+
+myPath(){
+        myPathRemove $1 $2
+	local PATHVARIABLE=${2:-PATH}
+        export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+	myEnv PATH $PATH
+}
+
+

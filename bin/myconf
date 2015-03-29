@@ -3,6 +3,8 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 MYCONF_PATH=${DIR%/bin}
 
+source $MYCONF_PATH/functions.sh
+
 FILES=;
 #keeps the action information (install|remove)
 ACTION="$1";
@@ -37,7 +39,8 @@ load(){
 				chmod +x $file
 			fi
                         echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Started..."
-                        sudo $file $ACTION $MYCONF_PATH 		
+			source $BASH_PROFILE
+			sudo -E $file $ACTION $MYCONF_PATH 		
 			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."	
 		fi
 	done
@@ -47,7 +50,11 @@ load(){
 if [ ! "$(id -u)" = "0" ]; then
         echo "You need super user privileges to run some of the scripts."
 	exit 1
-    fi
+fi
+
+if [ ! -e $BASH_PROFILE ]; then
+	touch $BASH_PROFILE
+fi
 
 case "$1" in
 install)
