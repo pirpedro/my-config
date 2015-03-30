@@ -96,6 +96,13 @@ position)
 	FILE=$( ls *-$2$EXT)
 	mv $FILE $(formatNumber $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT 
 ;;
+list)
+	echo "Available configuration files:"
+	for file in $PACKAGE_LOCATION/*$EXT
+	do
+		echo $(echo ${file%$EXT} | sed 's/^.*-//')
+	done
+;;
 *)
         load;
 	#echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
