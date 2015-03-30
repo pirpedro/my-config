@@ -14,6 +14,8 @@ PACKAGE_LOCATION="$MYCONF_PATH/packages";
 #extension of the conf files
 EXT=".sh"
 
+export MY_CONF_FILES=/Users/pedro/Dropbox/Env
+
 #this function load files, give execution
 #permission for each one and execute the right action on it.
 load(){
@@ -36,21 +38,21 @@ load(){
 		if [ -e $file ]; then
 		
 			if [ ! -x $file ]; then
-				chmod +x $file
+				sudo chmod +x $file
 			fi
                         echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Started..."
 			source $BASH_PROFILE
-			sudo -E $file $ACTION $MYCONF_PATH 		
+			$file $ACTION $MYCONF_PATH 		
 			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."	
 		fi
 	done
 }
 
 #check if the script has super user permissions
-if [ ! "$(id -u)" = "0" ]; then
-        echo "You need super user privileges to run some of the scripts."
-	exit 1
-fi
+#if [ ! "$(id -u)" = "0" ]; then
+#        echo "You need super user privileges to run some of the scripts."
+#	exit 1
+#fi
 
 if [ ! -e $BASH_PROFILE ]; then
 	touch $BASH_PROFILE
@@ -95,7 +97,8 @@ position)
 	mv $FILE $(formatNumber $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT 
 ;;
 *)
-        echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
-        exit 64
+        load;
+	#echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
+        #exit 64
 ;;
 esac

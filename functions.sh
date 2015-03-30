@@ -2,6 +2,15 @@
 
 BASH_PROFILE=$HOME/.profile
 
+random(){
+	echo $(cat /dev/urandom | base64 | tr -dc A-Za-z0-9_ | head -c8)
+}
+
+abort(){
+  echo "$1"
+  exit 1
+}
+
 isMac(){
    if [[ "$OSTYPE" == "darwin"* ]]; then
      echo 1;
