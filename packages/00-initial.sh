@@ -1,7 +1,7 @@
 #!/bin/bash
 source $2/functions.sh
 
-setEnvMac(){
+_set_env_mac(){
 	if [ $(exists launchctl) == "1" ]; then
 		echo foca
 	fi
@@ -21,7 +21,7 @@ setEnvMac(){
 case "$1" in
 install)
 	if [ $(isMac) == "1" ]; then
-		setEnvMac
+		_set_env_mac
 	else
 		echo foca
 	fi

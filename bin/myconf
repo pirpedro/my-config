@@ -1,6 +1,18 @@
 #!/bin/bash
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+#useful which will give you the full directory name of the script no matter where it is being called
+#from including any combination of aliases, source, bash -c, symlinks, etc..
+__current_location(){
+    SOURCE="${BASH_SOURCE[0]}"
+    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+        DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+        SOURCE="$(readlink "$SOURCE")"
+        [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+}
+
+DIR=$(__current_location)
 MYCONF_PATH=${DIR%/bin}
 
 source $MYCONF_PATH/functions.sh
@@ -18,7 +30,7 @@ export MY_CONF_FILES=/Users/pedro/Dropbox/Env
 
 #this function load files, give execution
 #permission for each one and execute the right action on it.
-load(){
+__load(){
 	if [ ! -d $PACKAGE_LOCATION ]; then
                 echo "Packages directory does not exist.";
                 exit 64;
@@ -32,18 +44,18 @@ load(){
                 fi
                 FILES=($( ls $PACKAGE_LOCATION/*$TARGET$EXT));
         fi
-			
-	for file in "${FILES[@]}" 
+
+	for file in "${FILES[@]}"
 	do
 		if [ -e $file ]; then
-		
+
 			if [ ! -x $file ]; then
 				sudo chmod +x $file
 			fi
                         echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Started..."
 			source $BASH_PROFILE
-			$file $ACTION $MYCONF_PATH 		
-			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."	
+			$file $ACTION $MYCONF_PATH
+			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."
 		fi
 	done
 }
@@ -58,7 +70,7 @@ if [ ! -e $BASH_PROFILE ]; then
 	touch $BASH_PROFILE
 fi
 
-formatNumber(){
+__formatNumber(){
 	if [ $1 -lt 10 ]; then
 		echo 0$1
 	else
@@ -68,10 +80,10 @@ formatNumber(){
 
 case "$1" in
 install)
-	load;      
+	__load;
 ;;
 remove)
-        load;
+        __load;
 ;;
 position)
 	if [ -z $2 ] && [ -z $3 ]; then
@@ -87,14 +99,14 @@ position)
 	for FILE in "${FILES[@]}"
 	do
 		if [ $i = $3  ]; then
-			((i++))			
+			((i++))
 		fi
-		mv $FILE $(formatNumber $i)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT 
+		mv $FILE $(__formatNumber $i)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
 
 		((i++))
 	done
 	FILE=$( ls *-$2$EXT)
-	mv $FILE $(formatNumber $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT 
+	mv $FILE $(__formatNumber $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
 ;;
 list)
 	echo "Available configuration files:"
@@ -104,8 +116,7 @@ list)
 	done
 ;;
 *)
-        load;
-	#echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
+	echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
         #exit 64
 ;;
 esac
