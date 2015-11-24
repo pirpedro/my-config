@@ -2,6 +2,20 @@
 
 BASH_PROFILE=$HOME/.profile
 
+ __load_config_file(){
+    local configfile=$1
+    local configfile_secured='/tmp/$(__random).cfg'
+
+    # check if the file contais something we don't want
+    if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
+      echo "Config file is unclean, cleaning it..." >&2
+      egrep '^#|^[^ ]*=[^;&]*'  "configfile" > "configfile_secured"
+      configfile="$configfile_secured"
+    fi
+
+    source "$configfile"
+}
+
 #useful which will give you the full directory name of the script no matter where it is being called
 #from including any combination of aliases, source, bash -c, symlinks, etc..
 __current_location(){
@@ -23,6 +37,11 @@ __random(){
 __abort(){
   echo "$1"
   exit 1
+}
+
+__exit(){
+  echo "$1"
+  exit 0
 }
 
 __is_mac(){
