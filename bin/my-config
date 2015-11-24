@@ -1,21 +1,15 @@
 #!/bin/bash
 
-#useful which will give you the full directory name of the script no matter where it is being called
-#from including any combination of aliases, source, bash -c, symlinks, etc..
-__current_location(){
-    SOURCE="${BASH_SOURCE[0]}"
-    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-        DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-        SOURCE="$(readlink "$SOURCE")"
-        [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    done
-    echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-}
 
-DIR=$(__current_location)
-MYCONF_PATH=${DIR%/bin}
 
-source $MYCONF_PATH/functions.sh
+
+MY_CONFIG_PATH=~/Development/workspace/my-config
+
+echo $MY_CONFIG_PATH
+
+source $MY_CONFIG_PATH/functions.sh
+
+__abort
 
 FILES=;
 #keeps the action information (install|remove)
@@ -23,7 +17,7 @@ ACTION="$1";
 TARGET=$2;
 #directory where the script will search for conf files to load
 PACKAGE_LOCATION="$MYCONF_PATH/packages";
-#extension of the conf files
+#extension of the config files
 EXT=".sh"
 
 export MY_CONF_FILES=/Users/pedro/Dropbox/Env
@@ -70,7 +64,7 @@ if [ ! -e $BASH_PROFILE ]; then
 	touch $BASH_PROFILE
 fi
 
-__formatNumber(){
+_format_number(){
 	if [ $1 -lt 10 ]; then
 		echo 0$1
 	else
@@ -101,12 +95,12 @@ position)
 		if [ $i = $3  ]; then
 			((i++))
 		fi
-		mv $FILE $(__formatNumber $i)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
+		mv $FILE $(_format_number $i)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
 
 		((i++))
 	done
 	FILE=$( ls *-$2$EXT)
-	mv $FILE $(__formatNumber $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
+	mv $FILE $(_format_number $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
 ;;
 list)
 	echo "Available configuration files:"
