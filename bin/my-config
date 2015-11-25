@@ -1,11 +1,24 @@
 #!/bin/bash
 
-
-
-
+#check if
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
+DEBUG_MODE=0;
 
 source $MY_CONFIG_DIR/functions.sh
+
+while getopts "dv" OPTION; do
+    case "$OPTION" in
+        d) DEBUG_MODE=1
+            set -x
+            ;;
+        v)  __verbosity on
+            ;;
+
+        # Unknown option. No need for an error, getopts informs
+        # the user itself.
+        \?) exit 1;;
+    esac
+done
 
 __abort
 

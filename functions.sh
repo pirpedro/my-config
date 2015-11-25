@@ -2,6 +2,21 @@
 
 BASH_PROFILE=$HOME/.profile
 
+VERBOSE=0;
+__verbosity(){
+   if [ "$1" == "on" ]; then
+        VERBOSE=1;
+    else
+        VERBOSE=0;
+   fi
+}
+
+__log(){
+  if [ "$VERBOSE" == "1" ]; then
+      echo "$1"
+  fi
+}
+
  __load_config_file(){
     local configfile=$1
     local configfile_secured='/tmp/$(__random).cfg'
