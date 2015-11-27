@@ -2,17 +2,21 @@
 
 BASH_PROFILE=$HOME/.profile
 
-VERBOSE=0;
+#format the script name for a user firendly package name
+__format_script_name(){
+        echo ${1%.*} | sed 's/^.*-//'
+}
+
 __verbosity(){
    if [ "$1" == "on" ]; then
-        VERBOSE=1;
+        export MY_CONFIG_VERBOSE=1;
     else
-        VERBOSE=0;
+        export MY_CONFIG_VERBOSE=0;
    fi
 }
 
 __log(){
-  if [ "$VERBOSE" == "1" ]; then
+  if [ "$MY_CONFIG_VERBOSE" == "1" ]; then
       echo "$1"
   fi
 }

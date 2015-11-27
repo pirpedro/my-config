@@ -6,7 +6,12 @@ MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 DEBUG_MODE=0;
 
-source $MY_CONFIG_DIR/ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+FILES=;
+#keeps the action information (install|remove)
+ACTION="$1"; shift; #shift to make getopts works
+TARGET=$1; shift; #shift to make getopts works
 
 while getopts "dv" OPTION; do
     case "$OPTION" in
@@ -22,12 +27,7 @@ while getopts "dv" OPTION; do
     esac
 done
 
-__abort
 
-FILES=;
-#keeps the action information (install|remove)
-ACTION="$1";
-TARGET=$2;
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
 #extension of the config files
@@ -39,14 +39,14 @@ export MY_CONF_FILES=/Users/pedro/Dropbox/Env
 #permission for each one and execute the right action on it.
 __load(){
 	if [ ! -d $PACKAGE_LOCATION ]; then
-                echo "Packages directory does not exist.";
+                __log "Packages directory does not exist.";
                 exit 64;
         fi
         if [ -z $TARGET ] || [ "$TARGET" == "all" ]; then
                 FILES=($( ls $PACKAGE_LOCATION/*$EXT));
         else
                 if [ ! -e $PACKAGE_LOCATION/*$TARGET$EXT ]; then
-                        echo "Configuration file for $TARGET not found";
+                        __log "Configuration file for $TARGET not found";
                         exit 0;
                 fi
                 FILES=($( ls $PACKAGE_LOCATION/*$TARGET$EXT));
@@ -59,17 +59,17 @@ __load(){
 			if [ ! -x $file ]; then
 				sudo chmod +x $file
 			fi
-                        echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Started..."
+                        __log "$ACTION $(__format_script_name $file): Action Started..."
 			source $BASH_PROFILE
-			$file $ACTION $MYCONF_PATH $MY_CONFIG_EXT
-			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."
+			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
+			__log "$ACTION $(__format_script_name $file): Action Finished."
 		fi
 	done
 }
 
 #check if the script has super user permissions
 #if [ ! "$(id -u)" = "0" ]; then
-#        echo "You need super user privileges to run some of the scripts."
+#        __log "You need super user privileges to run some of the scripts."
 #	exit 1
 #fi
 
@@ -85,45 +85,45 @@ _format_number(){
 	fi
 }
 
-case "$1" in
+case "$ACTION" in
 install)
-	__load;
+        __load;
 ;;
 remove)
         __load;
 ;;
 position)
-	if [ -z $2 ] && [ -z $3 ]; then
-		echo "You need to pass the script and the position to realocate"
-		exit 0
-	fi
-	cd $PACKAGE_LOCATION
-	GLOBIGNORE="*-$2$EXT"
-	FILES=($( ls *$EXT));
-        GLOBIGNORE=""
-	FILE=""
-	i=0
-	for FILE in "${FILES[@]}"
-	do
+            if [ -z $2 ] && [ -z $3 ]; then
+                __log "You need to pass the script and the position to realocate"
+	   exit 0
+            fi
+            cd $PACKAGE_LOCATION
+            GLOBIGNORE="*-$2$EXT"
+            FILES=($( ls *$EXT));
+            GLOBIGNORE=""
+            FILE=""
+            i=0
+            for FILE in "${FILES[@]}"
+            do
 		if [ $i = $3  ]; then
 			((i++))
 		fi
-		mv $FILE $(_format_number $i)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
+		mv $FILE $(_format_number $i)-$(__format_script_name $FILE)$EXT
 
 		((i++))
 	done
 	FILE=$( ls *-$2$EXT)
-	mv $FILE $(_format_number $3)-$(echo ${FILE%$EXT} | sed 's/^.*-//')$EXT
+	mv $FILE $(_format_number $3)-$(__format_script_name $FILE)$EXT
 ;;
 list)
 	echo "Available configuration files:"
 	for file in $PACKAGE_LOCATION/*$EXT
 	do
-		echo $(echo ${file%$EXT} | sed 's/^.*-//')
+		echo $(__format_script_name $file)
 	done
 ;;
 *)
-	echo "Usage: '$0' {install|remove|position} {all | <specific script>}"
+	echo "Usage: ${0##*/} {install|remove|position|list} {all | <specific script>}"
         #exit 64
 ;;
 esac
