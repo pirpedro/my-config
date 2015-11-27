@@ -1,8 +1,10 @@
 #!/bin/bash
-source $2/functions.sh
+source $3/functions.sh
+
 
 case "$1" in
 install)
+     echo "funfou vim";
 ;;
 remove)
 ;;

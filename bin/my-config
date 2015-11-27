@@ -1,10 +1,12 @@
 #!/bin/bash
 
-#check if
+#check if exists environment variable to manally change resources location
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
+#path to subfolder with extra functions
+MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 DEBUG_MODE=0;
 
-source $MY_CONFIG_DIR/functions.sh
+source $MY_CONFIG_DIR/ext/functions.sh
 
 while getopts "dv" OPTION; do
     case "$OPTION" in
@@ -22,13 +24,12 @@ done
 
 __abort
 
-
 FILES=;
 #keeps the action information (install|remove)
 ACTION="$1";
 TARGET=$2;
 #directory where the script will search for config files to load
-PACKAGE_LOCATION="$MY_CONFIG_DIR/packages";
+PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
 #extension of the config files
 EXT=".sh"
 
@@ -60,7 +61,7 @@ __load(){
 			fi
                         echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Started..."
 			source $BASH_PROFILE
-			$file $ACTION $MYCONF_PATH
+			$file $ACTION $MYCONF_PATH $MY_CONFIG_EXT
 			echo "$ACTION $(echo ${file%$EXT} | sed 's/^.*-//'): Action Finished."
 		fi
 	done

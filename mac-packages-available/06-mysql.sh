@@ -1,5 +1,5 @@
 #!/bin/bash
-source $2/functions.sh
+source $3/functions.sh
 
 installing(){
 	# CHECK FOR OS X 10.7+
@@ -53,7 +53,7 @@ sudo installer -applyChoiceChangesXML ~/Downloads/MySQL-install.plist -pkg mysql
 echo "..."
 echo "..."
 # AS OF RIGHT NOW MYSQL AUTOMATICALLY INSTALLS THE STARTUP ITEMS AND PREFPANE
-# STARTUP ITEMS DO NOT WORK IN YOSEMITE - WE MADE A LAUNCHD START SETUP 
+# STARTUP ITEMS DO NOT WORK IN YOSEMITE - WE MADE A LAUNCHD START SETUP
 # TWO FILES ARE NEEDED
 # A PLIST FOR LAUNCHD TO START ON BOOT
 # AND A SCRIPT THAT THE PLIST LOADS, SCRIPT WAITS FOR NETWORKING TO INITIALIZE AND STARTS MySQL
@@ -140,7 +140,7 @@ while true; do
 echo " "
 echo " "
 if [ -e $MY_CONF_FILES/etc/mycnf  ]; then
-	sudo ln $MY_CONF_FILES/etc/my.cnf /etc/my.cnf 
+	sudo ln $MY_CONF_FILES/etc/my.cnf /etc/my.cnf
 fi
 
 echo "ALL DONE!  Install Sequel Pro or phpmyadmin to administer MySQL"
@@ -182,7 +182,7 @@ restart)
 	mysql.server restart
 ;;
 changePassword)
-	
+
 	echo "Actual Password:"
 	read -s pass
 	#mysql -u root -p
