@@ -2,9 +2,6 @@
 source $3/functions.sh
 
 _set_env(){
-	if [ $(exists launchctl) == "1" ]; then
-		echo foca
-	fi
 
 	if [ ! -e ~/.profile ]; then
 		touch ~/.profile
