@@ -2,7 +2,13 @@
 source $3/functions.sh
 
 installing(){
-	# CHECK FOR OS X 10.7+
+
+ln -sfv /usr/local/opt/mysql/*plist ~/Library/LaunchAgents
+launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+
+#TODO mysql.server start
+
+# CHECK FOR OS X 10.7+
 if [[  $(sw_vers -productVersion | grep -E '10.[7-9]|1[0-0]')  ]]
 then
 # CHECK FOR EXISTING MySQL
