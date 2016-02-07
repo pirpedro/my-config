@@ -15,8 +15,9 @@ install)
 		brew update
 		brew upgrade
 		# install cask
-                brew cask
-                brew tap caskroom/versions
+        brew cask
+        brew tap caskroom/versions
+        brew tap homebrew/science
 	else
 		echo "Ruby not installed";
 	fi
