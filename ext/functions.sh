@@ -2,7 +2,7 @@
 
 BASH_PROFILE=$HOME/.profile
 
-#format the script name for a user firendly package name
+#format the script name for a user friendly package name
 __format_script_name(){
         echo ${1%.*} | sed 's/^.*-//'
 }
@@ -27,7 +27,7 @@ __log(){
 
     # check if the file contais something we don't want
     if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
-      echo "Config file is unclean, cleaning it..." >&2
+      __log "Config file is unclean, cleaning it..." >&2
       egrep '^#|^[^ ]*=[^;&]*'  "configfile" > "configfile_secured"
       configfile="$configfile_secured"
     fi
