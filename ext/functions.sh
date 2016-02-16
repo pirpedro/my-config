@@ -47,6 +47,11 @@ __current_location(){
     echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 }
 
+__symlink(){
+
+
+}
+
 #generate a random value
 __random(){
 	echo $(cat /dev/urandom | base64 | tr -dc A-Za-z0-9_ | head -c8)
