@@ -21,6 +21,7 @@ __log(){
   fi
 }
 
+#load and export any variable in a configuration file
  __load_config_file(){
     local configfile=$1
     local configfile_secured='/tmp/$(__random).cfg'
@@ -32,7 +33,20 @@ __log(){
       configfile="$configfile_secured"
     fi
 
-    source "$configfile"
+ #   typeset -a config #init array
+ #   config=( #set default values
+ #         [host]="teste"
+ #         [host2]="teste2" 
+ #     )
+
+    while read line || [ -n "$line" ]
+    do
+      if echo $line | grep -F = &>/dev/null
+      then
+        varname=$(echo "$line" | cut -d '=' -f 1)
+        export $varname=$(echo "$line" | cut -d '=' -f 2-)
+      fi
+    done < "$configfile"
 }
 
 #useful which will give you the full directory name of the script no matter where it is being called
@@ -45,11 +59,6 @@ __current_location(){
         [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
     done
     echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-}
-
-__symlink(){
-
-
 }
 
 #generate a random value
