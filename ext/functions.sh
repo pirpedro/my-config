@@ -36,7 +36,7 @@ __log(){
  #   typeset -a config #init array
  #   config=( #set default values
  #         [host]="teste"
- #         [host2]="teste2" 
+ #         [host2]="teste2"
  #     )
 
     while read line || [ -n "$line" ]
