@@ -1,0 +1,16 @@
+#!/bin/bash
+source $3/functions.sh
+
+case "$1" in
+install)
+    sudo a2enmod ssl
+    sudo service apache2 restart
+    sudo mkdir /etc/apache2/ssl
+    sudo openssl req -x509 -nodes -days 365 -newkey rsa:2040 -keyout
+    /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
+
+    #TODO https://www.digitalocean.com/community/tutorials/how-to-create-a-ssl-certificate-on-apache-for-ubuntu-12-04
+;;
+remove)
+;;
+esac
