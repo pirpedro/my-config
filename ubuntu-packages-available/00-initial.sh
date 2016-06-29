@@ -16,8 +16,8 @@ install)
     echo "###############   my-config configuration script   ###############
 if [ -d ~/.bash ]; then
    for i in ~/.bash/*.sh; do
-      if [ -r $i ]; then
-         . $i
+      if [ -r \$i ]; then
+         . \$i
       fi
    done
    unset i
@@ -27,8 +27,8 @@ fi
     echo "###############   my-config configuration script   ###############
 if [ -d ~/.bash ]; then
    for i in ~/.bash/*.sh; do
-      if [ -r $i ]; then
-         . $i
+      if [ -r \$i ]; then
+         . \$i
       fi
    done
    unset i

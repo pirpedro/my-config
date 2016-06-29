@@ -4,7 +4,8 @@ source $3/functions.sh
 case "$1" in
 install)
 	brew cask install iterm2
-	export TERM=xterm-256color
+  __my_env CLICOLOR 1
+	__my_env TERM xterm-256color
 ;;
 remove)
 ;;

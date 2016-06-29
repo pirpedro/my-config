@@ -4,7 +4,7 @@ source $3/functions.sh
 case "$1" in
 install)
 	brew install rbenv ruby-build
-	echo 'if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi' >> ~/.bash_profile
+  __my_env "if which rbenv > /dev/null; then eval \"\$(rbenv init -)\"; fi"
 	source ~/.bash_profile
     brew install openssl
     brew link openssl --force

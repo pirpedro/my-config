@@ -1,6 +1,8 @@
 #!/bin/bash
 
-BASH_PROFILE=$HOME/.profile
+BASH_DIR=$HOME/.bash
+PLIST=$BASH_DIR/my-config-plist
+PROFILE=$BASH_DIR/my-config.sh
 
 #format the script name for a user friendly package name
 __format_script_name(){
@@ -68,12 +70,12 @@ __random(){
 
 #exit script
 __abort(){
-  echo "$1"
+  __log $1
   exit 1
 }
 
 __exit(){
-  echo "$1"
+  __log $1
   exit 0
 }
 
@@ -100,24 +102,22 @@ __exists(){
 
 __my_env(){
 
-	if [ $(__is_mac) == "1" ]; then
-		if [ ! -e /etc/launchd.conf ]; then
-			touch /etc/launchd.conf
-		fi
+	if [ $# -eq 1 ]; then
+    echo $1 >> $PROFILE
+    return
+  fi
 
+  if [ $(__is_mac) == "1" ]; then
+
+    echo setenv $1 $2 >> $PLIST
 		if [ $(__exists launchctl) == "1"  ]; then
-			launchctl setenv $1 $2
+	  	launchctl setenv $1 $2
 		fi
 
-		echo setenv $1 $2 >> /etc/launchd.conf
-	fi
-
-	if [ ! -e $BASH_PROFILE ]; then
-		touch $BASH_PROFILE
 	fi
 
 	export $1=$2
-	echo export $1=$2 >> $BASH_PROFILE
+	echo export $1=$2 >> $PROFILE
 
 }
 
@@ -135,10 +135,10 @@ __my_path_remove(){
 }
 
 __my_path(){
-        myPathRemove $1 $2
+  __my_path_remove $1 $2
 	local PATHVARIABLE=${2:-PATH}
         export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
-	myEnv PATH $PATH
+	__my_env PATH $PATH
 }
 
 brew_install_or_upgrade() {
