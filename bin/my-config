@@ -121,6 +121,9 @@ list)
 		echo $(__format_script_name $file)
 	done
 ;;
+test)
+
+;;
 *)
 	echo "Usage: ${0##*/} {install|remove|position|list} {all | <specific script>}"
         #exit 64
