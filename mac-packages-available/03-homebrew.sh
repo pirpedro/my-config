@@ -18,6 +18,9 @@ install)
         brew cask
         brew tap caskroom/versions
         brew tap homebrew/science
+        brew tap caskroom/fonts
+        brew tap caskroom/eid
+        brew install homebrew/completions/brew-cask-completion
 	else
 		echo "Ruby not installed";
 	fi
