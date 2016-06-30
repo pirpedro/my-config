@@ -119,6 +119,14 @@ __my_env(){
 	echo export $1=$2 >> $PROFILE
 }
 
+__sym_link(){
+
+  if [ $# -eq 1 ]; then
+
+  fi
+
+}
+
 __my_path_remove(){
 	local IFS=':'
         local NEWPATH
