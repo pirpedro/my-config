@@ -115,10 +115,8 @@ __my_env(){
 		fi
 
 	fi
-
 	export $1=$2
 	echo export $1=$2 >> $PROFILE
-
 }
 
 __my_path_remove(){

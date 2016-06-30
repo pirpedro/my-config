@@ -5,7 +5,6 @@ case "$1" in
 install)
 	brew install rbenv ruby-build
   __my_env "if which rbenv > /dev/null; then eval \"\$(rbenv init -)\"; fi"
-	source ~/.bash_profile
     brew install openssl
     brew link openssl --force
 	rbenv install 2.3.0
