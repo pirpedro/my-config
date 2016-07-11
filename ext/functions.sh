@@ -122,7 +122,7 @@ __my_env(){
 __sym_link(){
 
   if [ $# -eq 1 ]; then
-
+    echo "foca"
   fi
 
 }

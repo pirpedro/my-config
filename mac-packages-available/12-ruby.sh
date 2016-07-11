@@ -8,10 +8,12 @@ install)
     brew install openssl
     brew link openssl --force
 	rbenv install 2.3.0
-    rbenv global 2.3.0
-    echo "gem: --no-document" > ~/.gemrc
+  rbenv global 2.3.0
+  echo "gem: --no-document" > ~/.gemrc
+  gem install bundler
 	gem install rails 4.2.5.1
-    rbenv rehash
+  gem install pry
+  rbenv rehash
 ;;
 remove)
 ;;

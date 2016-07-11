@@ -59,7 +59,7 @@ __load(){
 				sudo chmod +x $file
 			fi
                         __log "$ACTION $(__format_script_name $file): Action Started..."
-			source $BASH_PROFILE
+			source $PROFILE
 			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
 			__log "$ACTION $(__format_script_name $file): Action Finished."
 		fi
@@ -72,8 +72,8 @@ __load(){
 #	exit 1
 #fi
 
-if [ ! -e $BASH_PROFILE ]; then
-	touch $BASH_PROFILE
+if [ ! -e $PROFILE ]; then
+	touch $PROFILE
 fi
 
 _format_number(){
