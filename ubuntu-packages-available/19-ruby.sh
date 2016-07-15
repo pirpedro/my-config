@@ -9,6 +9,7 @@ install)
   __my_env "if which rbenv > /dev/null; then eval \"\$(rbenv init -)\"; fi"
 
   git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+  git clone -- https://github.com/carsomyr/rbenv-bundler.git ~/.rbenv/plugins/bundler
   __my_env "PATH" "\$HOME/.rbenv/plugins/ruby-build/bin:\$PATH"
 
   rbenv install 2.3.0
