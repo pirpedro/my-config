@@ -14,6 +14,10 @@ install)
 		brew doctor
 		brew update
 		brew upgrade
+
+    brew install bash-completion
+    __my_env 'if [ -f $(brew --prefix)/etc/bash_completion ]; then . $(brew --prefix)/etc/bash_completion; fi'
+
 		# install cask
         brew cask
         brew tap caskroom/versions
