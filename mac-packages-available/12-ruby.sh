@@ -3,10 +3,10 @@ source $3/functions.sh
 
 case "$1" in
 install)
-	brew install rbenv ruby-build ruby-bundler
+	__brew_install rbenv ruby-build ruby-bundler
   __my_env "if which rbenv > /dev/null; then eval \"\$(rbenv init -)\"; fi"
-    brew install openssl
-    brew link openssl --force
+  __brew_install openssl
+  brew link openssl --force
 	rbenv install 2.3.0
   rbenv global 2.3.0
   echo "gem: --no-document" > ~/.gemrc
@@ -15,10 +15,9 @@ install)
   gem install pry
   rbenv rehash
 
-  # A few Rails features, such as the Asset Pipeline, depend on a Javascript runtime. We will install Node.js to provide this functionality.
-  sudo add-apt-repository ppa:chris-lea/node.js
-  sudo apt-get update
-  sudo apt-get install nodejs
+   # A few Rails features, such as the Asset Pipeline, depend on a Javascript runtime. We will install Node.js to provide this functionality.
+  __brew_install nodejs
+
 ;;
 remove)
 ;;

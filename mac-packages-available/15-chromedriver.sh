@@ -5,7 +5,7 @@ source $3/functions.sh
 
 case "$1" in
 install)
-    brew install chromedriver
+    __brew_install chromedriver
     #launching at startup
     ln -sfv /usr/local/opt/chromedriver/*.plist ~/Library/LaunchAgents
 

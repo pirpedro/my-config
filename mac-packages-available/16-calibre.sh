@@ -5,8 +5,8 @@ source $3/functions.sh
 case "$1" in
 install)
 
-    brew cask install calibre
-  
+    __brew_cask_install calibre
+
 ;;
 remove)
 ;;

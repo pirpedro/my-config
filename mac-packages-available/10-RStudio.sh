@@ -3,7 +3,7 @@ source $3/functions.sh
 
 case "$1" in
 install)
-	brew cask install rstudio
+	__brew_cask_install rstudio
 
 ;;
 remove)

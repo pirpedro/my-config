@@ -20,6 +20,11 @@ install)
   gem install pry
   rbenv rehash
 
+   # A few Rails features, such as the Asset Pipeline, depend on a Javascript runtime. We will install Node.js to provide this functionality.
+  sudo add-apt-repository ppa:chris-lea/node.js
+  sudo apt-get update
+  sudo apt-get install nodejs
+
 ;;
 remove)
 ;;

@@ -108,7 +108,7 @@ __my_env(){
   fi
 
   if [ $(__is_mac) == "1" ]; then
-
+    #defaults write /Users/Pedro/.MacOSX/environment.plist PYTHONPATH -string "/usr/local/lib/python2.7/site-packages"
     echo setenv $1 $2 >> $PLIST
 		if [ $(__exists launchctl) == "1"  ]; then
 	  	launchctl setenv $1 $2
@@ -147,57 +147,74 @@ __my_path(){
 	__my_env PATH $PATH
 }
 
-brew_install_or_upgrade() {
-  if brew_is_installed "$1"; then
-    if brew_is_upgradable "$1"; then
-      echo "Upgrading Homebrew ..."
+__brew_install() {
+  if _brew_is_installed "$1"; then
+    if _brew_is_upgradable "$1"; then
+      __log "Upgrading $1 ..."
       brew upgrade "$@"
     else
-      echo "Already using the latest version of Homebrew. Skipping ..."
+      __log "Already using the latest version of $1. Skipping ..."
     fi
+    exit
   else
-    echo "You need to install homebrew first"
+    __log  "Installing $1"
     brew install "$@"
   fi
 }
 
-brew_is_installed() {
+__brew_upgrade() {
+  if _brew_is_upgradable "$1"; then
+    __log "Upgrading $1..."
+    brew upgrade "$@"
+  else
+    __log "Upgrade failed!"
+  fi
+}
+
+__brew_uninstall() {
+  if _brew_is_installed "$1"; then
+    __log "Removing $1..."
+    brew unistall "$1"
+  fi
+}
+
+_brew_is_installed() {
   brew list -1 | grep -Fqx "$1"
 }
 
-brew_is_upgradable() {
+_brew_is_upgradable() {
   ! brew outdated --quiet "$1" >/dev/null
 }
 
-brew_tap_is_installed() {
+_brew_tap_is_installed() {
   brew tap | grep -Fqx "$1"
 }
 
-brew_tap() {
-  if ! brew_tap_is_installed "$1"; then
+__brew_tap() {
+  if ! _brew_tap_is_installed "$1"; then
     echo "Tapping $1..."
     brew tap "$1" 2> /dev/null
   fi
 }
 
-brew_cask_expand_alias() {
+_brew_cask_expand_alias() {
   brew cask info "$1" 2>/dev/null | head -1 | awk '{gsub(/:/, ""); print $1}'
 }
 
-brew_cask_is_installed() {
+_brew_cask_is_installed() {
   local NAME
-  NAME=$(brew_cask_expand_alias "$1")
+  NAME=$(_brew_cask_expand_alias "$1")
   brew cask list -1 | grep -Fqx "$NAME"
 }
 
-app_is_installed() {
+_app_is_installed() {
   local app_name
   app_name=$(echo "$1" | cut -d'-' -f1)
   find /Applications -iname "$app_name*" -maxdepth 1 | egrep '.*' > /dev/null
 }
 
-brew_cask_install() {
-  if app_is_installed "$1" || brew_cask_is_installed "$1"; then
+__brew_cask_install() {
+  if _app_is_installed "$1" || _brew_cask_is_installed "$1"; then
     echo "$1 is already installed. Skipping..."
   else
     echo "Installing $1..."
