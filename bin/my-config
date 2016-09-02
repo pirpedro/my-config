@@ -6,6 +6,8 @@ MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
+PACKAGES_AVAILABLE="$MY_CONFIG_DIR/packages-available"
+CUSTOM_PACKAGES="$MY_CONFIG_DIR/custom-packages"
 #extension of the config files
 EXT=".sh"
 CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
@@ -92,21 +94,21 @@ remove)
         __load;
 ;;
 position)
-            if [ -z $2 ] && [ -z $3 ]; then
-                __log "You need to pass the script and the position to realocate"
-	   exit 0
-            fi
-            cd $PACKAGE_LOCATION
-            GLOBIGNORE="*-$2$EXT"
-            FILES=($( ls *$EXT));
-            GLOBIGNORE=""
-            FILE=""
-            i=0
-            for FILE in "${FILES[@]}"
-            do
-		if [ $i = $3  ]; then
+        if [ -z $2 ] && [ -z $3 ]; then
+           __log "You need to pass the script and the position to realocate"
+	       exit 0
+        fi
+        cd $PACKAGE_LOCATION
+        GLOBIGNORE="*-$2$EXT"
+        FILES=($( ls *$EXT));
+        GLOBIGNORE=""
+        FILE=""
+        i=0
+        for FILE in "${FILES[@]}"
+        do
+		  if [ $i = $3  ]; then
 			((i++))
-		fi
+		  fi
 		mv $FILE $(_format_number $i)-$(__format_script_name $FILE)$EXT
 
 		((i++))
@@ -121,11 +123,32 @@ list)
 		echo $(__format_script_name $file)
 	done
 ;;
+enable)
+    if [ -z $TARGET ]; then
+        __log "You need to pass the script target"
+        exit 0
+    fi
+
+    if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
+        __log "Script don exist."
+        exit 0
+    fi
+
+    ln -s $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
+
+;;
+disable)
+     if [ -z $TARGET ]; then
+        __log "You need to pass the script target"
+        exit 0
+    fi
+    rm $( ls $PACKAGE_LOCATION/*$TARGET$EXT )
+;;
 test)
 
 ;;
 *)
-	echo "Usage: ${0##*/} {install|remove|position|list} {all | <specific script>}"
+	echo "Usage: ${0##*/} {install|remove|position|enable|disable|list} {all | <specific script>}"
         #exit 64
 ;;
 esac
