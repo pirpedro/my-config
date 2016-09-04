@@ -10,7 +10,6 @@ CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
 
 __load_config_file $CONFIGURATION_FILE
 
-
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
 PACKAGES_AVAILABLE="$MY_CONFIG_DIR/packages-available"
