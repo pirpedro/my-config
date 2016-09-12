@@ -1,0 +1,28 @@
+#!/bin/bash
+
+__is_mac(){
+   if [[ "$OSTYPE" == "darwin"* ]]; then
+     echo 1;
+   else
+     echo 0;
+   fi
+}
+
+__is_linux(){
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        echo 1;
+  else
+    echo 0;
+  fi
+}
+
+echo "This script will install git..."
+
+if [ $(__is_linux)=="1" ]; then
+  sudo apt-get install git git-core
+fi
+
+sudo mkdir -p /usr/local/bin
+cd /usr/local
+sudo git clone git://github.com/pirpedro/my-config.git
+sudo ln -s my-config/bin/my-config ../bin/myconf

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#check if exists environment variable to manally change resources location
+#check if exists environment variable to manually change resources location
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
-#path to subfolder with extra functions
+#path to subfolder with extra functions and files
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 
 source $MY_CONFIG_EXT/functions.sh
