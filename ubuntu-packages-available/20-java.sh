@@ -11,7 +11,7 @@ install)
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
     #installing jre 1.8
-    sudo apt-get install oracle-java8-installer
+    sudo apt-get install -y oracle-java8-installer
 
 ;;
 remove)
