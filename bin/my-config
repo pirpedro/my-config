@@ -4,6 +4,8 @@
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
 #path to subfolder with extra functions and files
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
+#path to plugins folder
+MY_CONFIG_PLUGIN="$MY_CONFIG_EXT/plugins"
 
 source $MY_CONFIG_EXT/functions.sh
 CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
@@ -134,7 +136,7 @@ enable)
         __log "You need to pass the script target"
         exit 0
     fi
-
+PROFILE
     if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
         __log "Script don exist."
         exit 0
@@ -165,7 +167,15 @@ test)
 
 ;;
 *)
-	echo "Usage: ${0##*/} {install|remove|position|enable|disable|new|list} {all | <specific script>}"
-        #exit 64
+  PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
+  if [[ -e $PLUGIN ]]; then
+    if [[ ! -x $PLUGIN ]]; then
+      sudo chmod +x $PLUGIN
+    fi
+    $PLUGIN $TARGET "$@"
+  else
+    echo "Usage: ${0##*/} {install|remove|position|enable|disable|new|list} {all | <specific script>}"
+    #exit 64
+  fi
 ;;
 esac

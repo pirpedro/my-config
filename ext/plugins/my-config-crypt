@@ -1,0 +1,71 @@
+#!/bin/bash
+
+source $(dirname $0)/../functions.sh
+
+#sudo add-apt-repository ppa:unit193/encryption
+#sudo apt-get update
+#sudo apt-get install veracrypt
+
+ACTION="$1"; shift;
+
+case "$ACTION" in
+install )
+  if [[ $(__exists veracrypt)=="1" ]]; then
+    __log "You already installed all packages for this plugin"
+      exit
+  fi
+
+  if [[ $(__is_mac)=="1" ]]; then
+    brew cask install veracrypt
+  else
+    sudo add-apt-repository ppa:unit193/encryption
+    sudo apt-get update
+    sudo apt-get install veracrypt
+  fi
+
+;;
+remove )
+  if [[ $(__is_mac)=="1" ]]; then
+    brew cask uninstall veracrypt
+  else
+    sudo apt-get remove veracrypt
+  fi
+;;
+createVault )
+  DEVICE="$1"
+  DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
+  sudo mkdir -p $(dirname $DEVICE)
+
+  if [[ -e $DEVICE ]]; then
+    __log "Block device $DEVICE already exist. Choose another volume name."
+    exit 2
+  fi
+
+  veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=ext4 --hash=SHA512 --volume-type=normal --size=50M $DEVICE
+;;
+openVault )
+  DEVICE="$1"
+  MOUNTPOUNT="$2"
+  DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
+  MOUNTPOINT=${MOUNTPOINT:=$crypt_mount_folder/$crypt_volume_name}
+
+  sudo mkdir -p $MOUNTPOINT
+
+  if [ ! -e "$DEVICE" -o ! -d "$MOUNTPOINT" ]; then
+    echo "Error: $DEVICE must be a block device and $MOUNTPOINT a directory."
+    __log "Please, pass them as arguments or put in the configuration file."
+    exit 2
+  fi
+  shift 2
+
+  veracrypt -t -k "" --protect-hidden=no $DEVICE $MOUNTPOINT
+;;
+closeVault )
+  DEVICE="$1"
+  DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
+  veracrypt -d $DEVICE
+;;
+*)
+
+;;
+esac
