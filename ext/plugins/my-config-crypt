@@ -2,21 +2,19 @@
 
 source $(dirname $0)/../functions.sh
 
-#sudo add-apt-repository ppa:unit193/encryption
-#sudo apt-get update
-#sudo apt-get install veracrypt
-
 ACTION="$1"; shift;
 
 case "$ACTION" in
 install )
-  if [[ $(__exists veracrypt)=="1" ]]; then
+  if [[ $(__exists veracrypt) == "1" ]]; then
     __log "You already installed all packages for this plugin"
       exit
   fi
 
   if [[ $(__is_mac)=="1" ]]; then
+    #it´s necessary to manually install OSXFuse with MacFuse support
     brew cask install veracrypt
+    ln -s /Applications/VeraCrypt.app/Contents/MacOS/VeraCrypt /usr/local/bin/veracrypt
   else
     sudo add-apt-repository ppa:unit193/encryption
     sudo apt-get update
@@ -34,14 +32,17 @@ remove )
 createVault )
   DEVICE="$1"
   DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
-  sudo mkdir -p $(dirname $DEVICE)
+
+  if [[ ! -d $(dirname $DEVICE) ]]; then
+    sudo mkdir -p $(dirname $DEVICE)
+  fi
 
   if [[ -e $DEVICE ]]; then
     __log "Block device $DEVICE already exist. Choose another volume name."
     exit 2
   fi
 
-  veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=ext4 --hash=SHA512 --volume-type=normal --size=50M $DEVICE
+  veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=exFAT --hash=SHA512 --volume-type=normal --size=50M $DEVICE
 ;;
 openVault )
   DEVICE="$1"
@@ -49,16 +50,18 @@ openVault )
   DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
   MOUNTPOINT=${MOUNTPOINT:=$crypt_mount_folder/$crypt_volume_name}
 
-  sudo mkdir -p $MOUNTPOINT
+  if [[ ! $(__is_mac == "1") && ! -d $MOUNTPOINT ]]; then
+    sudo mkdir -p $MOUNTPOINT
+  fi
 
-  if [ ! -e "$DEVICE" -o ! -d "$MOUNTPOINT" ]; then
-    echo "Error: $DEVICE must be a block device and $MOUNTPOINT a directory."
-    __log "Please, pass them as arguments or put in the configuration file."
+  if [ ! -e "$DEVICE" ]; then
+    echo "Error: $DEVICE must be a block device."
+    __log "Please, pass as argument or put in the configuration file."
     exit 2
   fi
   shift 2
-
-  veracrypt -t -k "" --protect-hidden=no $DEVICE $MOUNTPOINT
+  #veracrypt -t --mount /Users/Pedro/Dropbox/Env/vault /Volumes/vault
+  veracrypt -t --mount --protect-hidden=no -k "" $DEVICE $MOUNTPOINT
 ;;
 closeVault )
   DEVICE="$1"

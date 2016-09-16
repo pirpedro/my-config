@@ -10,7 +10,6 @@ install)
 
     #TODO link dropbox installed packages
     #ln -s ~/Dropbox/Env/default/applications/sublime/config/Packages/User ~/.config/sublime-text-3/Packages/
-
 ;;
 remove)
 ;;
