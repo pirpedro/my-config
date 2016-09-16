@@ -66,7 +66,7 @@ openVault )
 closeVault )
   DEVICE="$1"
   DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
-  veracrypt -d $DEVICE
+  veracrypt -t -d $DEVICE
 ;;
 *)
 
