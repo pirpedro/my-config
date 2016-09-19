@@ -130,11 +130,11 @@ __my_alias(){
 }
 
 __my_link(){
-  echo ln -s $1 $2
+  ln -s $1 $2
 }
 
 __my_sync(){
-  SOURCE=$(echo "'$1'" | sed 's/~\//\/home\//g')
+  SOURCE=${1//$HOME/"/home"}
   SOURCE=$sync_folder$SOURCE
   local TARGET
   if [[ $# -eq 1 ]]; then
@@ -142,7 +142,6 @@ __my_sync(){
   else
     TARGET="$2"
   fi
-  echo $SOURCE
   __my_link $SOURCE $TARGET
 }
 
