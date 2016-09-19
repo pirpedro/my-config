@@ -130,11 +130,20 @@ __my_alias(){
 }
 
 __my_link(){
+  echo ln -s $1 $2
+}
 
-  if [ $# -eq 1 ]; then
-    echo "foca"
+__my_sync(){
+  SOURCE=$(echo "'$1'" | sed 's/~\//\/home\//g')
+  SOURCE=$sync_folder$SOURCE
+  local TARGET
+  if [[ $# -eq 1 ]]; then
+    TARGET="$1"
+  else
+    TARGET="$2"
   fi
-
+  echo $SOURCE
+  __my_link $SOURCE $TARGET
 }
 
 __my_path_remove(){
