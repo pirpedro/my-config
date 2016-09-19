@@ -12,6 +12,10 @@ install)
     fi
 
     [ -d ~/.bash] || mkdir ~/.bash
+    touch ~/.bash/my-config.sh
+    chmod +x ~/.bash/my-config.sh
+    touch ~/.bash/.bash_aliases
+  	chmod +x ~/.bash/.bash_aliases
 
     echo "###############   my-config configuration script   ###############
 if [ -d ~/.bash ]; then

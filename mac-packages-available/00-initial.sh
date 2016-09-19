@@ -14,6 +14,8 @@ _set_env(){
   [ -d ~/.bash] || mkdir ~/.bash
   touch ~/.bash/my-config.sh
   chmod +x ~/.bash/my-config.sh
+	touch ~/.bash/.bash_aliases
+	chmod +x ~/.bash/.bash_aliases
 
   echo "###############   my-config configuration script   ###############
 if [ -d ~/.bash ]; then
@@ -26,9 +28,8 @@ if [ -d ~/.bash ]; then
 fi
 ##################################################################" >> ~/.profile
 
-  __my_env "alias showFiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'"
-	__my_env "alias hideFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'"
-
+__my_alias showFiles 'defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
+__my_alias hideFiles 'defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
 
   #TODO copy ENV/Fonts ~/Library/Fonts
 
@@ -101,4 +102,3 @@ install)
 remove)
 ;;
 esac
-

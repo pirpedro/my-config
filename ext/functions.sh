@@ -119,7 +119,17 @@ __my_env(){
 	echo export $1=$2 >> $PROFILE
 }
 
-__sym_link(){
+__my_alias(){
+  if [[ ! $# -eq 2  ]]; then
+    __log "You need to pass two parameters."
+    exit
+  fi
+
+  echo alias $1=\'$2\' >> ~/.bash/.bash_aliases
+
+}
+
+__my_link(){
 
   if [ $# -eq 1 ]; then
     echo "foca"
@@ -221,6 +231,3 @@ __brew_cask_install() {
     brew cask install "$@"
   fi
 }
-
-
-
