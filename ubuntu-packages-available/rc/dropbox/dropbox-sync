@@ -1,0 +1,24 @@
+#!/bin/bash
+DBUSER=pedro
+
+
+STATUS=$(sudo -u $DBUSER dropbox status)
+
+if [ "$STATUS" == "Dropbox isn't running!" ]; then
+    START=$(sudo -u $DBUSER dropbox start)
+fi
+
+COUNT_DONE=1
+while true
+do
+    STATUS=$(sudo -u $DBUSER dropbox status)
+    if [ "$STATUS" == "Up to date" ]; then
+            COUNT_DONE=`expr $COUNT_DONE + 1`
+            if [ $COUNT_DONE -gt 10 ]
+            then
+                    STOP=$(sudo -u $DBUSER dropbox stop)
+                    break;
+            fi
+    fi
+done
+exit 0

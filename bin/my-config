@@ -101,6 +101,9 @@ install)
 remove)
         __load;
 ;;
+rc)
+        __load;
+;;
 position)
         if [ -z $2 ] && [ -z $3 ]; then
            __log "You need to pass the script and the position to realocate"
@@ -136,7 +139,6 @@ enable)
         __log "You need to pass the script target"
         exit 0
     fi
-PROFILE
     if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
         __log "Script don exist."
         exit 0

@@ -106,7 +106,12 @@ openVault )
         veracrypt -t --mount --protect-hidden=no -k "" $DEVICE $MOUNTPOINT
       ;;
     encfs )
-        encfs $DEVICE $MOUNTPOINT -- -o volname="My Vault"
+        if [[ $(__is_mac) == "1" ]]; then
+          encfs $DEVICE $MOUNTPOINT -- -o volname="My Vault"
+        else
+          encfs $DEVICE $MOUNTPOINT
+        fi
+
       ;;
     * )
       __log "Mode $MODE not supported."
@@ -123,7 +128,7 @@ closeVault )
       ;;
     encfs )
         DEVICE=${DEVICE:=$crypt_mount_folder/$crypt_volume_name}
-        umount $DEVICE
+        sudo umount $DEVICE
       ;;
     * )
       __log "Mode $MODE not supported."

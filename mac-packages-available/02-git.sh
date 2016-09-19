@@ -8,6 +8,8 @@ install)
   __brew_install gnupg
   __brew_install gnupg2
   __my_env GPG_TTY "\$(tty)"
+  __my_sync ~/.gitconfig
+  __my_sync ~/.git
 ;;
 remove)
 ;;
