@@ -11,10 +11,8 @@ remove)
 sudo apt-get remove nautilus-dropbox
 ;;
 rc)
-  echo $(dirname $0)/rc/dropbox-sync
-  sudo ln -s $(dirname $0)/../rc/dropbox-sync /etc/init.d/dropbox-sync
-  sudo chmod +x /etc/init.d/drobox-sync
-  sudo ln -s /etc//init.d/dropbox-sync K03DropboxSync
-
+  sudo ln -sf $PACKAGE_RC/dropbox/dropbox-sync /etc/init.d/dropbox-sync
+  sudo chmod +x /etc/init.d/dropbox-sync
+  sudo ln -sf /etc//init.d/dropbox-sync K03DropboxSync
 ;;
 esac

@@ -19,6 +19,14 @@ __load_config_file $CONFIGURATION_FILE
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
 PACKAGES_AVAILABLE="$MY_CONFIG_DIR/packages-available"
+PACKAGE_RC="$PACKAGE_LOCATION/rc"
+
+#export useful variables
+export MY_CONFIG_DIR
+export MY_CONFIG_EXT
+export MY_CONFIG_PLUGIN
+export PACKAGE_LOCATION
+export PACKAGE_RC
 
 #extension of the config files
 EXT=".sh"
@@ -140,11 +148,16 @@ enable)
         exit 0
     fi
     if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
-        __log "Script don exist."
+        __log "Script doesn't exist."
         exit 0
     fi
-
-    ln -s $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
+    echo foca
+    ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
+    echo foquinha
+    if [[ -d $PACKAGES_AVAILABLE/rc/$TARGET ]]; then
+      mkdir -p $PACKAGE_LOCATION/rc/$TARGET
+      ln -sf $PACKAGES_AVAILABLE/rc/$TARGET/* $PACKAGE_LOCATION/rc/$TARGET
+    fi
 
 ;;
 disable)
@@ -153,6 +166,7 @@ disable)
         exit 0
     fi
     rm $( ls $PACKAGE_LOCATION/*$TARGET$EXT )
+    rm -rf $PACKAGE_LOCATION/rc/$TARGET
 ;;
 new)
       if [ -z $TARGET ]; then
