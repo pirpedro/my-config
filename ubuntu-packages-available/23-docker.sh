@@ -9,9 +9,26 @@ install)
     > /etc/apt/sources.list.d/docker.list
   fi
 
-  echo "deb https://apt.dockerproject.org/repo ubuntu-$(lsb_release -sc) main" >> /etc/apt/sources.list.d/docker.list
+  echo "deb https://apt.dockerproject.org/repo ubuntu-$(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/docker.list
+  sudo apt-get update
+  sudo apt-get purge lxc-docker
+  apt-cache policy docker-engine
+  #it’s recommended to install the linux-image-extra-* kernel packages. The linux-image-extra-* packages allows you use the aufs storage driver.
+  sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual
+  sudo apt-get install docker-engine
+
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
 
 ;;
 remove)
+  sudo apt-get purge docker-engine
+  sudo apt-get autoremove --purge docker-engine
+  rm -rf /var/lib/docker
+;;
+start)
+  sudo systemctl start docker
+;;
+stop)
 ;;
 esac

@@ -1,6 +1,16 @@
 #!/bin/bash
-DBUSER=pedro
 
+### BEGIN INIT INFO
+# Provides: dropboxsync
+# Required-Start: $local_fs $remote_fs $network $syslog
+# Required-Stop: $local_fs $remote_fs $network $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Delay system logout while dropbox is running.
+# Description: Enable service provided by firewall.sh.
+### END INIT INFO
+
+DBUSER=pedro
 
 STATUS=$(sudo -u $DBUSER dropbox status)
 
