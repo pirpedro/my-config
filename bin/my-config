@@ -151,9 +151,7 @@ enable)
         __log "Script doesn't exist."
         exit 0
     fi
-    echo foca
     ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
-    echo foquinha
     if [[ -d $PACKAGES_AVAILABLE/rc/$TARGET ]]; then
       mkdir -p $PACKAGE_LOCATION/rc/$TARGET
       ln -sf $PACKAGES_AVAILABLE/rc/$TARGET/* $PACKAGE_LOCATION/rc/$TARGET
