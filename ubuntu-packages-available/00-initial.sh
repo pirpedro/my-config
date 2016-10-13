@@ -39,6 +39,15 @@ if [ -d ~/.bash ]; then
 fi
 ##################################################################" >> ~/.bashrc
 
+#Ubuntu themes
+sudo apt-get install -y unity-tweak-tool
+sudo apt-add-repository ppa:tista/adapta -y
+sudo apt-get install adapta-gtk-theme
+
+sudo apt-add-repository ppa:numix/ppa -y
+sudo apt-get update
+sudo apt-get install numix-icon-theme-circle
+
 ;;
 remove)
 ;;

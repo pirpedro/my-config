@@ -130,7 +130,7 @@ __my_alias(){
 }
 
 __my_link(){
-  ln -s $1 $2
+  ln -sfn $1 $2
 }
 
 __my_sync(){
@@ -141,6 +141,9 @@ __my_sync(){
     TARGET="$1"
   else
     TARGET="$2"
+  fi
+  if [[ -d $TARGET ]]; then
+    sudo rm -rf $TARGET
   fi
   __my_link $SOURCE $TARGET
 }
