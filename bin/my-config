@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #check if exists environment variable to manually change resources location
-MY_CONFIG_DIR=${MY_CONFIG_PATH:=/etc/my-config}
+MY_CONFIG_DIR=${MY_CONFIG_PATH:=/usr/local/my-config}
 #path to subfolder with extra functions and files
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 #path to plugins folder
@@ -36,7 +36,7 @@ FILES=;
 ACTION="$1"; shift; #shift to make getopts works
 TARGET=$1; shift; #shift to make getopts works
 
-while getopts "dv" OPTION; do
+while getopts "p:dv" OPTION; do
     case "$OPTION" in
         d) DEBUG_MODE=1
             set -x
