@@ -8,7 +8,7 @@ install)
   __my_sync ~/.vimrc
 
   #install exuberant-ctags
-  sudo apt-get install -y exuberant-ctags 
+  sudo apt-get install -y exuberant-ctags
 
 
   vim +PluginInstall +qall
@@ -17,3 +17,4 @@ install)
 remove)
 ;;
 esac
+q
