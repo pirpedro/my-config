@@ -6,7 +6,7 @@ PROFILE=$BASH_DIR/my-config.sh
 
 #format the script name for a user friendly package name
 __format_script_name(){
-        echo ${1%.*} | sed 's/^.*-//'
+        echo ${1%.*} #| sed 's/^.*-//'
 }
 
 __verbosity(){
@@ -166,6 +166,12 @@ __my_path(){
 	local PATHVARIABLE=${2:-PATH}
         export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 	__my_env PATH $PATH
+}
+
+__require() {
+  for package in "$@"; do
+    echo "$package"
+  done
 }
 
 __brew_install() {
