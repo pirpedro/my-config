@@ -170,7 +170,7 @@ __my_path(){
 
 __require() {
   for package in "$@"; do
-    echo "$package"
+    $MY_CONFIG_DIR/bin/my-config install $package -v
   done
 }
 

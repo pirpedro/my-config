@@ -73,8 +73,7 @@ __load(){
 	do
 		if [ -e $file ]; then
       if [ `__required check $(__format_script_name $file)` ]; then
-        __log "The script is already installed"
-        echo "foca"
+        __log "The script $(__format_script_name $file) is already installed"
         continue
       fi
 
