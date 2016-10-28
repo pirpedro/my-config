@@ -174,6 +174,25 @@ __require() {
   done
 }
 
+INSTALLED_FILE=$MY_CONFIG_DIR/installed
+__required(){
+  local ACTION=$1
+  touch $INSTALLED_FILE
+  case "$ACTION" in
+    check )
+      grep "^$2\$" $INSTALLED_FILE
+      ;;
+    install )
+      grep "^$2\$" $INSTALLED_FILE || echo "$2" >> $INSTALLED_FILE
+      ;;
+    remove )
+      grep -v "^$1\$" $INSTALLED_FILE > $INSTALLED_FILE.tmp
+      mv -f $INSTALLED_FILE.tmp $INSTALLED_FILE
+      ;;
+  esac
+
+}
+
 __brew_install() {
   if _brew_is_installed "$1"; then
     if _brew_is_upgradable "$1"; then
