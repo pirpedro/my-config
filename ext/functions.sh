@@ -6,7 +6,7 @@ PROFILE=$BASH_DIR/my-config.sh
 
 #format the script name for a user friendly package name
 __format_script_name(){
-        echo ${1%.*} #| sed 's/^.*-//'
+        echo `basename ${1%.*}` #| sed 's/^.*\///'
 }
 
 __verbosity(){
