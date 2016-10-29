@@ -1,5 +1,5 @@
 #!/bin/bash
-source $3/functions.sh
+source $MY_CONFIG_EXT/functions.sh
 
 __require apache
 case "$1" in

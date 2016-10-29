@@ -1,5 +1,5 @@
 #!/bin/bash
-source $3/functions.sh
+source $MY_CONFIG_EXT/functions.sh
 
 #install chromedriver for selenium tests
 __require homebrew

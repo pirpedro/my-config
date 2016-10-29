@@ -1,5 +1,5 @@
 #!/bin/bash
-source $3/functions.sh
+source $MY_CONFIG_EXT/functions.sh
 
 #ImageMagick® is a software suite to create, edit, compose, or convert bitmap images.
 #It can read and write images in a variety of formats (over 200) including PNG, JPEG,
