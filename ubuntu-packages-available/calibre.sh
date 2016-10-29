@@ -1,10 +1,10 @@
 #!/bin/bash
+
 source $3/functions.sh
 
 case "$1" in
 install)
-    sudo apt-get install -y php libapache2-mod-php php-mcrypt php-mysql
-
+    sudo apt-get install -y calibre
 ;;
 remove)
 ;;

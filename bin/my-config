@@ -72,14 +72,19 @@ __load(){
 	for file in "${FILES[@]}"
 	do
 		if [ -e $file ]; then
+      if [ `__required check $(__format_script_name $file)` ]; then
+        __log "The script $(__format_script_name $file) is already installed"
+        continue
+      fi
 
 			if [ ! -x $file ]; then
 				sudo chmod +x $file
 			fi
-                        __log "$ACTION $(__format_script_name $file): Action Started..."
+      __log "$ACTION $(__format_script_name $file): Action Started..."
 			source $PROFILE
 			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
-			__log "$ACTION $(__format_script_name $file): Action Finished."
+      __required $ACTION $(__format_script_name $file)
+      __log "$ACTION $(__format_script_name $file): Action Finished."
 		fi
 	done
 }
@@ -94,14 +99,6 @@ if [ ! -e $PROFILE ]; then
 	touch $PROFILE
 fi
 
-_format_number(){
-	if [ $1 -lt 10 ]; then
-		echo 0$1
-	else
-		echo $1
-	fi
-}
-
 case "$ACTION" in
 install)
         __load;
@@ -111,29 +108,6 @@ remove)
 ;;
 rc)
         __load;
-;;
-position)
-        if [ -z $2 ] && [ -z $3 ]; then
-           __log "You need to pass the script and the position to realocate"
-	       exit 0
-        fi
-        cd $PACKAGE_LOCATION
-        GLOBIGNORE="*-$2$EXT"
-        FILES=($( ls *$EXT));
-        GLOBIGNORE=""
-        FILE=""
-        i=0
-        for FILE in "${FILES[@]}"
-        do
-		  if [ $i = $3  ]; then
-			((i++))
-		  fi
-		mv $FILE $(_format_number $i)-$(__format_script_name $FILE)$EXT
-
-		((i++))
-	done
-	FILE=$( ls *-$2$EXT)
-	mv $FILE $(_format_number $3)-$(__format_script_name $FILE)$EXT
 ;;
 list)
 	echo "Available configuration files:"
@@ -171,10 +145,11 @@ new)
         __log "You need to pass the script name"
         exit 0
       fi
-
-     LASTFILE=$(ls $PACKAGES_AVAILABLE/*$EXT | tail -n 1)
-     POSITION=$( echo ${LASTFILE##*/} | sed 's/-.*//')
-     cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$((POSITION+1))-$TARGET$EXT
+      if [[ -e $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
+        __log "$TARGET script already exist."
+        exit 0
+      fi
+      cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$TARGET$EXT
 
 ;;
 link)
@@ -194,7 +169,7 @@ test)
     fi
     $PLUGIN $TARGET "$@"
   else
-    echo "Usage: ${0##*/} {install|remove|position|enable|disable|new|list} {all | <specific script>}"
+    echo "Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}"
     #exit 64
   fi
 ;;

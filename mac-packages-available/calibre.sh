@@ -2,11 +2,10 @@
 
 source $3/functions.sh
 
+__require homebrew
 case "$1" in
 install)
-
-    sudo apt-get install -y calibre
-
+    __brew_cask_install calibre
 ;;
 remove)
 ;;

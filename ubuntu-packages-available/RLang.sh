@@ -7,13 +7,12 @@ install)
             gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
             gpg -a --export E084DAB9 | sudo apt-key add -
             sudo apt-get update
-            sudo apt-get install r-base
+            sudo apt-get install r-base -y
 
             #Users who need to compile R packages from source [e.g. package maintainers,
             #or anyone installing packages with install.packages()] should also install the
             #r-base-dev package:
             sudo apt-get install r-base-dev
-
 
             #install R shiny package for all users in the system
             sudo su - -c "R -e \"install.packages('shiny', repos = 'http://cran.rstudio.com/')\""
@@ -28,7 +27,6 @@ install)
 
             #Installing github packages
             sudo su - -c "R -e \"devtools::install_github('daattali/shinyjs')\""
-
 ;;
 remove)
 ;;

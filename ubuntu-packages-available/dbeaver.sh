@@ -1,6 +1,7 @@
 #!/bin/bash
 source $3/functions.sh
 
+__require java
 case "$1" in
 install)
     #install gdebi, a package installer for debian based linux
