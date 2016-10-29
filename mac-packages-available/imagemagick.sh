@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source $3/functions.sh
 
 #ImageMagick® is a software suite to create, edit, compose, or convert bitmap images.
@@ -9,6 +8,7 @@ source $3/functions.sh
 #colors, apply various special effects, or draw text, lines, polygons, ellipses and
 #Bézier curves.
 
+__require homebrew
 case "$1" in
 install)
 	__brew_install imagemagick

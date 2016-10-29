@@ -1,9 +1,10 @@
 #!/bin/bash
 source $3/functions.sh
 
+__require git
 case "$1" in
 install)
-  sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
+  sudo apt-get install curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
   git clone git://github.com/sstephenson/rbenv.git ~/.rbenv
   __my_env "PATH" "\$HOME/.rbenv/bin:\$PATH"
   __my_env "if which rbenv > /dev/null; then eval \"\$(rbenv init -)\"; fi"

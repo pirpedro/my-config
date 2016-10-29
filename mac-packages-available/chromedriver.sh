@@ -2,7 +2,7 @@
 source $3/functions.sh
 
 #install chromedriver for selenium tests
-
+__require homebrew
 case "$1" in
 install)
     __brew_install chromedriver
