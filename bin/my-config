@@ -96,7 +96,8 @@ __load(){
 #fi
 
 if [ ! -e $PROFILE ]; then
-	touch $PROFILE
+  mkdir -p $(dirname $PROFILE)
+  touch $PROFILE
 fi
 
 case "$ACTION" in
