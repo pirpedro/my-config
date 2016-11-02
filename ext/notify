@@ -29,8 +29,8 @@ __verbosity(){
 }
 
 __log(){
-  if [ ! -z "VERBOSE_MODE" ]; then
-      echo -e "$1"
+  if [ ! -z "$VERBOSE_MODE" ]; then
+      echo $2 -e "$1"
   fi
 }
 
@@ -38,8 +38,16 @@ __notification(){
   __log "${NOTICE_FLAG}$1${NC}"
 }
 
+__notification_inline(){
+  __log "${NOTICE_FLAG}$1${NC}" "-n"
+}
+
 __question(){
   __log "${QUESTION_FLAG}$1${NC}"
+}
+
+__question_inline(){
+  __log "${QUESTION_FLAG}$1${NC}" "-n"
 }
 
 __warning(){

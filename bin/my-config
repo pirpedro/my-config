@@ -69,7 +69,7 @@ __load(){
 
 	for file in "${FILES[@]}"
 	do
-		if [ -e $file ]; then
+		if [ -f $file ]; then
       if [ `__required check $(__format_script_name $file)` ]; then
         __notification "The script $(__format_script_name $file) is already installed"
         continue
@@ -87,6 +87,33 @@ __load(){
 	done
 }
 
+__init(){
+  __verbosity on
+  if [ `__required check $(__format_script_name initial)` ]; then
+    __warning "You already initialize my-config in your system."
+    __warning "Execute '${0##*/} -h' to learn about everything you can use."
+    exit 1;
+  else
+    __notification "Hi! Welcome to my-config environment command."
+    __notification "Initializing means the creation of useful files."
+    __question_inline "Can we proceed? [${WHITE}Yy${GREEN}]: "
+    read answer
+    case "$answer" in
+      [Nn]* )
+        __notification "Ok! Maybe next time."
+        __notification "See our manual and comeback as soon as possible."
+        ;;
+      *)
+        __notification "So, let's start!"
+        TARGET="initial"
+        ACTION="install"
+        __load;
+        __notification "Now you can use and extend all the scripts for your own behavior."
+        __notification "Good work!"
+        ;;
+    esac
+  fi
+}
 #check if the script has super user permissions
 #if [ ! "$(id -u)" = "0" ]; then
 #        __warning "You need super user privileges to run some of the scripts."
@@ -98,84 +125,91 @@ if [ ! -e $PROFILE ]; then
   touch $PROFILE
 fi
 
+if [[ ! `__required check $(__format_script_name initial)` && "$ACTION" != "init" ]]; then
+  __verbosity on
+  __warning "You didn't initialize my-config in your machine yet".
+  __notification "Execute '${0##*/} init' or see our manual for other options."
+  exit 1
+fi
+
 case "$ACTION" in
-init)
-        $MY_CONFIG_DIR/bin/my-config install initial
-;;
-install)
-        __load;
-;;
-remove)
-        __load;
-;;
-rc)
-        __load;
-;;
-list)
-	echo "Available configuration files:"
-	for file in $PACKAGE_LOCATION/*$EXT
-	do
-		echo $(__format_script_name $file)
-	done
-;;
-enable)
-    if [ -z $TARGET ]; then
-        __warning "You need to pass the script target"
-        exit 0
-    fi
-    if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
-        __warning "Script doesn't exist."
-        exit 0
-    fi
-    ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
-    if [[ -d $PACKAGES_AVAILABLE/rc/$TARGET ]]; then
-      mkdir -p $PACKAGE_LOCATION/rc/$TARGET
-      ln -sf $PACKAGES_AVAILABLE/rc/$TARGET/* $PACKAGE_LOCATION/rc/$TARGET
-    fi
-
-;;
-disable)
-     if [ -z $TARGET ]; then
-        __warning "You need to pass the script target"
-        exit 0
-    fi
-    rm $( ls $PACKAGE_LOCATION/*$TARGET$EXT )
-    rm -rf $PACKAGE_LOCATION/rc/$TARGET
-;;
-new)
+  init)
+    __init;
+  ;;
+  install)
+    __load;
+  ;;
+  remove)
+    __load;
+  ;;
+  rc)
+    __load;
+  ;;
+  list)
+  	echo "Available configuration files:"
+  	for file in $PACKAGE_LOCATION/*$EXT
+  	do
+  		echo $(__format_script_name $file)
+  	done
+  ;;
+  enable)
       if [ -z $TARGET ]; then
-        __warning "You need to pass the script name"
-        exit 0
+          __warning "You need to pass the script target"
+          exit 0
       fi
-      if [[ -f $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
-        __warning "$TARGET script already exist."
-        exit 0
+      if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
+          __warning "Script doesn't exist."
+          exit 0
       fi
-      cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$TARGET$EXT
+      ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
+      if [[ -d $PACKAGES_AVAILABLE/rc/$TARGET ]]; then
+        mkdir -p $PACKAGE_LOCATION/rc/$TARGET
+        ln -sf $PACKAGES_AVAILABLE/rc/$TARGET/* $PACKAGE_LOCATION/rc/$TARGET
+      fi
 
-;;
-link)
-  __my_link $TARGET $1
-;;
-sync)
-  __my_sync $TARGET $1
-;;
-version)
-  cat $MY_CONFIG_DIR/.version
-;;
-test)
+  ;;
+  disable)
+       if [ -z $TARGET ]; then
+          __warning "You need to pass the script target"
+          exit 0
+      fi
+      rm $( ls $PACKAGE_LOCATION/*$TARGET$EXT )
+      rm -rf $PACKAGE_LOCATION/rc/$TARGET
+  ;;
+  new)
+        if [ -z $TARGET ]; then
+          __warning "You need to pass the script name"
+          exit 0
+        fi
+        if [[ -f $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
+          __warning "$TARGET script already exist."
+          exit 0
+        fi
+        cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$TARGET$EXT
 
-;;
-*)
-  PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
-  if [[ -e $PLUGIN ]]; then
-    if [[ ! -x $PLUGIN ]]; then
-      sudo chmod +x $PLUGIN
+  ;;
+  link)
+    __my_link $TARGET $1
+  ;;
+  sync)
+    __my_sync $TARGET $1
+  ;;
+  version)
+    cat $MY_CONFIG_DIR/.version
+  ;;
+  test)
+
+  ;;
+  *)
+    PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
+    if [[ -e $PLUGIN ]]; then
+      if [[ ! -x $PLUGIN ]]; then
+        sudo chmod +x $PLUGIN
+      fi
+      $PLUGIN $TARGET "$@"
+    else
+      echo "Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}"
+      #exit 64
     fi
-    $PLUGIN $TARGET "$@"
-  else
-    echo "Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}"
-    #exit 64
-  fi
-;;
+  ;;
 esac
