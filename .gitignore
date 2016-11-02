@@ -3,3 +3,4 @@ packages-enabled/
 packages-available
 my-config.conf
 installed
+.vagrant
