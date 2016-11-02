@@ -50,20 +50,18 @@ while getopts "p:dv" OPTION; do
     esac
 done
 
-
-
 #this function load files, give execution
 #permission for each one and execute the right action on it.
 __load(){
 	if [ ! -d $PACKAGE_LOCATION ]; then
-                __log "Packages directory does not exist.";
+                __warning "Packages directory does not exist.";
                 exit 64;
         fi
         if [ -z $TARGET ] || [ "$TARGET" == "all" ]; then
                 FILES=($( ls $PACKAGE_LOCATION/*$EXT));
         else
                 if [ ! -e $PACKAGE_LOCATION/*$TARGET$EXT ]; then
-                        __log "Configuration file for $TARGET not found";
+                        __warning "Configuration file for $TARGET not found";
                         exit 0;
                 fi
                 FILES=($( ls $PACKAGE_LOCATION/*$TARGET$EXT));
@@ -73,25 +71,25 @@ __load(){
 	do
 		if [ -e $file ]; then
       if [ `__required check $(__format_script_name $file)` ]; then
-        __log "The script $(__format_script_name $file) is already installed"
+        __notification "The script $(__format_script_name $file) is already installed"
         continue
       fi
 
 			if [ ! -x $file ]; then
 				sudo chmod +x $file
 			fi
-      __log "$ACTION $(__format_script_name $file): Action Started..."
+      __notification "$ACTION $(__format_script_name $file): Action Started..."
 			source $PROFILE
 			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
       __required $ACTION $(__format_script_name $file)
-      __log "$ACTION $(__format_script_name $file): Action Finished."
+      __notification "$ACTION $(__format_script_name $file): Action Finished."
 		fi
 	done
 }
 
 #check if the script has super user permissions
 #if [ ! "$(id -u)" = "0" ]; then
-#        __log "You need super user privileges to run some of the scripts."
+#        __warning "You need super user privileges to run some of the scripts."
 #	exit 1
 #fi
 
@@ -119,11 +117,11 @@ list)
 ;;
 enable)
     if [ -z $TARGET ]; then
-        __log "You need to pass the script target"
+        __warning "You need to pass the script target"
         exit 0
     fi
     if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
-        __log "Script doesn't exist."
+        __warning "Script doesn't exist."
         exit 0
     fi
     ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
@@ -135,7 +133,7 @@ enable)
 ;;
 disable)
      if [ -z $TARGET ]; then
-        __log "You need to pass the script target"
+        __warning "You need to pass the script target"
         exit 0
     fi
     rm $( ls $PACKAGE_LOCATION/*$TARGET$EXT )
@@ -143,11 +141,11 @@ disable)
 ;;
 new)
       if [ -z $TARGET ]; then
-        __log "You need to pass the script name"
+        __warning "You need to pass the script name"
         exit 0
       fi
-      if [[ -e $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
-        __log "$TARGET script already exist."
+      if [[ -f $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
+        __warning "$TARGET script already exist."
         exit 0
       fi
       cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$TARGET$EXT
