@@ -33,7 +33,7 @@ SCRIPT
 SCRIPT
 
   config.vm.define "ubuntu" do |ubuntu|
-    ubuntu.vm.box = "ubuntu/xenial64"
+    ubuntu.vm.box = "bento/ubuntu-16.04"
     ubuntu.vm.hostname = "peterparker"
     ubuntu.vm.provider :virtualbox do |provider|
       provider.name = "my-config-ubuntu"
