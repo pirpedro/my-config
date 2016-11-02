@@ -99,6 +99,9 @@ if [ ! -e $PROFILE ]; then
 fi
 
 case "$ACTION" in
+init)
+        $MY_CONFIG_DIR/bin/my-config install initial
+;;
 install)
         __load;
 ;;
