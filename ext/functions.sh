@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $MY_CONFIG_EXT/notify
+
 BASH_DIR=$HOME/.bash
 PLIST=$BASH_DIR/my-config-plist
 PROFILE=$BASH_DIR/my-config.sh
@@ -9,20 +11,6 @@ __format_script_name(){
         echo `basename ${1%.*}` #| sed 's/^.*\///'
 }
 
-__verbosity(){
-   if [ "$1" == "on" ]; then
-        export MY_CONFIG_VERBOSE=1;
-    else
-        export MY_CONFIG_VERBOSE=0;
-   fi
-}
-
-__log(){
-  if [ "$MY_CONFIG_VERBOSE" == "1" ]; then
-      echo "$1"
-  fi
-}
-
 #load and export any variable in a configuration file
  __load_config_file(){
     local configfile=$1
@@ -30,7 +18,7 @@ __log(){
 
     # check if the file contais something we don't want
     if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
-      __log "Config file is unclean, cleaning it..." >&2
+      __notification "Config file is unclean, cleaning it..." >&2
       egrep '^#|^[^ ]*=[^;&]*'  "configfile" > "configfile_secured"
       configfile="$configfile_secured"
     fi
@@ -70,12 +58,12 @@ __random(){
 
 #exit script
 __abort(){
-  __log $1
+  __warning $1
   exit 1
 }
 
 __exit(){
-  __log $1
+  __warning $1
   exit 0
 }
 
@@ -121,7 +109,7 @@ __my_env(){
 
 __my_alias(){
   if [[ ! $# -eq 2  ]]; then
-    __log "You need to pass two parameters."
+    __warning "You need to pass two parameters."
     exit
   fi
 
@@ -196,30 +184,30 @@ __required(){
 __brew_install() {
   if _brew_is_installed "$1"; then
     if _brew_is_upgradable "$1"; then
-      __log "Upgrading $1 ..."
+      __notification "Upgrading $1 ..."
       brew upgrade "$@"
     else
-      __log "Already using the latest version of $1. Skipping ..."
+      __notification "Already using the latest version of $1. Skipping ..."
     fi
     exit
   else
-    __log  "Installing $1"
+    __notification  "Installing $1"
     brew install "$@"
   fi
 }
 
 __brew_upgrade() {
   if _brew_is_upgradable "$1"; then
-    __log "Upgrading $1..."
+    __notification "Upgrading $1..."
     brew upgrade "$@"
   else
-    __log "Upgrade failed!"
+    __notification "Upgrade failed!"
   fi
 }
 
 __brew_uninstall() {
   if _brew_is_installed "$1"; then
-    __log "Removing $1..."
+    __notification "Removing $1..."
     brew unistall "$1"
   fi
 }

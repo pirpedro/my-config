@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
       mkdir -p $my_conf_dir/packages-enabled
       ln -sfF $my_conf_dir/bin/my-config /usr/local/bin/myconf
       chmod +x /usr/local/bin/myconf
-      chown -R ubuntu $my_conf_dir
+      chown -R vagrant $my_conf_dir
 SCRIPT
 
   config.vm.provision "available-packages",
@@ -33,7 +33,7 @@ SCRIPT
 SCRIPT
 
   config.vm.define "ubuntu" do |ubuntu|
-    ubuntu.vm.box = "ubuntu/xenial64"
+    ubuntu.vm.box = "bento/ubuntu-16.04"
     ubuntu.vm.hostname = "peterparker"
     ubuntu.vm.provider :virtualbox do |provider|
       provider.name = "my-config-ubuntu"
