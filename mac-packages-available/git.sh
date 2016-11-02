@@ -10,6 +10,9 @@ install)
   __my_env GPG_TTY "\$(tty)"
   __my_sync ~/.gitconfig
   __my_sync ~/.git
+
+  #create man and documentations
+  __brew_install pandoc
 ;;
 remove)
 ;;
