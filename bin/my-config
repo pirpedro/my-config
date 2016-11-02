@@ -159,7 +159,7 @@ sync)
   __my_sync $TARGET $1
 ;;
 version)
-  #cat $MY_CONFIG_DIR/.version
+  cat $MY_CONFIG_DIR/.version
 ;;
 test)
 
