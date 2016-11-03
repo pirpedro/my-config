@@ -1,5 +1,13 @@
 #!/bin/bash
 
+USAGE=`cat << EOF
+  Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}
+EOF`
+
+usage(){
+  echo $USAGE
+}
+
 #check if exists environment variable to manually change resources location
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/usr/local/my-config}
 #path to subfolder with extra functions and files
@@ -33,23 +41,33 @@ EXT=".sh"
 DEBUG_MODE=0;
 FILES=;
 #keeps the action information (install|remove)
-ACTION="$1"; shift; #shift to make getopts works
-TARGET=$1; shift; #shift to make getopts works
 
-while getopts "p:dv" OPTION; do
-    case "$OPTION" in
-        d) DEBUG_MODE=1
-            set -x
-            ;;
-        v)  __verbosity on
-            ;;
-
-        # Unknown option. No need for an error, getopts informs
-        # the user itself.
-        \?) exit 1;;
-    esac
+for arg do
+  shift
+  case "$arg" in
+    -v|--verbose )
+        __verbosity on
+        continue
+      ;;
+    -d|--debug )
+      set -x
+      ;;
+    --version ) cat $MY_CONFIG_DIR/.version; exit; ;;
+    --exec-path) echo $MY_CONFIG_DIR; exit; ;;
+    --ext-path ) echo $MY_CONFIG_EXT; exit; ;;
+    --pkg-path ) echo $PACKAGE_LOCATION; exit; ;;
+    --all-pkg-path ) echo $PACKAGES_AVAILABLE; exit; ;;
+    --default-extension ) echo $EXT; exit; ;;
+    *) set -- "$@" "$arg"; ;;
+  esac
 done
 
+if [[ "$!" != -* ]]; then
+  ACTION="$1"; shift;
+else
+  usage
+  exit 1;
+fi
 #this function load files, give execution
 #permission for each one and execute the right action on it.
 __load(){
@@ -136,10 +154,8 @@ case "$ACTION" in
   init)
     __init;
   ;;
-  install)
-    __load;
-  ;;
-  remove)
+  install|remove)
+  if [[ "$1" != -* ]]; then TARGET=$1; fi
     __load;
   ;;
   rc)
@@ -152,50 +168,11 @@ case "$ACTION" in
   		echo $(__format_script_name $file)
   	done
   ;;
-  enable)
-      if [ -z $TARGET ]; then
-          __warning "You need to pass the script target"
-          exit 0
-      fi
-      if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
-          __warning "Script doesn't exist."
-          exit 0
-      fi
-      ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
-      if [[ -d $PACKAGES_AVAILABLE/rc/$TARGET ]]; then
-        mkdir -p $PACKAGE_LOCATION/rc/$TARGET
-        ln -sf $PACKAGES_AVAILABLE/rc/$TARGET/* $PACKAGE_LOCATION/rc/$TARGET
-      fi
-
-  ;;
-  disable)
-       if [ -z $TARGET ]; then
-          __warning "You need to pass the script target"
-          exit 0
-      fi
-      rm $( ls $PACKAGE_LOCATION/*$TARGET$EXT )
-      rm -rf $PACKAGE_LOCATION/rc/$TARGET
-  ;;
-  new)
-        if [ -z $TARGET ]; then
-          __warning "You need to pass the script name"
-          exit 0
-        fi
-        if [[ -f $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
-          __warning "$TARGET script already exist."
-          exit 0
-        fi
-        cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$TARGET$EXT
-
-  ;;
   link)
     __my_link $TARGET $1
   ;;
   sync)
     __my_sync $TARGET $1
-  ;;
-  version)
-    cat $MY_CONFIG_DIR/.version
   ;;
   test)
 
@@ -208,7 +185,7 @@ case "$ACTION" in
       fi
       $PLUGIN $TARGET "$@"
     else
-      echo "Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}"
+      usage
       #exit 64
     fi
   ;;
