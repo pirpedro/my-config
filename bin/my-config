@@ -40,14 +40,12 @@ export PACKAGE_RC
 EXT=".sh"
 DEBUG_MODE=0;
 FILES=;
-#keeps the action information (install|remove)
 
 for arg do
   shift
   case "$arg" in
     -v|--verbose )
         __verbosity on
-        continue
       ;;
     -d|--debug )
       set -x
