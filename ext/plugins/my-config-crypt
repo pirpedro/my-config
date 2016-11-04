@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source $(myconf --ext-path)/functions.sh
-source $(myconf --ext-path)/ext_Setup.sh
+source $(myconf --ext-path)/ext_setup.sh
 
 ACTION="$1"; shift;
 MODE=${crypt_mode:="veracrypt"}
