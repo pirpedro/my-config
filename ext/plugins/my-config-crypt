@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source $(myconf --ext-path)/functions.sh
-source $(myconf --ext-path)/ext_setup.sh
 
 ACTION="$1"; shift;
 MODE=${crypt_mode:="veracrypt"}
@@ -9,8 +8,8 @@ MODE=${crypt_mode:="veracrypt"}
 case "$ACTION" in
 install )
   if [[ $(__exists $MODE) == "1" ]]; then
-    __log "You already installed all packages for this plugin"
-      exit
+    note "You already installed all packages for this plugin"
+    exit
   fi
 
   case "$MODE" in
@@ -34,7 +33,7 @@ install )
         fi
       ;;
     * )
-      __log "Mode $MODE not supported."
+      warn "Mode $MODE not supported."
      ;;
   esac
 
@@ -55,7 +54,7 @@ remove )
         fi
       ;;
     * )
-      __log "Mode $MODE not supported."
+      warn "Mode $MODE not supported."
      ;;
   esac
 
@@ -71,17 +70,16 @@ createVault )
         fi
 
         if [[ -e $DEVICE ]]; then
-          __log "Block device $DEVICE already exist. Choose another volume name."
-          exit 2
+          die_with_status 2 "Block device $DEVICE already exist. Choose another volume name."
         fi
 
         veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=exFAT --hash=SHA512 --volume-type=normal --size=50M $DEVICE
       ;;
     encfs )
-      __log "When using $MODE, you can execute 'openVault' directly"
+      warn "When using $MODE, you can execute 'openVault' directly"
       ;;
     * )
-      __log "Mode $MODE not supported."
+      warn "Mode $MODE not supported."
      ;;
   esac
 
@@ -100,8 +98,7 @@ openVault )
 
         if [ ! -e "$DEVICE" ]; then
           echo "Error: $DEVICE must be a block device."
-          __log "Please, pass as argument or put in the configuration file."
-          exit 2
+          die_with_status 2 "Please, pass as argument or put in the configuration file."
         fi
         shift 2
         veracrypt -t --mount --protect-hidden=no -k "" $DEVICE $MOUNTPOINT
@@ -115,7 +112,7 @@ openVault )
 
       ;;
     * )
-      __log "Mode $MODE not supported."
+      warn "Mode $MODE not supported."
      ;;
   esac
 
@@ -132,7 +129,7 @@ closeVault )
         sudo umount $DEVICE
       ;;
     * )
-      __log "Mode $MODE not supported."
+      warn "Mode $MODE not supported."
      ;;
   esac
 

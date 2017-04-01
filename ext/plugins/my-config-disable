@@ -2,14 +2,13 @@
 
 MY_CONFIG_EXT=$(myconf --ext-path)
 source $MY_CONFIG_EXT/functions.sh
-source $MY_CONFIG_EXT/ext_setup.sh
 
 TARGET="$1"
 EXT=$(myconf --default-extension)
 PACKAGE_LOCATION=$(myconf --pkg-path)
 
 if [ -z $TARGET ]; then
-   __warning "You need to pass the script target"
+   warn "You need to pass the script target"
    exit 0
 fi
 rm $( ls $PACKAGE_LOCATION/$TARGET$EXT )

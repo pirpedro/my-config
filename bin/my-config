@@ -4,10 +4,6 @@ USAGE=`cat << EOF
   Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}
 EOF`
 
-usage(){
-  echo $USAGE
-}
-
 #check if exists environment variable to manually change resources location
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/usr/local/my-config}
 #path to subfolder with extra functions and files
@@ -45,7 +41,7 @@ for arg do
   shift
   case "$arg" in
     -v|--verbose )
-        __verbosity on
+        verbosity on
       ;;
     -d|--debug )
       set -x
@@ -64,20 +60,20 @@ if [[ "$!" != -* ]]; then
   ACTION="$1"; shift;
 else
   usage
-  exit 1;
+  die
 fi
 #this function load files, give execution
 #permission for each one and execute the right action on it.
 __load(){
 	if [ ! -d $PACKAGE_LOCATION ]; then
-                __warning "Packages directory does not exist.";
+                warn "Packages directory does not exist.";
                 exit 64;
         fi
         if [ -z $TARGET ] || [ "$TARGET" == "all" ]; then
                 FILES=($( ls $PACKAGE_LOCATION/*$EXT));
         else
                 if [ ! -e $PACKAGE_LOCATION/*$TARGET$EXT ]; then
-                        __warning "Configuration file for $TARGET not found";
+                        warn "Configuration file for $TARGET not found";
                         exit 0;
                 fi
                 FILES=($( ls $PACKAGE_LOCATION/*$TARGET$EXT));
@@ -87,52 +83,47 @@ __load(){
 	do
 		if [ -f $file ]; then
       if [ `__required check $(__format_script_name $file)` ]; then
-        __notification "The script $(__format_script_name $file) is already installed"
+        note "The script $(__format_script_name $file) is already installed"
         continue
       fi
 
 			if [ ! -x $file ]; then
 				sudo chmod +x $file
 			fi
-      __notification "$ACTION $(__format_script_name $file): Action Started..."
+      note "$ACTION $(__format_script_name $file): Action Started..."
 			source $PROFILE
 			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
       __required $ACTION $(__format_script_name $file)
-      __notification "$ACTION $(__format_script_name $file): Action Finished."
+      note "$ACTION $(__format_script_name $file): Action Finished."
 		fi
 	done
 }
 
 __init(){
-  __verbosity on
+  verbosity on
   if [ `__required check $(__format_script_name initial)` ]; then
-    __warning "You already initialize my-config in your system."
-    __warning "Execute '${0##*/} -h' to learn about everything you can use."
+    warn "You already initialize my-config in your system."
+    warn "Execute '${0##*/} -h' to learn about everything you can use."
     exit 1;
   else
-    __notification "Hi! Welcome to my-config environment command."
-    __notification "Initializing means the creation of useful files."
-    __question_inline "Can we proceed? [${WHITE}Yy${GREEN}]: "
-    read answer
-    case "$answer" in
-      [Nn]* )
-        __notification "Ok! Maybe next time."
-        __notification "See our manual and comeback as soon as possible."
-        ;;
-      *)
-        __notification "So, let's start!"
-        TARGET="initial"
-        ACTION="install"
-        __load;
-        __notification "Now you can use and extend all the scripts for your own behavior."
-        __notification "Good work!"
-        ;;
-    esac
+    note "Hi! Welcome to my-config environment command."
+    note "Initializing means the creation of useful files."
+    if ask_boolean "Can we proceed?"; then
+      note "So, let's start!"
+      TARGET="initial"
+      ACTION="install"
+      __load;
+      note "Now you can use and extend all the scripts for your own behavior."
+      note "Good work!"
+    else
+      note "Ok! Maybe next time."
+      note "See our manual and comeback as soon as possible."
+    fi
   fi
 }
 #check if the script has super user permissions
 #if [ ! "$(id -u)" = "0" ]; then
-#        __warning "You need super user privileges to run some of the scripts."
+#        warn "You need super user privileges to run some of the scripts."
 #	exit 1
 #fi
 
@@ -142,10 +133,10 @@ if [ ! -e $PROFILE ]; then
 fi
 
 if [[ ! `__required check $(__format_script_name initial)` && "$ACTION" != "init" ]]; then
-  __verbosity on
-  __warning "You didn't initialize my-config in your machine yet".
-  __notification "Execute '${0##*/} init' or see our manual for other options."
-  exit 1
+  verbosity on
+  warn "You didn't initialize my-config in your machine yet".
+  warn "Execute '${0##*/} init' or see our manual for other options."
+  die
 fi
 
 case "$ACTION" in

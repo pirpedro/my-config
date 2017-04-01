@@ -5,14 +5,13 @@ PACKAGES_AVAILABLE=$(myconf --all-pkg-path)
 EXT=$(myconf --default-extension)
 TARGET="$1"
 source $MY_CONFIG_EXT/functions.sh
-source $MY_CONFIG_EXT/ext_setup.sh
 
 if [ -z "$TARGET" ]; then
-  __warning "You need to pass the script name"
+  warn "You need to pass the script name"
   exit 0
 fi
 if [[ -f $PACKAGES_AVAILABLE/$TARGET$EXT ]]; then
-  __warning "$TARGET script already exist."
+  warn "$TARGET script already exist."
   exit 0
 fi
 cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$TARGET$EXT

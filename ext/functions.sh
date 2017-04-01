@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $MY_CONFIG_EXT/notify
+source $MY_CONFIG_EXT/bash-common/sh-common
 
 BASH_DIR=$HOME/.bash
 PLIST=$BASH_DIR/my-config-plist
@@ -18,7 +18,7 @@ __format_script_name(){
 
     # check if the file contais something we don't want
     if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
-      __notification "Config file is unclean, cleaning it..." >&2
+      note "Config file is unclean, cleaning it..." >&2
       egrep '^#|^[^ ]*=[^;&]*'  "configfile" > "configfile_secured"
       configfile="$configfile_secured"
     fi
@@ -58,12 +58,12 @@ __random(){
 
 #exit script
 __abort(){
-  __warning $1
+  warn $1
   exit 1
 }
 
 __exit(){
-  __warning $1
+  warn $1
   exit 0
 }
 
@@ -109,7 +109,7 @@ __my_env(){
 
 __my_alias(){
   if [[ ! $# -eq 2  ]]; then
-    __warning "You need to pass two parameters."
+    warn "You need to pass two parameters."
     exit
   fi
 
@@ -184,30 +184,30 @@ __required(){
 __brew_install() {
   if _brew_is_installed "$1"; then
     if _brew_is_upgradable "$1"; then
-      __notification "Upgrading $1 ..."
+      note "Upgrading $1 ..."
       brew upgrade "$@"
     else
-      __notification "Already using the latest version of $1. Skipping ..."
+      note "Already using the latest version of $1. Skipping ..."
     fi
     exit
   else
-    __notification  "Installing $1"
+    note  "Installing $1"
     brew install "$@"
   fi
 }
 
 __brew_upgrade() {
   if _brew_is_upgradable "$1"; then
-    __notification "Upgrading $1..."
+    note "Upgrading $1..."
     brew upgrade "$@"
   else
-    __notification "Upgrade failed!"
+    note "Upgrade failed!"
   fi
 }
 
 __brew_uninstall() {
   if _brew_is_installed "$1"; then
-    __notification "Removing $1..."
+    note "Removing $1..."
     brew unistall "$1"
   fi
 }
@@ -226,7 +226,7 @@ _brew_tap_is_installed() {
 
 __brew_tap() {
   if ! _brew_tap_is_installed "$1"; then
-    echo "Tapping $1..."
+    note "Tapping $1..."
     brew tap "$1" 2> /dev/null
   fi
 }
@@ -249,9 +249,9 @@ _app_is_installed() {
 
 __brew_cask_install() {
   if _app_is_installed "$1" || _brew_cask_is_installed "$1"; then
-    echo "$1 is already installed. Skipping..."
+    note "$1 is already installed. Skipping..."
   else
-    echo "Installing $1..."
+    note "Installing $1..."
     brew cask install "$@"
   fi
 }
