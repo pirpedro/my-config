@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE=`cat << EOF
-  Usage: ${0##*/} {install|remove|enable|disable|new|list} {all | <specific script>}
+{install|remove|enable|disable|new|list} {all | <specific script>}
 EOF`
 
 #check if exists environment variable to manually change resources location
@@ -35,7 +35,7 @@ export PACKAGE_RC
 #extension of the config files
 EXT=".sh"
 DEBUG_MODE=0;
-FILES=;
+
 
 for arg do
   shift
@@ -59,12 +59,14 @@ done
 if [[ "$!" != -* ]]; then
   ACTION="$1"; shift;
 else
+  echo "$USAGE"
   usage
   die
 fi
 #this function load files, give execution
 #permission for each one and execute the right action on it.
 __load(){
+  local FILES
 	if [ ! -d $PACKAGE_LOCATION ]; then
                 warn "Packages directory does not exist.";
                 exit 64;
