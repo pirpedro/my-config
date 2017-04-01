@@ -160,10 +160,10 @@ case "$ACTION" in
   	done
   ;;
   link)
-    __my_link $TARGET $1
+    my_link $TARGET $1
   ;;
   sync)
-    __my_sync $TARGET $1
+    my_sync $TARGET $1
   ;;
   test)
 

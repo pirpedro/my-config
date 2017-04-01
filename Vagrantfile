@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
       ln -sfF /vagrant/ubuntu-packages-available $my_conf_dir/
       ln -sfF /vagrant/mac-packages-available $my_conf_dir/
       mkdir -p $my_conf_dir/packages-enabled
-      ln -sfF $my_conf_dir/bin/my-config /usr/local/bin/myconf
+      ln -sfF $my_conf_dir/bin/my /usr/local/bin/myconf
       chmod +x /usr/local/bin/myconf
       chown -R vagrant $my_conf_dir
 SCRIPT
@@ -30,6 +30,14 @@ SCRIPT
     inline:<<SCRIPT
       cd /usr/local/my-config/packages-enabled
       ln -sfF ../packages-available/*.sh .
+SCRIPT
+
+  config.vm.provision "bats-installation",
+    type: "shell",
+    inline:<<SCRIPT
+      sudo add-apt-repository ppa:duggan/bats --yes
+      sudo apt-get update -qq
+      sudo apt-get install -qq bats
 SCRIPT
 
   config.vm.define "ubuntu" do |ubuntu|
@@ -52,6 +60,16 @@ SCRIPT
       inline:<<SCRIPT
         cd /usr/local/my-config
         ln -sfF mac-packages-available packages-available
+SCRIPT
+    osx.vm.provision "bats-installation",
+      type:"shell",
+      preserve_order:true,
+      inline:<<SCRIPT
+        cd /tmp
+        git clone https://github.com/sstephenson/bats.git
+        cd bats
+        chmod +x install.sh
+        ./install.sh /usr/local
 SCRIPT
   end
 end

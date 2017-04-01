@@ -8,10 +8,10 @@ source $MY_CONFIG_EXT/functions.sh
 #colors, apply various special effects, or draw text, lines, polygons, ellipses and
 #Bézier curves.
 
-__require homebrew
+my_require homebrew
 case "$1" in
 install)
-	__brew_install imagemagick
+	my_brew_install imagemagick
 ;;
 remove)
 ;;

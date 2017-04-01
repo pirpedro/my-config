@@ -1,7 +1,7 @@
 #!/bin/bash
 source $MY_CONFIG_EXT/functions.sh
 
-__require java
+my_require java
 case "$1" in
 install)
     #install gdebi, a package installer for debian based linux

@@ -7,14 +7,14 @@ MODE=${crypt_mode:="veracrypt"}
 
 case "$ACTION" in
 install )
-  if [[ $(__exists $MODE) == "1" ]]; then
+  if __exists $MODE; then
     note "You already installed all packages for this plugin"
     exit
   fi
 
   case "$MODE" in
     veracrypt )
-        if [[ $(__is_mac)=="1" ]]; then
+        if __is_mac; then
           #it´s necessary to manually install OSXFuse with MacFuse support
           brew cask install veracrypt
           ln -s /Applications/VeraCrypt.app/Contents/MacOS/VeraCrypt /usr/local/bin/veracrypt
@@ -26,8 +26,8 @@ install )
         fi
       ;;
     encfs )
-        if [[ $(__is_mac)=="1" ]]; then
-          __brew_install homebrew/fuse/encfs
+        if __is_mac; then
+          my_brew_install homebrew/fuse/encfs
         else
           sudo apt-get -y install encfs
         fi
@@ -42,14 +42,14 @@ install )
 remove )
   case "$MODE" in
     veracrypt )
-        if [[ $(__is_mac)=="1" ]]; then
+        if __is_mac; then
           brew cask uninstall veracrypt
         else
           sudo apt-get remove veracrypt
         fi
       ;;
     encfs )
-        if [[ $(__is_mac)=="1" ]]; then
+        if __is_mac; then
           brew uninstall homebrew/fuse/encfs
         fi
       ;;
@@ -92,7 +92,7 @@ openVault )
   case "$MODE" in
     veracrypt )
 
-        if [[ ! $(__is_mac == "1") && ! -d $MOUNTPOINT ]]; then
+        if __is_mac && [[ ! -d $MOUNTPOINT ]]; then
           sudo mkdir -p $MOUNTPOINT
         fi
 
@@ -104,7 +104,7 @@ openVault )
         veracrypt -t --mount --protect-hidden=no -k "" $DEVICE $MOUNTPOINT
       ;;
     encfs )
-        if [[ $(__is_mac) == "1" ]]; then
+        if __is_mac; then
           encfs $DEVICE $MOUNTPOINT -- -o volname="My Vault"
         else
           encfs $DEVICE $MOUNTPOINT

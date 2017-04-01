@@ -12,16 +12,16 @@ __format_script_name(){
 }
 
 #load and export any variable in a configuration file
- __load_config_file(){
-    local configfile=$1
-    local configfile_secured='/tmp/$(__random).cfg'
+__load_config_file(){
+  local configfile=$1
+  local configfile_secured='/tmp/$(random).cfg'
 
-    # check if the file contais something we don't want
-    if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
-      note "Config file is unclean, cleaning it..." >&2
-      egrep '^#|^[^ ]*=[^;&]*'  "configfile" > "configfile_secured"
-      configfile="$configfile_secured"
-    fi
+  # check if the file contais something we don't want
+  if egrep -q -v '^#|^[^ ]*=[^;]*' "$configfile"; then
+    note "Config file is unclean, cleaning it..." >&2
+    egrep '^#|^[^ ]*=[^;&]*'  "configfile" > "configfile_secured"
+    configfile="$configfile_secured"
+  fi
 
  #   typeset -a config #init array
  #   config=( #set default values
@@ -29,14 +29,14 @@ __format_script_name(){
  #         [host2]="teste2"
  #     )
 
-    while read line || [ -n "$line" ]
-    do
-      if echo $line | grep -F = &>/dev/null
-      then
-        varname=$(echo "$line" | cut -d '=' -f 1)
-        export $varname=$(echo "$line" | cut -d '=' -f 2-)
-      fi
-    done < "$configfile"
+  while read line || [ -n "$line" ]
+  do
+    if echo $line | grep -F = &>/dev/null
+    then
+      varname=$(echo "$line" | cut -d '=' -f 1)
+      export $varname=$(echo "$line" | cut -d '=' -f 2-)
+    fi
+  done < "$configfile"
 }
 
 #useful which will give you the full directory name of the script no matter where it is being called
@@ -51,54 +51,20 @@ __current_location(){
     echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 }
 
-#generate a random value
-__random(){
-	echo $(cat /dev/urandom | base64 | tr -dc A-Za-z0-9_ | head -c8)
-}
+__is_mac(){ [ "$OSTYPE" == "darwin"* ]; }
+__is_linux(){ [ "$OSTYPE" == "linux-gnu" ]; }
+__exists(){	type -P $1 &>/dev/null; }
 
-#exit script
-__abort(){
-  warn $1
-  exit 1
-}
-
-__exit(){
-  warn $1
-  exit 0
-}
-
-__is_mac(){
-   if [[ "$OSTYPE" == "darwin"* ]]; then
-     echo 1;
-   else
-     echo 0;
-   fi
-}
-
-__is_linux(){
-	if [[ "$OSTYPE" == "linux-gnu" ]]; then
-    		echo 1;
-	else
-		echo 0;
-	fi
-}
-
-__exists(){
-	type -P $1 &>/dev/null && echo 1 || echo 0;
-
-}
-
-__my_env(){
-
+my_env(){
 	if [ $# -eq 1 ]; then
     echo $1 >> $PROFILE
     return
   fi
 
-  if [ $(__is_mac) == "1" ]; then
+  if __is_mac; then
     #defaults write /Users/Pedro/.MacOSX/environment.plist PYTHONPATH -string "/usr/local/lib/python2.7/site-packages"
     echo setenv $1 $2 >> $PLIST
-		if [ $(__exists launchctl) == "1"  ]; then
+		if __exists launchctl; then
 	  	launchctl setenv $1 $2
 		fi
 
@@ -107,7 +73,7 @@ __my_env(){
 	echo export $1=$2 >> $PROFILE
 }
 
-__my_alias(){
+my_alias(){
   if [[ ! $# -eq 2  ]]; then
     warn "You need to pass two parameters."
     exit
@@ -117,11 +83,11 @@ __my_alias(){
 
 }
 
-__my_link(){
+my_link(){
   ln -sfn $1 $2
 }
 
-__my_sync(){
+my_sync(){
   SOURCE=${1//$HOME/"/home"}
   SOURCE=$sync_folder$SOURCE
   local TARGET
@@ -133,10 +99,10 @@ __my_sync(){
   if [[ -d $TARGET ]]; then
     sudo rm -rf $TARGET
   fi
-  __my_link $SOURCE $TARGET
+  my_link $SOURCE $TARGET
 }
 
-__my_path_remove(){
+my_path_remove(){
 	local IFS=':'
         local NEWPATH
         local DIR
@@ -149,14 +115,14 @@ __my_path_remove(){
         export $PATHVARIABLE="$NEWPATH"
 }
 
-__my_path(){
-  __my_path_remove $1 $2
+my_path(){
+  my_path_remove $1 $2
 	local PATHVARIABLE=${2:-PATH}
         export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
-	__my_env PATH $PATH
+	my_env PATH $PATH
 }
 
-__require() {
+my_require() {
   for package in "$@"; do
     $MY_CONFIG_DIR/bin/my-config install $package -v
   done
@@ -181,7 +147,7 @@ __required(){
 
 }
 
-__brew_install() {
+my_brew_install() {
   if _brew_is_installed "$1"; then
     if _brew_is_upgradable "$1"; then
       note "Upgrading $1 ..."
@@ -196,7 +162,7 @@ __brew_install() {
   fi
 }
 
-__brew_upgrade() {
+my_brew_upgrade() {
   if _brew_is_upgradable "$1"; then
     note "Upgrading $1..."
     brew upgrade "$@"
@@ -205,7 +171,7 @@ __brew_upgrade() {
   fi
 }
 
-__brew_uninstall() {
+my_brew_uninstall() {
   if _brew_is_installed "$1"; then
     note "Removing $1..."
     brew unistall "$1"
@@ -224,7 +190,7 @@ _brew_tap_is_installed() {
   brew tap | grep -Fqx "$1"
 }
 
-__brew_tap() {
+my_brew_tap() {
   if ! _brew_tap_is_installed "$1"; then
     note "Tapping $1..."
     brew tap "$1" 2> /dev/null

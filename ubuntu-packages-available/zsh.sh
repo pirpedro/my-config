@@ -1,7 +1,7 @@
 #!/bin/bash
 source $MY_CONFIG_EXT/functions.sh
 
-__require git
+my_require git
 case "$1" in
 install)
   sudo apt-get install -y zsh

@@ -1,12 +1,12 @@
 #!/bin/bash
 source $MY_CONFIG_EXT/functions.sh
 
-__require homebrew
+my_require homebrew
 case "$1" in
 install)
-  __brew_install gist
+  my_brew_install gist
   gist --login
-  __my_sync ~/.gist
+  my_sync ~/.gist
 ;;
 remove)
 ;;
