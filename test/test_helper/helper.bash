@@ -11,10 +11,8 @@
 #   1 - otherwise
 load_lib() {
   local name="$1"
-  load "test_helper/${name}/load"
+  load "$(pwd)/test_helper/${name}/load.bash"
 }
 
 load_lib bats-support
 load_lib bats-assert
-
-source "../sh-common"
