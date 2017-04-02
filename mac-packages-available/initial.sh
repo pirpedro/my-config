@@ -7,11 +7,7 @@ _set_env(){
 		touch ~/.profile
 	fi
 
-	if [ ! -e /etc/launchd.conf ]; then
-		touch /etc/launchd.conf
-	fi
-
-  [ -d ~/.bash] || mkdir ~/.bash
+	[ -d ~/.bash] || mkdir ~/.bash
   touch ~/.bash/my-config.sh
   chmod +x ~/.bash/my-config.sh
 	touch ~/.bash/.bash_aliases
@@ -47,52 +43,38 @@ fi
 touch ~/Library/LaunchAgents/environment.plist
 touch ~/Library/LaunchAgents/environment.user.plist
 touch ~/.bash/my-config-plist
-sudo echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-    <key>Label</key>
-    <string>environment</string>
-    <key>ProgramArguments</key>
-    <array>
-            <string>~/.bash/my-config-plist</string>
-    </array>
-    <key>KeepAlive</key>
-    <false/>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>WatchPaths</key>
-    <array>
-        <string>~/.bash/my-config-plist</string>
-    </array>
-</dict>
-</plist>" >> ~/Library/LaunchAgents/environment.plist
+
+echo "grep \"^export\" \$HOME/.bash/my-config.sh | while IFS=' =' read ignoreexport envvar ignorevalue; do
+  launchctl setenv \${envvar} \${!envvar}
+done" >> ~/.bash/my-config-plist
 
 sudo echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
 <plist version=\"1.0\">
 <dict>
-    <key>Label</key>
-    <string>environment</string>
-    <key>ProgramArguments</key>
-    <array>
-            <string>~/.bash/my-config-plist</string>
-    </array>
-    <key>KeepAlive</key>
-    <false/>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>WatchPaths</key>
-    <array>
-        <string>~/.bash/my-config-plist</string>
-    </array>
+  <key>Label</key>
+  <string>environment</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>bash</string>
+    <string>-l</string>
+    <string>-c</string>
+    <string>\$HOME/.bash/my-config-plist</string>
+  </array>
+  <key>KeepAlive</key>
+  <false/>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>WatchPaths</key>
+  <array>
+      <string>\$HOME/.bash/my-config-plist</string>
+  </array>
 </dict>
-</plist>" >> ~/Library/LaunchAgents/environment.user.plist
+</plist>" | tee -a ~/Library/LaunchAgents/environment.plist ~/Library/LaunchAgents/environment.user.plist
 
   launchctl load -w ~/Library/LaunchAgents/environment.user.plist
   sudo chown root ~/Library/LaunchAgents/environment.plist
   sudo launchctl load -w ~/Library/LaunchAgents/environment.plist
-
 }
 
 case "$1" in

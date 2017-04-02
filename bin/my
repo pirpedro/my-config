@@ -36,7 +36,6 @@ export PACKAGE_RC
 EXT=".sh"
 DEBUG_MODE=0;
 
-
 for arg do
   shift
   case "$arg" in
@@ -81,22 +80,24 @@ __load(){
                 FILES=($( ls $PACKAGE_LOCATION/*$TARGET$EXT));
         fi
 
+  local script_name;
 	for file in "${FILES[@]}"
 	do
 		if [ -f $file ]; then
-      if [ `__required check $(__format_script_name $file)` ]; then
-        note "The script $(__format_script_name $file) is already installed"
+      script_name=$(__format_script_name $file)
+      if [ `__required check "$script_name"` ]; then
+        note "The script "$script_name" is already installed"
         continue
       fi
 
 			if [ ! -x $file ]; then
 				sudo chmod +x $file
 			fi
-      note "$ACTION $(__format_script_name $file): Action Started..."
+      note "$ACTION "$script_name": Action Started..."
 			source $PROFILE
 			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
-      __required $ACTION $(__format_script_name $file)
-      note "$ACTION $(__format_script_name $file): Action Finished."
+      __required $ACTION "$script_name"
+      note "$ACTION "$script_name": Action Finished."
 		fi
 	done
 }

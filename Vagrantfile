@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
       ln -sfF /vagrant/ext $my_conf_dir/
       ln -sfF /vagrant/ubuntu-packages-available $my_conf_dir/
       ln -sfF /vagrant/mac-packages-available $my_conf_dir/
+      ln -sfF /vagrant/test $my_conf_dir/
       mkdir -p $my_conf_dir/packages-enabled
       ln -sfF $my_conf_dir/bin/my /usr/local/bin/myconf
       chmod +x /usr/local/bin/myconf
@@ -38,6 +39,7 @@ SCRIPT
       sudo add-apt-repository ppa:duggan/bats --yes
       sudo apt-get update -qq
       sudo apt-get install -qq bats
+
 SCRIPT
 
   config.vm.define "ubuntu" do |ubuntu|

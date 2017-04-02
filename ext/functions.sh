@@ -5,14 +5,17 @@ source $MY_CONFIG_EXT/bash-common/sh-common
 BASH_DIR=$HOME/.bash
 PLIST=$BASH_DIR/my-config-plist
 PROFILE=$BASH_DIR/my-config.sh
+ALIAS_FILE=$BASH_DIR/.bash_aliases
 
 #format the script name for a user friendly package name
 __format_script_name(){
-        echo `basename ${1%.*}` #| sed 's/^.*\///'
+  ! empty "$1" || die "No argument passed to '$0' function."
+  echo `basename ${1%.*}` #| sed 's/^.*\///'
 }
 
 #load and export any variable in a configuration file
 __load_config_file(){
+  ! empty "$1" || die "No argument passed to '$0' function."
   local configfile=$1
   local configfile_secured='/tmp/$(random).cfg'
 
@@ -51,23 +54,23 @@ __current_location(){
     echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 }
 
-__is_mac(){ [ "$OSTYPE" == "darwin"* ]; }
+__is_mac(){ [[ "$OSTYPE" == "darwin"* ]]; }
 __is_linux(){ [ "$OSTYPE" == "linux-gnu" ]; }
-__exists(){	type -P $1 &>/dev/null; }
+#check if command exist.
+__exists(){
+  ! empty "$1" || die "No argument passed to '$0' function."
+  type -P $1 &>/dev/null;
+}
 
 my_env(){
+  ! empty "$1" || die "No argument passed to '$0' function."
 	if [ $# -eq 1 ]; then
     echo $1 >> $PROFILE
     return
   fi
 
-  if __is_mac; then
-    #defaults write /Users/Pedro/.MacOSX/environment.plist PYTHONPATH -string "/usr/local/lib/python2.7/site-packages"
-    echo setenv $1 $2 >> $PLIST
-		if __exists launchctl; then
-	  	launchctl setenv $1 $2
-		fi
-
+  if __is_mac && __exists launchctl; then
+  	launchctl setenv $1 $2
 	fi
 	export $1=$2
 	echo export $1=$2 >> $PROFILE
@@ -75,12 +78,9 @@ my_env(){
 
 my_alias(){
   if [[ ! $# -eq 2  ]]; then
-    warn "You need to pass two parameters."
-    exit
+    die "You need to pass two parameters."
   fi
-
-  echo alias $1=\'$2\' >> ~/.bash/.bash_aliases
-
+  echo "alias $1='$2'" >> $ALIAS_FILE
 }
 
 my_link(){
