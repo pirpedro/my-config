@@ -85,7 +85,7 @@ __load(){
 	do
 		if [ -f $file ]; then
       script_name=$(__format_script_name $file)
-      if [ `__required check "$script_name"` ]; then
+      if __required check "$script_name"; then
         note "The script "$script_name" is already installed"
         continue
       fi
@@ -104,7 +104,7 @@ __load(){
 
 __init(){
   verbosity on
-  if [ `__required check $(__format_script_name initial)` ]; then
+  if __required check $(__format_script_name initial); then
     warn "You already initialize my-config in your system."
     warn "Execute '${0##*/} -h' to learn about everything you can use."
     exit 1;
@@ -135,7 +135,7 @@ if [ ! -e $PROFILE ]; then
   touch $PROFILE
 fi
 
-if [[ ! `__required check $(__format_script_name initial)` && "$ACTION" != "init" ]]; then
+if ! __required check $(__format_script_name initial) && equals "$ACTION" "init"; then
   verbosity on
   warn "You didn't initialize my-config in your machine yet".
   warn "Execute '${0##*/} init' or see our manual for other options."

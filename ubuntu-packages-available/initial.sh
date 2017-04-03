@@ -11,11 +11,13 @@ install)
         touch ~/.bash_profile
     fi
 
-    test -d ~/.bash || mkdir ~/.bash
-    test -f ~/.bash/my-config.sh || touch ~/.bash/my-config.sh
-    test -f ~/.bash/.bash_aliases || touch ~/.bash/.bash_aliases
+    [ -d ~/.bash ] || mkdir ~/.bash
+    [ -f ~/.bash/my-config.sh ] || touch ~/.bash/my-config.sh
+    [ -f ~/.bash/.bash_aliases ] || touch ~/.bash/.bash_aliases
+    [ -f ~/.bash/.bash_path ] || touch ~/.bash/.bash_path
     chmod +x ~/.bash/my-config.sh
     chmod +x ~/.bash/.bash_aliases
+    chmod +x ~/.bash/.bash_path
 
     echo "###############   my-config configuration script   ###############
 if [ -d ~/.bash ]; then

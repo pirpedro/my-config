@@ -7,6 +7,30 @@ load test_helper/helper
 MY_CONFIG_EXT=../ext
 source ../ext/functions.sh
 
+tmp_file="teste_file"
+old_profile=$PROFILE
+old_alias=$ALIAS_FILE
+old_path=$PATH_FILE
+old_installed=$INSTALLED_FILE
+
+function setup(){
+  PROFILE=$tmp_file
+  touch $tmp_file
+  chmod +x $tmp_file
+  PROFILE=$tmp_file
+  ALIAS_FILE=$tmp_file
+  PATH_FILE=$tmp_file
+  INSTALLED_FILE=$tmp_file
+}
+
+function teardown(){
+  rm "$tmp_file"
+  PROFILE=$old_profile
+  ALIAS_FILE=$old_alias
+  PATH_FILE=$old_path
+  INSTALLED_FILE=$old_installed
+}
+
 @test "format_script_name" {
   run __format_script_name "/tmp/teste/myfile.sh"
   assert_output "myfile"
@@ -19,18 +43,15 @@ source ../ext/functions.sh
 }
 
 @test "load_config_file" {
-  local file="test.conf"
-  [ ! -f "$file" ] || touch "$file"
   echo "test1=/path/to/file
-test2=value" >> $file
+test2=value" >> $tmp_file
 
   run __load_config_file && assert_failure "Test without file path"
-  run __load_config_file "$file" && assert_success "Test with file path"
+  run __load_config_file "$tmp_file" && assert_success "Test with file path"
   #test variable retrival
-  __load_config_file "$file"
+  __load_config_file "$tmp_file"
   assert_equal "$test1" "/path/to/file"
   assert_equal "$test2" "value"
-  rm "$file"
 }
 
 @test "exists" {
@@ -40,22 +61,150 @@ test2=value" >> $file
   run __exists && assert_failure #no argument
 }
 
-@test "my_alias" {
-  local file="test_bash.sh"
-  local old_alias=$ALIAS_FILE
-  [ -f "$file" ] || touch "$file"
-  ALIAS_FILE="$file"
+@test "my_alias - testing variable export" {
   #testing variable export
   my_alias testalias "echo \"worked\""
-  run cat "$file"
+  run cat "$tmp_file"
   assert_equal "${lines[0]}" "alias testalias='echo \"worked\"'"
+}
 
-  #testing if no arguments are passed.
+@test "my_alias - testing if no arguments are passed." {
   run my_alias && assert_failure
+}
 
-  #testing if only one argument is passed.
+@test "my_alias - testing if only one argument is passed." {
   run my_alias "al" && assert_failure
-  #removing test files
-  rm "$file"
-  ALIAS_FILE=$old_alias
+}
+
+@test "my_path - remove from empty file" {
+  local real_path=$PATH
+  my_path_remove "/path/to/file"
+  assert_equal "$PATH" "$real_path"
+  run cat "$tmp_file"
+  assert_output ""
+}
+
+@test "my_path - remove from PATH" {
+  local real_path=$PATH
+  echo "export PATH=/path/to/file:/other/path/to/file:/one/more/path:\$PATH" > $tmp_file
+  export PATH=/path/to/file:/other/path/to/file:/one/more/path:$PATH
+  my_path_remove "/other/path/to/file"
+  assert_equal "$PATH" "/path/to/file:/one/more/path:$real_path"
+  run cat "$tmp_file"
+  assert_output="export PATH=/path/to/file:/one/more/path:\$PATH"
+}
+
+@test "my_path - remove last item from path" {
+  local real_path=$PATH
+  echo "export PATH=/path/to/file:\$PATH" > $tmp_file
+  export PATH=/path/to/file:$PATH
+  my_path_remove "/path/to/file"
+  assert_equal "$PATH" "$real_path"
+  run cat "$tmp_file"
+  assert_output ""
+}
+
+@test "my_path - include first" {
+  local real_path=$PATH
+  my_path "/path/to/file"
+  assert_equal "$PATH" "/path/to/file:$real_path"
+  run cat "$tmp_file"
+  assert_output "export PATH=/path/to/file:\$PATH"
+}
+
+@test "my_path - include more than one" {
+  local real_path=$PATH
+  my_path "/path/to/file"
+  my_path "/other/path/to/file"
+  assert_equal "$PATH" "/other/path/to/file:/path/to/file:$real_path"
+  run cat "$tmp_file"
+  assert_output "export PATH=/other/path/to/file:/path/to/file:\$PATH"
+}
+
+@test "my_path - replicate inclusion" {
+  local real_path=$PATH
+  my_path "/path/to/file"
+  my_path "/path/to/file"
+  assert_equal "$PATH" "/path/to/file:$real_path"
+  run cat "$tmp_file"
+  assert_output "export PATH=/path/to/file:\$PATH"
+}
+
+@test "__required - no arguments" {
+  run __required && assert_failure
+}
+
+@test "__required - only one argument" {
+  run __required install && assert_failure
+}
+
+@test "__required - include first element" {
+  run __required install first
+  assert_success
+  run cat "$tmp_file"
+  assert_equal "${lines[0]}" "first"
+}
+
+@test "__required - include multiple elements" {
+  run __required install first && assert_success
+  run __required install second && assert_success
+  run __required install third && assert_success
+  run cat "$tmp_file"
+  assert_equal "${lines[0]}" "first"
+  assert_equal "${lines[1]}" "second"
+  assert_equal "${lines[2]}" "third"
+}
+
+@test "__required - include existent element" {
+  __required install first
+  __required install second
+  __required install first
+  __required install third
+  run cat "$tmp_file"
+  assert_equal "${lines[0]}" "first"
+  assert_equal "${lines[1]}" "second"
+  assert_equal "${lines[2]}" "third"
+}
+
+@test "__required - check existence in empty file" {
+  run __required check first && assert_failure
+  run cat "$tmp_file"
+  assert_output ""
+}
+
+@test "__required - check existence (true validation)" {
+  __required install first
+  __required install second
+  __required install third
+  run __required check second && assert_success
+}
+
+@test "__required - check existence (false validation)" {
+  __required install first
+  __required install second
+  __required install third
+  run __required check other && assert_failure
+}
+
+@test "__required - remove in empty file" {
+  run __required remove first && assert_success
+  run cat "$tmp_file"
+  assert_output ""
+}
+
+@test "__required - remove only element" {
+  __required install first
+  run __required remove first && assert_success
+  run cat "$tmp_file"
+  assert_output ""
+}
+
+@test "__required - remove random element" {
+  __required install first
+  __required install second
+  __required install third
+  run __required remove second && assert_success
+  run cat "$tmp_file"
+  assert_equal "${lines[0]}" "first"
+  assert_equal "${lines[1]}" "third"
 }

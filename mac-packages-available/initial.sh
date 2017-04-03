@@ -7,11 +7,13 @@ _set_env(){
 		touch ~/.profile
 	fi
 
-	[ -d ~/.bash] || mkdir ~/.bash
-  touch ~/.bash/my-config.sh
+  [ -d ~/.bash ] || mkdir ~/.bash
+  [ -f ~/.bash/my-config.sh ] || touch ~/.bash/my-config.sh
+  [ -f ~/.bash/.bash_aliases ] || touch ~/.bash/.bash_aliases
+  [ -f ~/.bash/.bash_path ] || touch ~/.bash/.bash_path
   chmod +x ~/.bash/my-config.sh
-	touch ~/.bash/.bash_aliases
-	chmod +x ~/.bash/.bash_aliases
+  chmod +x ~/.bash/.bash_aliases
+  chmod +x ~/.bash/.bash_path
 
   echo "###############   my-config configuration script   ###############
 if [ -d ~/.bash ]; then
@@ -44,9 +46,13 @@ touch ~/Library/LaunchAgents/environment.plist
 touch ~/Library/LaunchAgents/environment.user.plist
 touch ~/.bash/my-config-plist
 
-echo "grep \"^export\" \$HOME/.bash/my-config.sh | while IFS=' =' read ignoreexport envvar ignorevalue; do
+echo "grep \"^export\" $PROFILE | while IFS=' =' read ignoreexport envvar ignorevalue; do
   launchctl setenv \${envvar} \${!envvar}
-done" >> ~/.bash/my-config-plist
+done
+grep \"^export\" $PATH_FILE | while IFS=' =' read ignoreexport envvar ignorevalue; do
+  launchctl setenv \${envvar} \${!envvar}
+done
+" >> ~/.bash/my-config-plist
 
 sudo echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">

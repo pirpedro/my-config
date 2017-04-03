@@ -6,6 +6,7 @@ BASH_DIR=$HOME/.bash
 PLIST=$BASH_DIR/my-config-plist
 PROFILE=$BASH_DIR/my-config.sh
 ALIAS_FILE=$BASH_DIR/.bash_aliases
+PATH_FILE=$BASH_DIR/.bash_path
 
 #format the script name for a user friendly package name
 __format_script_name(){
@@ -103,44 +104,68 @@ my_sync(){
 }
 
 my_path_remove(){
-	local IFS=':'
-        local NEWPATH
-        local DIR
-        local PATHVARIABLE=${2:-PATH}
-        for DIR in ${!PATHVARIABLE} ; do
-                if [ "$DIR" != "$1" ] ; then
-                  NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
-                fi
-        done
-        export $PATHVARIABLE="$NEWPATH"
+  ! empty "$1" || die "No argument passed to '$0' function."
+
+  local NEWPATH DIR
+  #try to recover from bash file
+  local PATH_VARIABLE=`cat $PATH_FILE`
+  #remove last part of string that contains '$PATH'
+  PATH_VARIABLE=${PATH_VARIABLE%%':$PATH'}
+  #remove front part that contains 'PATH='
+  PATH_VARIABLE=${PATH_VARIABLE##'export PATH='}
+  PATH_VARIABLE=`echo $PATH_VARIABLE | sed -e 's/:/ /g'`
+  for DIR in $PATH_VARIABLE ; do
+    if ! equals "$DIR" "$1"; then
+      NEWPATH=${NEWPATH}$DIR:
+    fi
+  done
+  PATH=`echo $PATH | sed -e "s%$1:%%g"` # using '%' in sed because $1 contains slashes
+  if ! empty "$NEWPATH"; then
+    export PATH="$PATH"
+    echo "export PATH=$NEWPATH\$PATH" > $PATH_FILE
+  else
+    echo "" > $PATH_FILE
+  fi
 }
 
 my_path(){
-  my_path_remove $1 $2
-	local PATHVARIABLE=${2:-PATH}
-        export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
-	my_env PATH $PATH
+  ! empty "$1" || die "No argument passed to '$0' function."
+  my_path_remove "$1"
+	local PATH_VARIABLE=`cat $PATH_FILE`
+  #remove last part of string that contains '$PATH'
+  PATH_VARIABLE=${PATH_VARIABLE%%':$PATH'}
+  #remove front part that contains 'export PATH='
+  PATH_VARIABLE=${PATH_VARIABLE##'export PATH='}
+  local NEWPATH="$1"
+  export PATH="$NEWPATH:$PATH"
+  if ! empty "$PATH_VARIABLE"; then
+    NEWPATH="$NEWPATH:$PATH_VARIABLE"
+  fi
+  echo "export PATH=$NEWPATH:\$PATH" > $PATH_FILE
 }
 
 my_require() {
   for package in "$@"; do
-    $MY_CONFIG_DIR/bin/my-config install $package -v
+    $MY_CONFIG_DIR/bin/my install $package -v
   done
 }
 
 INSTALLED_FILE=$MY_CONFIG_DIR/installed
 __required(){
+  if [[ ! $# -eq 2  ]]; then
+    die "You need to pass two parameters."
+  fi
   local ACTION=$1
-  touch $INSTALLED_FILE
+  [ -f $INSTALLED_FILE ] || touch $INSTALLED_FILE
   case "$ACTION" in
     check )
-      grep "^$2\$" $INSTALLED_FILE
+      grep "^$2\$" $INSTALLED_FILE;
       ;;
     install )
       grep "^$2\$" $INSTALLED_FILE || echo "$2" >> $INSTALLED_FILE
       ;;
     remove )
-      grep -v "^$1\$" $INSTALLED_FILE > $INSTALLED_FILE.tmp
+      grep -v "^$2\$" $INSTALLED_FILE > $INSTALLED_FILE.tmp
       mv -f $INSTALLED_FILE.tmp $INSTALLED_FILE
       ;;
   esac
