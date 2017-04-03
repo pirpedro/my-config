@@ -12,6 +12,7 @@ old_profile=$PROFILE
 old_alias=$ALIAS_FILE
 old_path=$PATH_FILE
 old_installed=$INSTALLED_FILE
+old_configuration=$CONFIGURATION_FILE
 
 function setup(){
   PROFILE=$tmp_file
@@ -21,6 +22,7 @@ function setup(){
   ALIAS_FILE=$tmp_file
   PATH_FILE=$tmp_file
   INSTALLED_FILE=$tmp_file
+  CONFIGURATION_FILE=$tmp_file
 }
 
 function teardown(){
@@ -29,6 +31,7 @@ function teardown(){
   ALIAS_FILE=$old_alias
   PATH_FILE=$old_path
   INSTALLED_FILE=$old_installed
+  CONFIGURATION_FILE=$old_configuration
 }
 
 @test "format_script_name" {
@@ -207,4 +210,29 @@ test2=value" >> $tmp_file
   run cat "$tmp_file"
   assert_equal "${lines[0]}" "first"
   assert_equal "${lines[1]}" "third"
+}
+
+@test "key/value configuration - insert/retrieve key" {
+  run my_config_set "sync.folder" "/path/to/file" && assert_success
+  run my_config_get "sync.folder" && assert_success
+  assert_output "/path/to/file"
+}
+
+@test "key/value configuration - retrieve inexistent key" {
+  run my_config_get "sync.folder" && assert_failure
+}
+
+@test "key/value configuration - unset value" {
+  run my_config_set "sync.folder" "/path/to/file" && assert_success
+  run my_config_get "sync.folder" && assert_success
+  assert_output "/path/to/file"
+  run my_config_unset "sync.folder" && assert_success
+  assert_output ""
+}
+
+@test "key/value configuration - remove section" {
+  run my_config_set "sync.folder" "/path/to/file" && assert_success
+  run my_config_set "sync.file" "test_file" && assert_success
+  run my_config_remove_section "sync" && assert_success
+  run my_config_get "sync.file" && assert_failure
 }

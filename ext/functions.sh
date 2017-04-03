@@ -169,7 +169,27 @@ __required(){
       mv -f $INSTALLED_FILE.tmp $INSTALLED_FILE
       ;;
   esac
+}
 
+CONFIGURATION_FILE=$HOME/.myconfig
+my_config_get() {
+  [ -f $CONFIGURATION_FILE ] || touch $CONFIGURATION_FILE
+  git config --get --file $CONFIGURATION_FILE "$1"
+}
+
+my_config_set() {
+  [ -f $CONFIGURATION_FILE ] || touch $CONFIGURATION_FILE
+  git config --file $CONFIGURATION_FILE "$1" "$2"
+}
+
+my_config_unset(){
+  [ -f $CONFIGURATION_FILE ] || touch $CONFIGURATION_FILE
+  git config --unset --file $CONFIGURATION_FILE "$1"
+}
+
+my_config_remove_section(){
+  [ -f $CONFIGURATION_FILE ] || touch $CONFIGURATION_FILE
+  git config --remove-section --file $CONFIGURATION_FILE "$1"
 }
 
 my_brew_install() {
