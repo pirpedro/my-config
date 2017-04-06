@@ -177,6 +177,11 @@ my_config_get() {
   git config --get --file $CONFIGURATION_FILE "$1"
 }
 
+my_config_get_regex(){
+  [ -f $CONFIGURATION_FILE ] || touch $CONFIGURATION_FILE
+  git config --get-regexp --file $CONFIGURATION_FILE "$1"
+}
+
 my_config_set() {
   [ -f $CONFIGURATION_FILE ] || touch $CONFIGURATION_FILE
   git config --file $CONFIGURATION_FILE "$1" "$2"

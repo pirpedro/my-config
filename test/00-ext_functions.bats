@@ -222,6 +222,17 @@ test2=value" >> $tmp_file
   run my_config_get "sync.folder" && assert_failure
 }
 
+@test "key/value configuration - retrieve all" {
+  my_config_set "test.key1.path" "value1"
+  my_config_set "test.key4.other" "value4"
+  my_config_set "test.key2.path" "value2"
+  my_config_set "test.key3.path" "value3"
+  run my_config_get_regex "test.*.path"
+  assert_equal "${lines[0]}" "test.key1.path value1"
+  assert_equal "${lines[1]}" "test.key2.path value2"
+  assert_equal "${lines[2]}" "test.key3.path value3"
+}
+
 @test "key/value configuration - unset value" {
   run my_config_set "sync.folder" "/path/to/file" && assert_success
   run my_config_get "sync.folder" && assert_success
