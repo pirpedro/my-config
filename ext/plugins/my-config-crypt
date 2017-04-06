@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(myconf --ext-path)/functions.sh
+source $(my config --ext-path)/functions.sh
 
 ACTION="$1"; shift;
 MODE=${crypt_mode:="veracrypt"}
@@ -59,7 +59,7 @@ remove )
   esac
 
 ;;
-createVault )
+create )
   DEVICE="$1"
   DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
   case "$MODE" in
@@ -84,7 +84,7 @@ createVault )
   esac
 
 ;;
-openVault )
+open )
   DEVICE="$1"
   MOUNTPOUNT="$2"
   DEVICE=${DEVICE:=$crypt_volume_folder/$crypt_volume_name$crypt_volume_extension}
@@ -117,7 +117,7 @@ openVault )
   esac
 
 ;;
-closeVault )
+close )
   DEVICE="$1"
   case "$MODE" in
     veracrypt )
