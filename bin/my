@@ -12,13 +12,12 @@ MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 MY_CONFIG_PLUGIN="$MY_CONFIG_EXT/plugins"
 
 source $MY_CONFIG_EXT/functions.sh
-CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
 
-if [[ ! -e $CONFIGURATION_FILE ]]; then
-  touch $CONFIGURATION_FILE
-fi
-
-__load_config_file $CONFIGURATION_FILE
+#CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
+#if [[ ! -e $CONFIGURATION_FILE ]]; then
+#  touch $CONFIGURATION_FILE
+#fi
+#__load_config_file $CONFIGURATION_FILE
 
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
@@ -34,17 +33,22 @@ export PACKAGE_RC
 
 #extension of the config files
 EXT=".sh"
-DEBUG_MODE=0;
+
+if empty "$1"; then
+  usage
+  die
+fi
+
+PLUGIN="$1"; shift;
+if ! startswith "$1" "-"; then
+  ACTION="$1"; shift;
+fi
 
 for arg do
   shift
   case "$arg" in
-    -v|--verbose )
-        verbosity on
-      ;;
-    -d|--debug )
-      set -x
-      ;;
+    -v|--verbose ) verbosity on; ;;
+    -d|--debug ) set -x; ;;
     --version ) cat $MY_CONFIG_DIR/.version; exit; ;;
     --exec-path) echo $MY_CONFIG_DIR; exit; ;;
     --ext-path ) echo $MY_CONFIG_EXT; exit; ;;
@@ -55,13 +59,7 @@ for arg do
   esac
 done
 
-if [[ "$!" != -* ]]; then
-  ACTION="$1"; shift;
-else
-  echo "$USAGE"
-  usage
-  die
-fi
+
 #this function load files, give execution
 #permission for each one and execute the right action on it.
 __load(){
@@ -135,50 +133,62 @@ if [ ! -e $PROFILE ]; then
   touch $PROFILE
 fi
 
-if ! __required check $(__format_script_name initial) && equals "$ACTION" "init"; then
+if ! __required check initial && equals "$PLUGIN" "config" && equals "$ACTION" "init"; then
   verbosity on
   warn "You didn't initialize my-config in your machine yet".
   warn "Execute '${0##*/} init' or see our manual for other options."
   die
 fi
 
-case "$ACTION" in
-  init)
-    __init;
-  ;;
-  install|remove)
-  if [[ "$1" != -* ]]; then TARGET=$1; fi
-    __load;
-  ;;
-  rc)
-    __load;
-  ;;
-  list)
-  	echo "Available configuration files:"
-  	for file in $PACKAGE_LOCATION/*$EXT
-  	do
-  		echo $(__format_script_name $file)
-  	done
-  ;;
-  link)
-    my_link $TARGET $1
-  ;;
-  sync)
-    my_sync $TARGET $1
-  ;;
-  test)
-
+case "$PLUGIN" in
+  config)
+    case "$ACTION" in
+      init)
+        __init;
+      ;;
+      install|remove)
+        [[ "$1" != -* ]] || die "No script name passed."
+        TARGET=$1
+        __load;
+      ;;
+      rc)
+        __load;
+      ;;
+      list)
+        echo "Available configuration files:"
+        for file in $PACKAGE_LOCATION/*$EXT
+        do
+          echo $(__format_script_name $file)
+        done
+      ;;
+      link)
+        my_link $TARGET $1
+      ;;
+      sync)
+        my_sync $TARGET $1
+      ;;
+      *)
+        PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
+        if [[ -e $PLUGIN ]]; then
+          if [[ ! -x $PLUGIN ]]; then
+            sudo chmod +x $PLUGIN
+          fi
+          $PLUGIN $TARGET "$@"
+        else
+          usage
+        fi
+      ;;
+    esac
   ;;
   *)
-    PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
-    if [[ -e $PLUGIN ]]; then
-      if [[ ! -x $PLUGIN ]]; then
-        sudo chmod +x $PLUGIN
-      fi
-      $PLUGIN $TARGET "$@"
-    else
-      usage
-      #exit 64
+  PLUGIN=$MY_CONFIG_PLUGIN/my-$PLUGIN
+  if [[ -e $PLUGIN ]]; then
+    if [[ ! -x $PLUGIN ]]; then
+      sudo chmod +x $PLUGIN
     fi
+    $PLUGIN $ACTION "$@"
+  else
+    usage
+  fi
   ;;
 esac
