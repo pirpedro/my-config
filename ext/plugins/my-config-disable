@@ -1,11 +1,11 @@
 #!/bin/bash
 
-MY_CONFIG_EXT=$(myconf --ext-path)
+MY_CONFIG_EXT=$(my config --ext-path)
 source $MY_CONFIG_EXT/functions.sh
 
 TARGET="$1"
-EXT=$(myconf --default-extension)
-PACKAGE_LOCATION=$(myconf --pkg-path)
+EXT=$(my config --default-extension)
+PACKAGE_LOCATION=$(my config --pkg-path)
 
 if [ -z $TARGET ]; then
    warn "You need to pass the script target"

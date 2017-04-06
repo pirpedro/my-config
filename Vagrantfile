@@ -15,8 +15,8 @@ Vagrant.configure("2") do |config|
       ln -sfF /vagrant/mac-packages-available $my_conf_dir/
       ln -sfF /vagrant/test $my_conf_dir/
       mkdir -p $my_conf_dir/packages-enabled
-      ln -sfF $my_conf_dir/bin/my /usr/local/bin/myconf
-      chmod +x /usr/local/bin/myconf
+      ln -sfF $my_conf_dir/bin/my /usr/local/bin/my
+      chmod +x /usr/local/bin/my
       chown -R vagrant $my_conf_dir
 SCRIPT
 
