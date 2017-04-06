@@ -159,7 +159,7 @@ __required(){
   [ -f $INSTALLED_FILE ] || touch $INSTALLED_FILE
   case "$ACTION" in
     check )
-      grep "^$2\$" $INSTALLED_FILE;
+      grep "^$2\$" $INSTALLED_FILE >/dev/null ;
       ;;
     install )
       grep "^$2\$" $INSTALLED_FILE || echo "$2" >> $INSTALLED_FILE
