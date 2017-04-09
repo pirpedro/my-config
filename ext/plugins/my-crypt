@@ -86,6 +86,7 @@ function _create {
   my_config_set "crypt.${volume_name}.name" "$volume_name"
   my_config_set "crypt.${volume_name}.folder" "$volume_folder"
 
+  volume_folder=$(expand_path "$volume_folder")
   local DEVICE="${volume_folder}/${volume_name}"
   if test -f "$DEVICE"; then
     my_config_remove_section "crypt.${volume_name}"
@@ -93,15 +94,17 @@ function _create {
   fi
   case "$mode" in
     veracrypt )
-      if [[ ! -d $(dirname $DEVICE) ]]; then
-        sudo mkdir -p $(dirname $DEVICE)
+      if [ ! -d $(dirname $DEVICE) ]; then
+        mkdir -p $(dirname $DEVICE)
       fi
       veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=exFAT --hash=SHA512 --volume-type=normal --size=50M "$DEVICE.vault"
-      note -f "Next step is the execution of 'open' command."
-      ;;
+      if equals "$?" 0; then
+        note -f "Next step is the execution of 'open' command."
+      fi
+    ;;
     encfs )
       note -f "Next step is the execution of 'open' command."
-      ;;
+    ;;
     * )
       my_config_remove_section "crypt.${volume_name}"
       die_with_status 2 "Mode $MODE not supported."
@@ -150,10 +153,12 @@ function _open {
   mount_folder=$(expand_path ${mount_folder})
   local DEVICE="${volume_folder}/${volume_name}"
   local MOUNTPOINT="${mount_folder}/${volume_name}"
-
+  if mount | grep $MOUNTPOINT > /dev/null; then
+    die "${volume_name} is already mounted."
+  fi
   case "$mode" in
     veracrypt )
-        if __is_mac && [[ ! -d $MOUNTPOINT ]]; then
+        if [ ! -d $MOUNTPOINT ]; then
           sudo mkdir -p $MOUNTPOINT
         fi
         veracrypt -t --mount --protect-hidden=no -k "" "$DEVICE.vault" $MOUNTPOINT
@@ -161,9 +166,7 @@ function _open {
     encfs )
         [ -d "$DEVICE" ] || mkdir -p "$DEVICE"
         [ -d "${mount_folder}" ] || mkdir -p "${mount_folder}"
-        if mount | grep $MOUNTPOINT > /dev/null; then
-          die "${volume_name} is already mounted."
-        fi
+
         local opts=""
         if flag standard; then
           opts="-S --standard"
@@ -202,12 +205,14 @@ function _close {
   case "$mode" in
     veracrypt )
         device=${volume_folder}/${volume_name}
-        veracrypt -t -d "$device.vault"
+        if ! veracrypt -t -d "$device.vault" > /dev/null 2>&1; then
+          die "${volume_name} is already closed."
+        fi
       ;;
     encfs )
         device=${mount_point}/${volume_name}
         if mount | grep $device > /dev/null; then
-          if __is_mac; then 
+          if __is_mac; then
             sudo umount $device
           else
             fusermount -u $device
