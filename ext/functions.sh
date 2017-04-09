@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $MY_CONFIG_EXT/bash-common/sh-common
+source $MY_CONFIG_EXT/bash-common/bin/sh-common
 
 BASH_DIR=$HOME/.bash
 PLIST=$BASH_DIR/my-config-plist
