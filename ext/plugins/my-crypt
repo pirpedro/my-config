@@ -207,7 +207,11 @@ function _close {
     encfs )
         device=${mount_point}/${volume_name}
         if mount | grep $device > /dev/null; then
-          fusermount -u $device
+          if __is_mac; then 
+            sudo umount $device
+          else
+            fusermount -u $device
+          fi
         else
           die "${volume_name} is already closed."
         fi
