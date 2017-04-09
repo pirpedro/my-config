@@ -1,6 +1,6 @@
 #!/bin/bash
 
-load test_helper/helper
+load $(pwd)/test_helper/helper.bash
 
 first_vault="myfirstvault"
 second_vault="mysecondvault"

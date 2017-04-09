@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-load test_helper/helper
+load $(pwd)/test_helper/helper.bash
 
 @test "crypt - install veracrypt" {
   run my crypt install veracrypt && assert_success
