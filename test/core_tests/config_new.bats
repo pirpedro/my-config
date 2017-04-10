@@ -4,6 +4,25 @@ load $(pwd)/test_helper/helper.bash
 
 recipe_name="test_recipe"
 
+function setup {
+  root_dir=$(my config --exec-path)
+  for file in $(find "$root_dir"  -name '"$recipe_name"*'); do
+    if [ -f "$file" ]; then
+      rm "$file"
+    fi
+  done
+}
+
+function teardown {
+  root_dir=$(my config --exec-path)
+  for file in $(find -L "$root_dir" -name "${recipe_name}*"); do
+    if [ -f "$file" ]; then
+      rm "$file"
+    fi
+  done
+}
+
+
 @test "config new - no argument passed" {
   run my config new && assert_failure
   assert_output "You need to pass a recipe name."
@@ -12,25 +31,25 @@ recipe_name="test_recipe"
 @test "config new - create new recipe" {
   run my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  rm "$output"
 }
 
 @test "config new - try to recreate an disabled recipe" {
   run my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  local file_path="$output"
   my config disable "$recipe_name" || true
   run my config new "$recipe_name" && assert_failure
   assert_output "$recipe_name recipe already exist."
-  rm "$file_path"
 }
 
 @test "config new - try to recreate an enabled recipe" {
   run my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  local file_path="$output"
   my config enable "$recipe_name" || true
   run my config new "$recipe_name" && assert_failure
   assert_output "$recipe_name recipe already exist."
-  rm "$file_path"
+}
+
+@test "config new - all recipes must started disabled" {
+  run my config new "$recipe_name" && assert_success
+  run my config disable -c "$recipe_name" && assert_success
 }
