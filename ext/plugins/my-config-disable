@@ -4,12 +4,11 @@ MY_CONFIG_EXT=$(my config --ext-path)
 source $MY_CONFIG_EXT/functions.sh
 
 TARGET="$1"
-EXT=$(my config --default-extension)
+EXTENSION=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
 
-if [ -z $TARGET ]; then
-   warn "You need to pass the script target"
-   exit 0
+if empty "$TARGET"; then
+   die "You need to pass a recipe name."
 fi
-rm $( ls $PACKAGE_LOCATION/$TARGET$EXT )
-rm -rf $PACKAGE_LOCATION/rc/$TARGET
+rm $( ls $PACKAGE_LOCATION/$TARGET$EXTENSION )
+rm -rf $PACKAGE_LOCATION/extra/$TARGET

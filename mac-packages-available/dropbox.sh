@@ -11,6 +11,6 @@ install)
 ;;
 remove)
 ;;
-rc)
+extra)
 ;;
 esac

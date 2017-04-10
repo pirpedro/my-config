@@ -8,16 +8,16 @@ PACKAGES_AVAILABLE=$(my config --all-pkg-path)
 EXT=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
 
-if [ -z "$TARGET" ]; then
-    warn "You need to pass the script target"
-    exit 0
+if empty "$TARGET"; then
+    die "You need to pass a recipe name."
 fi
-if [ -z $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) ]; then
-    warn "Script doesn't exist."
-    exit 0
+if empty_output $(ls "$PACKAGES_AVAILABLE/*$TARGET$EXT"); then
+    die "Recipe doesn't exist."
 fi
 ln -sf $(ls $PACKAGES_AVAILABLE/*$TARGET$EXT) $PACKAGE_LOCATION/
-if [[ -d $PACKAGES_AVAILABLE/rc/$TARGET ]]; then
-  mkdir -p $PACKAGE_LOCATION/rc/$TARGET
-  ln -sf $PACKAGES_AVAILABLE/rc/$TARGET/* $PACKAGE_LOCATION/rc/$TARGET
+if [ -d $PACKAGES_AVAILABLE/extra/$TARGET ]; then
+  if [ ! -d "$PACKAGE_LOCATION/extra/$TARGET" ]; then
+    mkdir -p "$PACKAGE_LOCATION/extra/$TARGET"
+  fi
+  ln -sf "$PACKAGES_AVAILABLE/extra/$TARGET/*" "$PACKAGE_LOCATION/extra/$TARGET"
 fi
