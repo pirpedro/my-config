@@ -2,8 +2,8 @@
 
 load $(pwd)/test_helper/helper.bash
 
-first_vault="myfirstvault"
-second_vault="mysecondvault"
+first_vault="myfirstveravault"
+second_vault="mysecondveravault"
 volume_folder="$HOME/tmp"
 mount_folder="$HOME/mount"
 extension=".vault"
@@ -63,13 +63,13 @@ function assert_mounted {
 }
 
 @test "crypt(veracrypt) - create vault without name" {
-  printf "newname\nveracrypt\n${volume_folder}\n${password}\n${password}\n${pim}\n${random320}\n" | run my crypt create
+  printf "newveraname\nveracrypt\n${volume_folder}\n${password}\n${password}\n${pim}\n${random320}\n" | run my crypt create
   assert_success
-  assert [ -f "$volume_folder/newname${extension}" ]
+  assert [ -f "$volume_folder/newveraname${extension}" ]
 }
 
 @test "crypt(veracrypt) - create and open vault without passing name" {
-  vault_name="newname"
+  vault_name="newveraname"
   printf "${vault_name}\nveracrypt\n${volume_folder}\n${password}\n${password}\n${pim}\n${random320}\n" | run my crypt create
   open_new "${vault_name}"
   assert_success

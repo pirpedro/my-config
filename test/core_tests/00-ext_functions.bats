@@ -7,7 +7,7 @@ load $(pwd)/test_helper/helper.bash
 MY_CONFIG_EXT=../ext
 source ../ext/functions.sh
 
-tmp_file="teste_file"
+tmp_file="$HOME/$(random 16)"
 old_profile=$PROFILE
 old_alias=$ALIAS_FILE
 old_path=$PATH_FILE
@@ -16,7 +16,7 @@ old_configuration=$CONFIGURATION_FILE
 
 function setup(){
   PROFILE=$tmp_file
-  touch $tmp_file
+  [ -f "$tmp_file" ] || touch "$tmp_file"
   chmod +x $tmp_file
   PROFILE=$tmp_file
   ALIAS_FILE=$tmp_file
