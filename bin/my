@@ -1,15 +1,49 @@
 #!/bin/bash
 
-USAGE=`cat << EOF
-{install|remove|enable|disable|new|list} {all | <specific script>}
-EOF`
-
 #check if exists environment variable to manually change resources location
 MY_CONFIG_DIR=${MY_CONFIG_PATH:=/usr/local/my-config}
 #path to subfolder with extra functions and files
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 #path to plugins folder
 MY_CONFIG_PLUGIN="$MY_CONFIG_EXT/plugins"
+
+USAGE=`cat << EOF
+<command> [options] <action>
+    -v| --verbose                     Verbose mode.
+    -d| --debug                       Debug mode.
+        --version                     Print the version and exit.
+    -h| --help                        Print this help.
+EOF`
+
+LONG_USAGE=`cat << EOF
+Common commands:
+
+  config              manage recipes: creation,installation,list, etc.
+  crypt               manage creation and encryption of volumes.
+
+  For help on any individual command run 'my COMMAND -h'.
+
+  CONFIG is the most important command. To see full help run
+                'my config --list-commands'
+EOF`
+
+function config_usage {
+  USAGE=`cat << EOF
+config <action> [all | <specific script]
+EOF`
+
+  LONG_USAGE=`cat << EOF
+Common commands:
+
+  install              install recipe(s).
+  remove               remove installed recipe(s).
+  list                 list enabled recipes.
+  enable               enable a recipe.
+  disable              disable a recipe.
+  new                  create a new recipe from template.
+
+EOF`
+}
 
 source $MY_CONFIG_EXT/functions.sh
 
@@ -47,15 +81,16 @@ fi
 for arg do
   shift
   case "$arg" in
-    -v|--verbose ) verbosity on; ;;
-    -d|--debug ) set -x; ;;
-    --version ) cat $MY_CONFIG_DIR/.version; exit; ;;
-    --exec-path) echo $MY_CONFIG_DIR; exit; ;;
-    --ext-path ) echo $MY_CONFIG_EXT; exit; ;;
-    --pkg-path ) echo $PACKAGE_LOCATION; exit; ;;
-    --all-pkg-path ) echo $PACKAGES_AVAILABLE; exit; ;;
-    --default-extension ) echo $EXT; exit; ;;
-    *) set -- "$@" "$arg"; ;;
+    -v|--verbose ) verbosity on;                      ;;
+    -d|--debug ) set -x;                              ;;
+    --version ) cat $MY_CONFIG_DIR/.version; exit;    ;;
+    --exec-path) echo $MY_CONFIG_DIR; exit;           ;;
+    --ext-path ) echo $MY_CONFIG_EXT; exit;           ;;
+    --pkg-path ) echo $PACKAGE_LOCATION; exit;        ;;
+    --all-pkg-path ) echo $PACKAGES_AVAILABLE; exit;  ;;
+    --default-extension ) echo $EXT; exit;            ;;
+    --list-commands ) config_usage; usage; exit       ;;
+    *) set -- "$@" "$arg";                            ;;
   esac
 done
 

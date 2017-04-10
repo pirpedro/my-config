@@ -1,6 +1,44 @@
 #!/bin/bash
 
+USAGE=`cat << EOF
+<action> [options] [<args>]
+EOF`
+LONG_USAGE=`cat << EOF
+Common actions:
+
+  install           install an encryption mode [<veracrypt|encfs>].
+  remove            remove an encryption mode [<veracrypt|encfs>].
+  create            create necessary configuration for a new vault.
+  open              mount a previosly created vault.
+  close             umount a vault.
+
+  INSTALL
+    args
+      veracrypt     install veracrypt packages in your system.
+      encfs         install encfs packages in your system.
+
+  REMOVE
+    args
+      veracrypt     install veracrypt packages in your system.
+      encfs         install encfs packages in your system.
+
+  CREATE
+    args
+      [<vault_name>] unique name for your new vault.
+
+  OPEN
+    options
+      -s             use standard configuration to mount a vault.
+    args
+      [<vault_name>] unique name for a created vault.
+
+  CLOSE
+    args
+      [<vault_name>] unique name for a created vault.
+EOF`
+
 source $(my config --ext-path)/functions.sh
+
 ACTION="$1"; shift;
 
 function _install {
