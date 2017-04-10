@@ -3,12 +3,42 @@
 MY_CONFIG_EXT=$(my config --ext-path)
 source $MY_CONFIG_EXT/functions.sh
 
-TARGET="$1"
+
 EXTENSION=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
 
-if empty "$TARGET"; then
+for arg do
+  shift
+  case "$arg" in
+    -c | --check ) set_flag check_disable ;;
+    *) set -- "$@" "$arg"                 ;;
+  esac
+done
+
+if empty "$1"; then
    die "You need to pass a recipe name."
 fi
-rm $( ls $PACKAGE_LOCATION/$TARGET$EXTENSION )
-rm -rf $PACKAGE_LOCATION/extra/$TARGET
+
+function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
+
+function __disable {
+  local recipe="$1"
+  if __is_enabled "$recipe"; then
+    rm $( ls $PACKAGE_LOCATION/$TARGET$EXTENSION )
+    rm -rf $PACKAGE_LOCATION/extra/$recipe
+    exit ${FLAG_TRUE}
+  else
+    die "$recipe is already disabled or not exist."
+  fi
+
+}
+
+if flag check_disable; then
+  if ! __is_enabled "$1"; then
+    exit ${FLAG_TRUE}
+  else
+    exit ${FLAG_FALSE}
+  fi
+else
+  __disable "$1"
+fi
