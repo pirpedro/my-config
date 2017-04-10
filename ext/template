@@ -1,5 +1,6 @@
 #!/bin/bash
-source $MY_CONFIG_EXT/functions.sh
+
+source $(my config --ext-path)/functions.sh
 
 case "$1" in
 install)
