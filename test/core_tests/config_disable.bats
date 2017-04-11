@@ -50,7 +50,7 @@ function teardown {
 }
 
 @test "config disable - check with a no existent recipe" {
-  run my config disable -c "notarecipe" && assert_failure
+  run my config disable -c "notarecipe" && assert_success
 }
 
 @test "config disable - check with an already disabled recipe" {

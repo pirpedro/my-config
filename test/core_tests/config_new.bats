@@ -22,34 +22,33 @@ function teardown {
   done
 }
 
-
 @test "config new - no argument passed" {
-  run my config new && assert_failure
+  run sudo my config new && assert_failure
   assert_output "You need to pass a recipe name."
 }
 
 @test "config new - create new recipe" {
-  run my config new "$recipe_name" && assert_success
+  run sudo my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
 }
 
 @test "config new - try to recreate an disabled recipe" {
-  run my config new "$recipe_name" && assert_success
+  run sudo my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  my config disable "$recipe_name" || true
+  sudo my config disable "$recipe_name" || true
   run my config new "$recipe_name" && assert_failure
   assert_output "$recipe_name recipe already exist."
 }
 
 @test "config new - try to recreate an enabled recipe" {
-  run my config new "$recipe_name" && assert_success
+  run sudo my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  my config enable "$recipe_name" || true
-  run my config new "$recipe_name" && assert_failure
+  sudo my config enable "$recipe_name" || true
+  run sudo my config new "$recipe_name" && assert_failure
   assert_output "$recipe_name recipe already exist."
 }
 
 @test "config new - all recipes must started disabled" {
-  run my config new "$recipe_name" && assert_success
-  run my config disable -c "$recipe_name" && assert_success
+  run sudo my config new "$recipe_name" && assert_success
+  run sudo my config disable -c "$recipe_name" && assert_success
 }

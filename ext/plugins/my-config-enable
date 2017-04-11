@@ -4,7 +4,7 @@ MY_CONFIG_EXT=$(my config --ext-path)
 source $MY_CONFIG_EXT/functions.sh
 
 PACKAGES_AVAILABLE=$(my config --all-pkg-path)
-EXT=$(my config --default-extension)
+EXTENSION=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
 
 for arg do
@@ -19,13 +19,13 @@ if empty "$1"; then
    die "You need to pass a recipe name."
 fi
 
-function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
+function __is_enabled { [ -f "$PACKAGE_LOCATION/$1$EXTENSION" ]; }
 
 function __enable {
   local recipe="$1"
-  if ! __is_enabled "$recipe"; then
-    ln -sf $(ls $PACKAGES_AVAILABLE/*$recipe$EXT) $PACKAGE_LOCATION/
-    if [ -d $PACKAGES_AVAILABLE/extra/$recipe ]; then
+  if ! __is_enabled "$recipe" && test -f "$PACKAGES_AVAILABLE/$recipe$EXTENSION"; then
+    ln -sf "$PACKAGES_AVAILABLE/$recipe$EXTENSION" $PACKAGE_LOCATION/
+    if [ -d "$PACKAGES_AVAILABLE/extra/$recipe" ]; then
       if [ ! -d "$PACKAGE_LOCATION/extra/$recipe" ]; then
         mkdir -p "$PACKAGE_LOCATION/extra/$recipe"
       fi

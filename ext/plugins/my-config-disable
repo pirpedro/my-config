@@ -24,7 +24,7 @@ function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
 function __disable {
   local recipe="$1"
   if __is_enabled "$recipe"; then
-    rm $( ls $PACKAGE_LOCATION/$TARGET$EXTENSION )
+    rm $( ls $PACKAGE_LOCATION/$recipe$EXTENSION )
     rm -rf $PACKAGE_LOCATION/extra/$recipe
     exit ${FLAG_TRUE}
   else
@@ -35,6 +35,7 @@ function __disable {
 
 if flag check_disable; then
   if ! __is_enabled "$1"; then
+    echo "$1"
     exit ${FLAG_TRUE}
   else
     exit ${FLAG_FALSE}
