@@ -157,6 +157,25 @@ __init(){
     fi
   fi
 }
+
+__list() {
+  for arg do
+    shift
+    case "$arg" in
+      -a | --all) set_flag list_all     ;;
+      -q | --quiet) set_flag list_quiet ;;
+      *) set -- "$@" "$arg"
+    esac
+  done
+
+  flag list_quiet || echo "Available configuration files:"
+  local location=$PACKAGE_LOCATION
+  ! flag list_all || location=$PACKAGES_AVAILABLE
+  for file in $location/*$EXT
+  do
+    echo $(__format_script_name $file)
+  done
+}
 #check if the script has super user permissions
 #if [ ! "$(id -u)" = "0" ]; then
 #        warn "You need super user privileges to run some of the scripts."
@@ -190,11 +209,7 @@ case "$PLUGIN" in
         __load;
       ;;
       list)
-        echo "Available configuration files:"
-        for file in $PACKAGE_LOCATION/*$EXT
-        do
-          echo $(__format_script_name $file)
-        done
+        __list "$@"
       ;;
       link)
         my_link $TARGET $1
