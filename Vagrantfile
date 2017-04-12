@@ -20,6 +20,12 @@ Vagrant.configure("2") do |config|
       chown -R vagrant $my_conf_dir
 SCRIPT
 
+  config.vm.provision "auto-completion",
+    type: "shell",
+    inline:<<SCRIPT
+      sudo cp /vagrant/contrib/completion/my.bash /etc/bash_completion.d/my
+SCRIPT
+
   config.vm.provision "available-packages",
     type: "shell",
     inline:<<SCRIPT

@@ -154,7 +154,7 @@ function _open {
   for arg do
     shift
     case "$arg" in
-    -s) set_flag standard ;;
+    -s | --standard) set_flag standard ;;
     *) set -- "$@" "$arg"; ;;
     esac
   done
