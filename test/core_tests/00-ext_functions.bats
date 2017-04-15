@@ -2,7 +2,7 @@
 
 #Test functions inside ext/functions.sh file.
 
-load $(pwd)/test_helper/helper.bash
+load "$(pwd)"/test_helper/helper.bash
 
 MY_CONFIG_EXT=../ext
 source ../ext/functions.sh

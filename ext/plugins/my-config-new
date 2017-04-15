@@ -4,6 +4,7 @@ MY_CONFIG_EXT=$(my config --ext-path)
 PACKAGES_AVAILABLE=$(my config --all-pkg-path)
 EXTENSION=$(my config --default-extension)
 TARGET="$1"
+# shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 if empty "$TARGET"; then

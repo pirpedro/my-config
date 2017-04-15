@@ -1,6 +1,7 @@
 #!/bin/bash
 
 MY_CONFIG_EXT=$(my config --ext-path)
+# shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 PACKAGES_AVAILABLE=$(my config --all-pkg-path)

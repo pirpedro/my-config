@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#shellcheck disable=SC2034
 USAGE=`cat << EOF
 <action> [options] [<args>]
 EOF`
@@ -37,7 +38,8 @@ Common actions:
       [<vault_name>] unique name for a created vault.
 EOF`
 
-source $(my config --ext-path)/functions.sh
+# shellcheck source=ext/functions.sh
+source "$(my config --ext-path)"/functions.sh
 
 ACTION="$1"; shift;
 
@@ -106,7 +108,7 @@ function _create {
   local volume_name volume_folder mode
   if empty "$1"; then
     ask --question="Choose volume name:" --free-answer
-    volume_name="${ask_answer}"
+    volume_name="${ask_answer:?}"
     else
     volume_name="$1"
   fi
@@ -116,9 +118,9 @@ function _create {
   fi
 
   ask --question="Choose encryption tool:" --options="encfs,veracrypt" --default="veracrypt"
-  mode="${ask_answer}"
+  mode="${ask_answer:?}"
   ask --question="Choose volume folder:" --default="~/.myvaults" --free-answer
-  volume_folder="${ask_answer}"
+  volume_folder="${ask_answer:?}"
 
   my_config_set "crypt.${volume_name}.mode" "$mode"
   my_config_set "crypt.${volume_name}.name" "$volume_name"
@@ -132,8 +134,8 @@ function _create {
   fi
   case "$mode" in
     veracrypt )
-      if [ ! -d $(dirname $DEVICE) ]; then
-        mkdir -p $(dirname $DEVICE)
+      if [ ! -d "$(dirname $DEVICE)" ]; then
+        mkdir -p "$(dirname $DEVICE)"
       fi
       veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=exFAT --hash=SHA512 --volume-type=normal --size=50M "$DEVICE.vault"
       if equals "$?" 0; then
@@ -178,10 +180,10 @@ function _open {
     if __is_mac; then
       default="/Volumes"
     else
-      default="~/myvaults"
+      default="$HOME/myvaults"
     fi
     ask --question="Choose mount point:" --default="$default" --free-answer
-    mount_folder=${ask_answer}
+    mount_folder=${ask_answer:?}
   fi
   my_config_set "crypt.${volume_name}.mountpoint" "$mount_folder"
   volume_name=$(my_config_get "crypt.${volume_name}.name")

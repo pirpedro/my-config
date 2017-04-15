@@ -1,11 +1,11 @@
 #!/bin/bash
 
-load $(pwd)/test_helper/helper.bash
+load "$(pwd)"/test_helper/helper.bash
 
 first_vault="myfirstvault"
 second_vault="mysecondvault"
 volume_folder="$HOME/tmp"
-mount_folder="$HOME/mount"
+mount_folder="$HOME/mount_encfs"
 password="password"
 
 function setup() {

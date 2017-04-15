@@ -1,11 +1,11 @@
 #!/bin/bash
 
-load $(pwd)/test_helper/helper.bash
+load "$(pwd)"/test_helper/helper.bash
 
 first_vault="myfirstveravault"
 second_vault="mysecondveravault"
 volume_folder="$HOME/tmp"
-mount_folder="$HOME/mount"
+mount_folder="$HOME/mount_vera"
 extension=".vault"
 password=$(cat /dev/urandom | base64 | tr -dc "A-Za-z0-9_" | head -c25)
 pim="50"

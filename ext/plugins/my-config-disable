@@ -1,8 +1,8 @@
 #!/bin/bash
 
 MY_CONFIG_EXT=$(my config --ext-path)
+# shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
-
 
 EXTENSION=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
@@ -24,7 +24,7 @@ function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
 function __disable {
   local recipe="$1"
   if __is_enabled "$recipe"; then
-    rm $( ls $PACKAGE_LOCATION/$recipe$EXTENSION )
+    rm "$( ls $PACKAGE_LOCATION/$recipe$EXTENSION )"
     rm -rf $PACKAGE_LOCATION/extra/$recipe
     exit ${FLAG_TRUE}
   else

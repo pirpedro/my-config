@@ -1,9 +1,9 @@
 #!/bin/bash
 
+# shellcheck source=ext/bash-common/bin/sh-common
 source $MY_CONFIG_EXT/bash-common/bin/sh-common
 
 BASH_DIR=$HOME/.bash
-PLIST=$BASH_DIR/my-config-plist
 PROFILE=$BASH_DIR/my-config.sh
 ALIAS_FILE=$BASH_DIR/.bash_aliases
 PATH_FILE=$BASH_DIR/.bash_path
@@ -11,7 +11,7 @@ PATH_FILE=$BASH_DIR/.bash_path
 #format the script name for a user friendly package name
 __format_script_name(){
   ! empty "$1" || die "No argument passed to '$0' function."
-  echo `basename ${1%.*}` #| sed 's/^.*\///'
+  echo "$(basename ${1%.*})" #| sed 's/^.*\///'
 }
 
 #load and export any variable in a configuration file
@@ -38,7 +38,7 @@ __load_config_file(){
     if echo $line | grep -F = &>/dev/null
     then
       varname=$(echo "$line" | cut -d '=' -f 1)
-      export $varname=$(echo "$line" | cut -d '=' -f 2-)
+      export $varname="$(echo "$line" | cut -d '=' -f 2-)"
     fi
   done < "$configfile"
 }
@@ -88,27 +88,13 @@ my_link(){
   ln -sfn $1 $2
 }
 
-my_sync(){
-  SOURCE=${1//$HOME/"/home"}
-  SOURCE=$sync_folder$SOURCE
-  local TARGET
-  if [[ $# -eq 1 ]]; then
-    TARGET="$1"
-  else
-    TARGET="$2"
-  fi
-  if [[ -d $TARGET ]]; then
-    sudo rm -rf $TARGET
-  fi
-  my_link $SOURCE $TARGET
-}
-
 my_path_remove(){
   ! empty "$1" || die "No argument passed to '$0' function."
 
   local NEWPATH DIR
   #try to recover from bash file
-  local PATH_VARIABLE=`cat $PATH_FILE`
+  local PATH_VARIABLE
+  PATH_VARIABLE=$(cat $PATH_FILE)
   #remove last part of string that contains '$PATH'
   PATH_VARIABLE=${PATH_VARIABLE%%':$PATH'}
   #remove front part that contains 'PATH='
@@ -131,7 +117,8 @@ my_path_remove(){
 my_path(){
   ! empty "$1" || die "No argument passed to '$0' function."
   my_path_remove "$1"
-	local PATH_VARIABLE=`cat $PATH_FILE`
+	local PATH_VARIABLE
+  PATH_VARIABLE="$(cat $PATH_FILE)"
   #remove last part of string that contains '$PATH'
   PATH_VARIABLE=${PATH_VARIABLE%%':$PATH'}
   #remove front part that contains 'export PATH='

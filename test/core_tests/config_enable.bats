@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-load $(pwd)/test_helper/helper.bash
+load "$(pwd)"/test_helper/helper.bash
 
 recipe_name="test_recipe"
 
