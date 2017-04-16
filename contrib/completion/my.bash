@@ -82,6 +82,51 @@ __my_subcommands() {
   return 1
 }
 
+_my_sync_list(){
+  case "$cur" in
+    -*)
+      local opts="-v --verbose"
+      COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+      ;;
+    *)
+      ;;
+  esac
+}
+
+_my_sync_unset(){
+  local sources="$(my_config_get_regex sync.*.source | awk '{ print $2 }')"
+  COMPREPLY=( $(compgen -W "$sources" -- "$cur" ) )
+}
+
+_my_sync(){
+  local subcommands="
+    alias
+    list
+    refresh
+    unset
+  "
+  __my_subcommands "$subcommands" && return
+
+  local opts="
+    -h
+    -c --copy
+    -f --force
+  "
+
+  case "$cur" in
+    -*)
+      COMPREPLY=( $(compgen -W "$opts" -- "$cur" ) )
+      ;;
+
+    *)
+      if [ ! -e "$prev" ]; then
+        COMPREPLY+=( $(compgen -W "$subcommands" -- "$cur") )
+      fi
+      _filedir
+      ;;
+  esac
+}
+
 _my_crypt_install() {
   local packages="encfs veracrypt"
   COMPREPLY=($(compgen -W "$packages" -- "$cur"))
@@ -242,6 +287,7 @@ _my(){
   local top_level_commands=(
     config
     crypt
+    sync
   )
 
   local commands=(${top_level_commands[*]})
