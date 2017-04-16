@@ -27,10 +27,8 @@ function __enable {
   if ! __is_enabled "$recipe" && test -f "$PACKAGES_AVAILABLE/$recipe$EXTENSION"; then
     ln -sf "$PACKAGES_AVAILABLE/$recipe$EXTENSION" $PACKAGE_LOCATION/
     if [ -d "$PACKAGES_AVAILABLE/extra/$recipe" ]; then
-      if [ ! -d "$PACKAGE_LOCATION/extra/$recipe" ]; then
-        mkdir -p "$PACKAGE_LOCATION/extra/$recipe"
-      fi
-      ln -sf "$PACKAGES_AVAILABLE/extra/$recipe/*" "$PACKAGE_LOCATION/extra/$recipe"
+      [ -d "$PACKAGE_LOCATION/extra/" ] || mkdir -p "$PACKAGE_LOCATION/extra/"
+      [ -e "$PACKAGE_LOCATION/extra/$recipe" ] || ln -sf "$PACKAGES_AVAILABLE/extra/$recipe" "$PACKAGE_LOCATION/extra/$recipe"
     fi
   else
       die "$recipe is already enabled or not exist."
