@@ -68,10 +68,99 @@ export PACKAGE_EXTRA
 #extension of the config files
 EXT=".sh"
 
-if empty "$1"; then
-  usage
-  die
-fi
+#this function load files, give execution
+#permission for each one and execute the right action on it.
+__load(){
+  local files target action script_name
+  action="${1:-'install'}"
+  target="${2:-'all'}"
+
+	[ -d $PACKAGE_LOCATION ] || die "Packages directory does not exist."
+
+  if equals "$target" "all"; then
+    files=($( ls $PACKAGE_LOCATION/*$EXT));
+  else
+    [ -e $PACKAGE_LOCATION/$target$EXT ] || die "Configuration file for $target not found.";
+    files=( "$PACKAGE_LOCATION/$target$EXT" );
+  fi
+
+  for file in ${files[*]}
+	do
+		if [ -f $file ]; then
+      script_name=$(__format_script_name $file)
+      if __required check "$script_name"; then
+        note "The script $script_name is already installed"
+        continue
+      fi
+
+			if [ ! -x $file ]; then
+				sudo chmod +x $file
+			fi
+      note "$action $script_name: Action Started..."
+			source $PROFILE
+			$file $action $MY_CONFIG_DIR $MY_CONFIG_EXT
+      __required $action "$script_name"
+      note "$action $script_name: Action Finished."
+		fi
+	done
+}
+
+__config_install(){
+  __load "install" "$@"
+}
+
+__config_remove(){
+  __load "remove" "$@"
+}
+
+__config_init(){
+  verbosity on
+  if __required check "$(__format_script_name initial)"; then
+    warn "You already initialize my-config in your system."
+    warn "Execute '${0##*/} -h' to learn about everything you can use."
+    exit 1;
+  else
+    note "Hi! Welcome to my-config environment command."
+    note "Initializing means the creation of useful files."
+    if ask_boolean "Can we proceed?"; then
+      note "So, let's start!"
+      TARGET="initial"
+      ACTION="install"
+      __load;
+      note "Now you can use and extend all the scripts for your own behavior."
+      note "Good work!"
+    else
+      note "Ok! Maybe next time."
+      note "See our manual and comeback as soon as possible."
+    fi
+  fi
+}
+
+__config_list() {
+  for arg do
+    shift
+    case "$arg" in
+      -a | --all) set_flag list_all     ;;
+      -q | --quiet) set_flag list_quiet ;;
+      *) set -- "$@" "$arg"
+    esac
+  done
+
+  flag list_quiet || echo "Available configuration files:"
+  local location=$PACKAGE_LOCATION
+  ! flag list_all || location=$PACKAGES_AVAILABLE
+  for file in $location/*$EXT
+  do
+    echo "$(__format_script_name $file)"
+  done
+}
+#check if the script has super user permissions
+#if [ ! "$(id -u)" = "0" ]; then
+#        warn "You need super user privileges to run some of the scripts."
+#	exit 1
+#fi
+
+! empty "$1" || { usage; die; }
 
 PLUGIN="$1"; shift;
 if ! startswith "$1" "-"; then
@@ -94,96 +183,8 @@ for arg do
   esac
 done
 
-
-#this function load files, give execution
-#permission for each one and execute the right action on it.
-__load(){
-  local FILES
-	if [ ! -d $PACKAGE_LOCATION ]; then
-                warn "Packages directory does not exist.";
-                exit 64;
-        fi
-        if [ -z $TARGET ] || [ "$TARGET" == "all" ]; then
-                FILES=($( ls $PACKAGE_LOCATION/*$EXT));
-        else
-                if [ ! -e $PACKAGE_LOCATION/*$TARGET$EXT ]; then
-                        warn "Configuration file for $TARGET not found";
-                        exit 0;
-                fi
-                FILES=($( ls $PACKAGE_LOCATION/*$TARGET$EXT));
-        fi
-
-  local script_name;
-	for file in "${FILES[@]}"
-	do
-		if [ -f $file ]; then
-      script_name=$(__format_script_name $file)
-      if __required check "$script_name"; then
-        note "The script "$script_name" is already installed"
-        continue
-      fi
-
-			if [ ! -x $file ]; then
-				sudo chmod +x $file
-			fi
-      note "$ACTION "$script_name": Action Started..."
-			source $PROFILE
-			$file $ACTION $MY_CONFIG_DIR $MY_CONFIG_EXT
-      __required $ACTION "$script_name"
-      note "$ACTION "$script_name": Action Finished."
-		fi
-	done
-}
-
-__init(){
-  verbosity on
-  if __required check $(__format_script_name initial); then
-    warn "You already initialize my-config in your system."
-    warn "Execute '${0##*/} -h' to learn about everything you can use."
-    exit 1;
-  else
-    note "Hi! Welcome to my-config environment command."
-    note "Initializing means the creation of useful files."
-    if ask_boolean "Can we proceed?"; then
-      note "So, let's start!"
-      TARGET="initial"
-      ACTION="install"
-      __load;
-      note "Now you can use and extend all the scripts for your own behavior."
-      note "Good work!"
-    else
-      note "Ok! Maybe next time."
-      note "See our manual and comeback as soon as possible."
-    fi
-  fi
-}
-
-__list() {
-  for arg do
-    shift
-    case "$arg" in
-      -a | --all) set_flag list_all     ;;
-      -q | --quiet) set_flag list_quiet ;;
-      *) set -- "$@" "$arg"
-    esac
-  done
-
-  flag list_quiet || echo "Available configuration files:"
-  local location=$PACKAGE_LOCATION
-  ! flag list_all || location=$PACKAGES_AVAILABLE
-  for file in $location/*$EXT
-  do
-    echo $(__format_script_name $file)
-  done
-}
-#check if the script has super user permissions
-#if [ ! "$(id -u)" = "0" ]; then
-#        warn "You need super user privileges to run some of the scripts."
-#	exit 1
-#fi
-
 if [ ! -e $PROFILE ]; then
-  mkdir -p $(dirname $PROFILE)
+  mkdir -p "$(dirname $PROFILE)"
   touch $PROFILE
 fi
 
@@ -194,51 +195,29 @@ if ! __required check initial && equals "$PLUGIN" "config" && equals "$ACTION" "
   die
 fi
 
-case "$PLUGIN" in
-  config)
-    case "$ACTION" in
-      init)
-        __init;
-      ;;
-      install|remove)
-        [[ "$1" != -* ]] || die "No script name passed."
-        TARGET=$1
-        __load;
-      ;;
-      extra)
-        __load;
-      ;;
-      list)
-        __list "$@"
-      ;;
-      link)
-        my_link $TARGET $1
-      ;;
-      sync)
-        my_sync $TARGET $1
-      ;;
-      *)
-        PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
-        if [[ -e $PLUGIN ]]; then
-          if [[ ! -x $PLUGIN ]]; then
-            sudo chmod +x $PLUGIN
-          fi
-          $PLUGIN $TARGET "$@"
-        else
-          usage
-        fi
-      ;;
-    esac
-  ;;
+config_actions="config-init config-install config-remove config-extra config-list"
+extglob_on
+case "$PLUGIN-$ACTION" in
+  $(case_one "$config_actions") )
+    ACTION="__config_$ACTION";
+    extglob_restore
+    declare -F $ACTION >/dev/null && $ACTION "$@"
+    exit
+    ;;
+  config-*)
+    PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
+    ACTION=""
+    ;;
   *)
-  PLUGIN=$MY_CONFIG_PLUGIN/my-$PLUGIN
-  if [[ -e $PLUGIN ]]; then
-    if [[ ! -x $PLUGIN ]]; then
-      sudo chmod +x $PLUGIN
-    fi
-    $PLUGIN $ACTION "$@"
-  else
-    usage
-  fi
-  ;;
+    PLUGIN=$MY_CONFIG_PLUGIN/my-$PLUGIN
+    ;;
 esac
+
+if [[ -e $PLUGIN ]]; then
+  if [[ ! -x $PLUGIN ]]; then
+    sudo chmod +x $PLUGIN
+  fi
+  $PLUGIN $ACTION "$@"
+else
+  usage
+fi
