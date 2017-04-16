@@ -70,7 +70,7 @@ teardown() {
 
 @test "sync - only one argument" {
   run my sync "~/path/to/a/folder" && assert_failure
-  assert_output "Source and target paths doesn't exist."
+  assert_output "Fatal: Same location."
 }
 
 @test "sync - two argument (paths doesn't exist)" {
