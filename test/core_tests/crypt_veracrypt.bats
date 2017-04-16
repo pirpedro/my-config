@@ -21,6 +21,15 @@ function setup() {
   [ ! -f ~/.myconfig ] || rm ~/.myconfig
 }
 
+function teardown() {
+  [ ! -d "$volume_folder" ] || rm -rf "$volume_folder"
+  veracrypt -d
+  if [ -d "$mount_folder" ]; then
+    sudo rm -rf "$mount_folder"
+  fi
+  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+}
+
 function create_new {
   printf "veracrypt\n${volume_folder}\n${password}\n${password}\n${pim}\n${random320}\n" | run my crypt create "$1"
 }
@@ -55,11 +64,11 @@ function assert_mounted {
 }
 
 @test "crypt(veracrypt) - create two vaults in different folders" {
-  other_folder="~/tmp2"
+  other_folder="$HOME/tmp2"
   create_new "$first_vault" && assert_success
   printf "veracrypt\n${other_folder}\n${password}\n${password}\n${pim}\n${random320}\n" | run my crypt create "$second_vault"
   assert_success
-  sudo rm -rf $other_folder
+  rm -rf $other_folder
 }
 
 @test "crypt(veracrypt) - create vault without name" {

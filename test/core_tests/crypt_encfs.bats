@@ -23,6 +23,20 @@ function setup() {
   [ ! -f ~/.myconfig ] || rm ~/.myconfig
 }
 
+function teardown() {
+  [ ! -d "$volume_folder" ] || rm -rf "$volume_folder"
+  if [ -d "$mount_folder" ]; then
+    if mount | grep "$mount_folder/$first_vault" > /dev/null; then
+      fusermount -u "$mount_folder/$first_vault"
+    fi
+    if mount | grep "$mount_folder/$second_vault" > /dev/null; then
+      fusermount -u "$mount_folder/$second_vault"
+    fi
+    rm -rf "$mount_folder"
+  fi
+  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+}
+
 @test "crypt(encfs) - create new vault" {
   printf "encfs\n${volume_folder}\n" | run my crypt create "$first_vault"
   assert_success
