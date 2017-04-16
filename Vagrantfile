@@ -36,7 +36,7 @@ SCRIPT
   config.vm.provision :shell,
     inline:<<SCRIPT
       cd /usr/local/my-config/packages-enabled
-      ln -sfF ../packages-available/*.sh .
+      ln -sfF ../packages-available/*.recipe .
 SCRIPT
 
   config.vm.provision "bats-installation",

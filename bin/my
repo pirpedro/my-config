@@ -66,7 +66,7 @@ export PACKAGE_LOCATION
 export PACKAGE_EXTRA
 
 #extension of the config files
-EXT=".sh"
+EXT=".recipe"
 
 #this function load files, give execution
 #permission for each one and execute the right action on it.
