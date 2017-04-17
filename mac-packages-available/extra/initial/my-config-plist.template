@@ -1,0 +1,6 @@
+grep "^export" $PROFILE | while IFS=' =' read ignoreexport envvar ignorevalue; do
+  launchctl setenv ${envvar} ${!envvar}
+done
+grep "^export" $PATH_FILE | while IFS=' =' read ignoreexport envvar ignorevalue; do
+  launchctl setenv ${envvar} ${!envvar}
+done
