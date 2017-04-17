@@ -56,14 +56,14 @@ source $MY_CONFIG_EXT/functions.sh
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
 PACKAGES_AVAILABLE="$MY_CONFIG_DIR/packages-available"
-PACKAGE_EXTERNAL="$PACKAGE_EXTRA/extra"
+PACKAGE_EXTERNAL="$PACKAGE_LOCATION/extra"
 
 #export useful variables
 export MY_CONFIG_DIR
 export MY_CONFIG_EXT
 export MY_CONFIG_PLUGIN
 export PACKAGE_LOCATION
-export PACKAGE_EXTRA
+export PACKAGE_EXTERNAL
 
 #extension of the config files
 EXT=".recipe"
@@ -170,16 +170,17 @@ fi
 for arg do
   shift
   case "$arg" in
-    -v|--verbose ) verbosity on;                      ;;
-    -d|--debug ) set -x;                              ;;
-    --version ) cat $MY_CONFIG_DIR/.version; exit;    ;;
-    --exec-path) echo $MY_CONFIG_DIR; exit;           ;;
-    --ext-path ) echo $MY_CONFIG_EXT; exit;           ;;
-    --pkg-path ) echo $PACKAGE_LOCATION; exit;        ;;
-    --all-pkg-path ) echo $PACKAGES_AVAILABLE; exit;  ;;
-    --default-extension ) echo $EXT; exit;            ;;
-    --list-commands ) config_usage; usage; exit       ;;
-    *) set -- "$@" "$arg";                            ;;
+    -v|--verbose ) verbosity on;                       ;;
+    -d|--debug ) set -x;                               ;;
+    --version ) cat $MY_CONFIG_DIR/.version; exit      ;;
+    --exec-path) echo $MY_CONFIG_DIR; exit             ;;
+    --ext-path ) echo $MY_CONFIG_EXT; exit             ;;
+    --pkg-path ) echo $PACKAGE_LOCATION; exit          ;;
+    --all-pkg-path ) echo $PACKAGES_AVAILABLE; exit    ;;
+    --default-extension ) echo $EXT; exit              ;;
+    --resource-location ) echo $PACKAGE_EXTERNAL; exit ;;
+    --list-commands ) config_usage; usage; exit        ;;
+    *) set -- "$@" "$arg";                             ;;
   esac
 done
 

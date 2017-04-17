@@ -137,6 +137,14 @@ my_require() {
   done
 }
 
+my_resource() {
+  recipe="$(__format_script_name $0)"
+  ! empty "$1" || { warn "Recipe $recipe: No resource passed."; return "${FLAG_FALSE}"; }
+  [ -f "$PACKAGE_EXTERNAL/$recipe/$1.template" ] || { warn "Recipe $recipe: Resource $1 not found.";
+                                                      return "${FLAG_FALSE}"; }
+  cat "$PACKAGE_EXTERNAL/$recipe/$1.template"
+}
+
 INSTALLED_FILE=$MY_CONFIG_DIR/installed
 __required(){
   if [[ ! $# -eq 2  ]]; then
