@@ -56,7 +56,7 @@ source $MY_CONFIG_EXT/functions.sh
 #directory where the script will search for config files to load
 PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
 PACKAGES_AVAILABLE="$MY_CONFIG_DIR/packages-available"
-PACKAGE_EXTERNAL="$PACKAGE_LOCATION/extra"
+PACKAGE_EXTERNAL="$PACKAGE_LOCATION/resource"
 
 #export useful variables
 export MY_CONFIG_DIR
@@ -196,7 +196,7 @@ if ! __required check initial && equals "$PLUGIN" "config" && equals "$ACTION" "
   die
 fi
 
-config_actions="config-init config-install config-remove config-extra config-list"
+config_actions="config-init config-install config-remove config-list"
 extglob_on
 case "$PLUGIN-$ACTION" in
   $(case_one "$config_actions") )

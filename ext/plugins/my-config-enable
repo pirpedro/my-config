@@ -7,6 +7,7 @@ source $MY_CONFIG_EXT/functions.sh
 PACKAGES_AVAILABLE=$(my config --all-pkg-path)
 EXTENSION=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
+RESOURCE_LOCATION=$(my config --resource-location)
 
 for arg do
   shift
@@ -26,9 +27,9 @@ function __enable {
   local recipe="$1"
   if ! __is_enabled "$recipe" && test -f "$PACKAGES_AVAILABLE/$recipe$EXTENSION"; then
     ln -sf "$PACKAGES_AVAILABLE/$recipe$EXTENSION" $PACKAGE_LOCATION/
-    if [ -d "$PACKAGES_AVAILABLE/extra/$recipe" ]; then
-      [ -d "$PACKAGE_LOCATION/extra/" ] || mkdir -p "$PACKAGE_LOCATION/extra/"
-      [ -e "$PACKAGE_LOCATION/extra/$recipe" ] || ln -sf "$PACKAGES_AVAILABLE/extra/$recipe" "$PACKAGE_LOCATION/extra/$recipe"
+    if [ -d "$PACKAGES_AVAILABLE/resource/$recipe" ]; then
+      [ -d "$RESOURCE_LOCATION" ] || mkdir -p "$RESOURCE_LOCATION"
+      [ -e "$RESOURCE_LOCATION/$recipe" ] || ln -sf "$PACKAGES_AVAILABLE/resource/$recipe" "$RESOURCE_LOCATION/$recipe"
     fi
   else
       die "$recipe is already enabled or not exist."

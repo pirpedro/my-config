@@ -6,6 +6,7 @@ source $MY_CONFIG_EXT/functions.sh
 
 EXTENSION=$(my config --default-extension)
 PACKAGE_LOCATION=$(my config --pkg-path)
+RESOURCE_LOCATION=$(my config --resource-location)
 
 for arg do
   shift
@@ -24,8 +25,8 @@ function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
 function __disable {
   local recipe="$1"
   if __is_enabled "$recipe"; then
-    rm "$PACKAGE_LOCATION/$recipe$EXTENSION"
-    rm -rf $PACKAGE_LOCATION/extra/$recipe
+    rm "${PACKAGE_LOCATION:?}/$recipe$EXTENSION"
+    rm -rf "${RESOURCE_LOCATION:?}/$recipe"
     exit ${FLAG_TRUE}
   else
     die "$recipe is already disabled or not exist."
