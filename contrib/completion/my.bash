@@ -256,8 +256,8 @@ _my_my() {
     $global_boolean_options
     --exec-path
     --ext-path
-    --pkg-path
-    --all-pkg-path
+    --recipe-path
+    --all-recipe-path
     --default-extension
   "
 

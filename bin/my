@@ -175,10 +175,10 @@ for arg do
     --version ) cat $MY_CONFIG_DIR/.version; exit      ;;
     --exec-path) echo $MY_CONFIG_DIR; exit             ;;
     --ext-path ) echo $MY_CONFIG_EXT; exit             ;;
-    --pkg-path ) echo $PACKAGE_LOCATION; exit          ;;
-    --all-pkg-path ) echo $PACKAGES_AVAILABLE; exit    ;;
+    --recipe-path ) echo $PACKAGE_LOCATION; exit          ;;
+    --all-recipe-path ) echo $PACKAGES_AVAILABLE; exit    ;;
     --default-extension ) echo $EXT; exit              ;;
-    --resource-location ) echo $PACKAGE_EXTERNAL; exit ;;
+    --resource-path ) echo $PACKAGE_EXTERNAL; exit ;;
     --list-commands ) config_usage; usage; exit        ;;
     *) set -- "$@" "$arg";                             ;;
   esac

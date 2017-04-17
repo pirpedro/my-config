@@ -2,8 +2,8 @@
 
 load "$(pwd)"/test_helper/helper.bash
 
-recipes_dir="$(my config --pkg-path)"
-resource_dir="$(my config --resource-location)"
+recipes_dir="$(my config --recipe-path)"
+resource_dir="$(my config --resource-path)"
 recipe_name="recipetest"
 recipe="$recipes_dir/$recipe_name.recipe"
 recipe_resources_name="reciperesources"

@@ -5,8 +5,8 @@ MY_CONFIG_EXT=$(my config --ext-path)
 source $MY_CONFIG_EXT/functions.sh
 
 EXTENSION=$(my config --default-extension)
-PACKAGE_LOCATION=$(my config --pkg-path)
-RESOURCE_LOCATION=$(my config --resource-location)
+PACKAGE_LOCATION=$(my config --recipe-path)
+RESOURCE_LOCATION=$(my config --resource-path)
 
 for arg do
   shift
