@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 my_require git
@@ -8,13 +9,21 @@ install)
   git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
   zsh -c 'setopt EXTENDED_GLOB
 for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-  ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
+  cp "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done'
-  chsh -s /bin/zsh
+  my sync -f ~/.zlogin >/dev/null 2>&1
+  my sync -f ~/.zlogout >/dev/null 2>&1
+  my sync -f ~/.zpreztorc >/dev/null 2>&1
+  my sync -f ~/.zprofile >/dev/null 2>&1
+  my sync -f ~/.zshenv >/dev/null 2>&1
+  my sync -f ~/.zshrc >/dev/null 2>&1
+  if ask_boolean "Change default shell to zsh?"; then
+    chsh -s /bin/zsh
+  fi
 ;;
 remove)
 ;;
 update)
-  git pull ${ZDOTDIR:-$HOME}/.zprezto && git submodule update --init --recursive ${ZDOTDIR:-$HOME}/.zprezto
+  git pull ${ZDOTDIR:-$HOME}/.zprezto && git submodule update --recursive --remote ${ZDOTDIR:-$HOME}/.zprezto
 ;;
 esac

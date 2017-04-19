@@ -115,18 +115,16 @@ __config_remove(){
 
 __config_init(){
   verbosity on
-  if __required check "$(__format_script_name initial)"; then
+  if __required check initial; then
     warn "You already initialize my-config in your system."
     warn "Execute '${0##*/} -h' to learn about everything you can use."
     exit 1;
   else
-    note "Hi! Welcome to my-config environment command."
+    note "Hi! Welcome to my config environment command."
     note "Initializing means the creation of useful files."
     if ask_boolean "Can we proceed?"; then
       note "So, let's start!"
-      TARGET="initial"
-      ACTION="install"
-      __load;
+      __config_install initial
       note "Now you can use and extend all the scripts for your own behavior."
       note "Good work!"
     else
@@ -189,10 +187,10 @@ if [ ! -e $PROFILE ]; then
   touch $PROFILE
 fi
 
-if ! __required check initial && equals "$PLUGIN" "config" && equals "$ACTION" "init"; then
+if ! __required check initial && equals "$PLUGIN" "config" && ! equals "$ACTION" "init"; then
   verbosity on
-  warn "You didn't initialize my-config in your machine yet".
-  warn "Execute '${0##*/} init' or see our manual for other options."
+  warn "You didn't initialize '${0##*/} config' in your machine yet".
+  warn "Execute '${0##*/} config init' or see our manual for other options."
   die
 fi
 

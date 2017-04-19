@@ -13,6 +13,7 @@ resource_file="$resource_dir/$recipe_resources_name/$resource_name.template"
 resource_file_content="content of resource file."
 
 setup() {
+  my_init
   [ -d "$resource_dir" ] || mkdir -p "$resource_dir"
   [ -d "$resource_dir/$recipe_resources_name" ] || mkdir -p "$resource_dir/$recipe_resources_name"
   [ -f "$recipe" ] || { touch "$recipe";

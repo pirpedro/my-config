@@ -5,7 +5,8 @@ load "$(pwd)"/test_helper/helper.bash
 recipe_name="test_recipe"
 
 function setup {
-  root_dir=$(my config --exec-path)
+  my_init
+  local root_dir=$(my config --exec-path)
   for file in $(find -L "$root_dir" -name "${recipe_name}*"); do
     if [ -f "$file" ]; then
       rm "$file"

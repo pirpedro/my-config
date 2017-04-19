@@ -1,13 +1,12 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 case "$1" in
-install)
-  sudo apt-get install software-properties-common
-  sudo apt-add-repository ppa:ansible/ansible
-  sudo apt-get update
-  sudo apt-get install ansible
-;;
-remove)
-;;
+  install)
+    sudo apt-get install software-properties-common
+    sudo apt-add-repository ppa:ansible/ansible -y
+    sudo apt-get update -y
+    sudo apt-get install ansible -y
+  ;;
 esac

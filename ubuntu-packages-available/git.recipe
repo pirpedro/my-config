@@ -1,12 +1,12 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 case "$1" in
 install)
     sudo apt-get install -y git git-core
-    my_sync ~/.gitconfig
-    my_sync ~/.git
-
+    my sync ~/.gitconfig
+    my sync ~/.git
 ;;
 remove)
 ;;

@@ -5,8 +5,8 @@ source $MY_CONFIG_EXT/bash-common/bin/sh-common
 
 BASH_DIR=$HOME/.bash
 PROFILE=$BASH_DIR/my-config.sh
-ALIAS_FILE=$BASH_DIR/.bash_aliases
-PATH_FILE=$BASH_DIR/.bash_path
+ALIAS_FILE=$BASH_DIR/aliases.sh
+PATH_FILE=$BASH_DIR/path.sh
 
 #format the script name for a user friendly package name
 __format_script_name(){
@@ -132,9 +132,7 @@ my_path(){
 }
 
 my_require() {
-  for package in "$@"; do
-    $MY_CONFIG_DIR/bin/my install $package -v
-  done
+  my config install -v "$@"
 }
 
 my_resource() {
