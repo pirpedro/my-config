@@ -7,7 +7,7 @@ case "$1" in
 install)
     gem install gist
     gist --login
-    my sync ~/.gist
+    my sync -f ~/.gist
 ;;
 remove)
 ;;
