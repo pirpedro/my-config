@@ -255,7 +255,7 @@ _app_is_installed() {
   find /Applications -iname "$app_name*" -maxdepth 1 | egrep '.*' > /dev/null
 }
 
-__brew_cask_install() {
+my_brew_cask_install() {
   if _app_is_installed "$1" || _brew_cask_is_installed "$1"; then
     note "$1 is already installed. Skipping..."
   else

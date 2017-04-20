@@ -67,6 +67,7 @@ SCRIPT
     osx.vm.hostname = "stevejobs"
     osx.vm.provider :virtualbox do |provider|
       provider.name = "my-config-osx"
+      provider.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
     end
     osx.vm.provision "available-packages",
       type:"shell",

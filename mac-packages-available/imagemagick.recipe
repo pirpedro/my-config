@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 #ImageMagick® is a software suite to create, edit, compose, or convert bitmap images.

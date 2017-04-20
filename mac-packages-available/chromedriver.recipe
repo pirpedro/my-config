@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 #install chromedriver for selenium tests
@@ -8,8 +9,6 @@ install)
     my_brew_install chromedriver
     #launching at startup
     ln -sfv /usr/local/opt/chromedriver/*.plist ~/Library/LaunchAgents
-
-
 ;;
 remove)
 ;;

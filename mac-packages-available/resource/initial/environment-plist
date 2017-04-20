@@ -9,7 +9,7 @@
     <string>bash</string>
     <string>-l</string>
     <string>-c</string>
-    <string>$HOME/.bash/my-config-plist</string>
+    <string>~/.bash/my-config-plist</string>
   </array>
   <key>KeepAlive</key>
   <false/>
@@ -17,7 +17,7 @@
   <true/>
   <key>WatchPaths</key>
   <array>
-      <string>$HOME/.bash/my-config-plist</string>
+      <string>~/.bash/my-config-plist</string>
   </array>
 </dict>
 </plist>

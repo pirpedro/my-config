@@ -1,8 +1,9 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 _set_env(){
-  files=( ~/.profile ~/.bash/my-config.sh ~/.bash/.bash_aliases ~/.bash/.bash_path \
+  files=( ~/.profile ~/.bash/my-config.sh ~/.bash/aliases.sh ~/.bash/path.sh \
           ~/Library/LaunchAgents/environment.plist \
           ~/Library/LaunchAgents/environment.user.plist \
           ~/.bash/my-config-plist )
@@ -19,7 +20,17 @@ _set_env(){
   sudo chown root ~/Library/LaunchAgents/environment.plist
   sudo launchctl load -w ~/Library/LaunchAgents/environment.plist
 
-  #TODO copy ENV/Fonts ~/Library/Fonts
+  ask --question="Select a path to sync your critical content" --free-answer --default="/Volumes/vault/home"
+  my sync alias "$HOME" "${ask_answer}"
+  my sync "$HOME/.profile" "$HOME/.bash_profile"
+  home_sync=(~/.ssh ~.gnupg ~/.bash/my-config.sh ~/.bash/aliases.sh ~/.bash/path.sh)
+  for file in ${home_sync[*]}; do
+    my sync -f "$file" >/dev/null 2>&1
+  done
+
+  for file in /Volumes/vault/fonts/*.ttf; do
+    cp "$file" "$HOME/Library/Fonts/"
+  done
 }
 
 case "$1" in

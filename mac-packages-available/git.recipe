@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 my_require homebrew
@@ -8,8 +9,8 @@ install)
   my_brew_install gnupg
   my_brew_install gnupg2
   my_env GPG_TTY "\$(tty)"
-  my_sync ~/.gitconfig
-  my_sync ~/.git
+  my_sync -f ~/.gitconfig
+  my_sync -f ~/.git
 
   #create man and documentations
   my_brew_install pandoc

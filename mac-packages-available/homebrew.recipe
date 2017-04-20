@@ -1,11 +1,12 @@
 #!/bin/bash
+#shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh
 
 case "$1" in
 install)
 	if __exists brew; then
 		echo "HomeBrew already installed";
-             	return 1;
+             	return;
 	fi
 
 	if __exists ruby; then
@@ -15,7 +16,7 @@ install)
 		brew update
 		brew upgrade
 
-    brew install bash-completion
+    my_brew_install bash-completion
     my_env 'if [ -f $(brew --prefix)/etc/bash_completion ]; then . $(brew --prefix)/etc/bash_completion; fi'
 
 		# install cask
