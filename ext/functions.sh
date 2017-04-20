@@ -7,6 +7,7 @@ BASH_DIR=$HOME/.bash
 PROFILE=$BASH_DIR/my-config.sh
 ALIAS_FILE=$BASH_DIR/aliases.sh
 PATH_FILE=$BASH_DIR/path.sh
+CONFIGURATION_FOLDER="$HOME/.myconfig"
 
 #format the script name for a user friendly package name
 __format_script_name(){
@@ -143,13 +144,22 @@ my_resource() {
   cat "$PACKAGE_EXTERNAL/$recipe/$1.template"
 }
 
-INSTALLED_FILE=$MY_CONFIG_DIR/installed
+__create_if_not_exist(){
+  local dir
+  if [ ! -f "$1" ]; then
+    dir=$(dirname "$1")
+    [ -d "$dir" ] || mkdir -p "$dir"
+    touch "$1"
+  fi
+}
+
+INSTALLED_FILE=$CONFIGURATION_FOLDER/installed
 __required(){
   if [[ ! $# -eq 2  ]]; then
     die "You need to pass two parameters."
   fi
   local ACTION=$1
-  [ -f $INSTALLED_FILE ] || touch $INSTALLED_FILE
+  __create_if_not_exist $INSTALLED_FILE
   case "$ACTION" in
     check )
       grep "^$2\$" $INSTALLED_FILE >/dev/null ;
@@ -164,9 +174,10 @@ __required(){
   esac
 }
 
-CONFIGURATION_FILE=$HOME/.myconfig
+CONFIGURATION_FILE=$CONFIGURATION_FOLDER/config
 
 my_config(){
+  __create_if_not_exist "$CONFIGURATION_FILE"
   git config --file $CONFIGURATION_FILE "$@"
 }
 my_config_get() {

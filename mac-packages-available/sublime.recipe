@@ -10,7 +10,7 @@ install)
 
   my_sync /applications/sublime/config/Packages/User ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/
 
-;; 
+;;
 remove)
 ;;
 esac

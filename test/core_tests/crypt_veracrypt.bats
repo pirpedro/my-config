@@ -18,7 +18,7 @@ function setup() {
   if [ -d "$mount_folder" ]; then
     sudo rm -rf "$mount_folder"
   fi
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
 }
 
 function teardown() {
@@ -27,7 +27,7 @@ function teardown() {
   if [ -d "$mount_folder" ]; then
     sudo rm -rf "$mount_folder"
   fi
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
 }
 
 function create_new {

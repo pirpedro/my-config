@@ -17,11 +17,8 @@ load_lib() {
 load_lib bats-support
 load_lib bats-assert
 
-root_dir=$(my --exec-path)
-
 my_init(){
-  [ ! -f "$root_dir/installed" ] || rm "$root_dir/installed"
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   printf '\n\n' | run my config init
   assert_success
 }

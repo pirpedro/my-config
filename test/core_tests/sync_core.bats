@@ -8,13 +8,13 @@ source $MY_CONFIG_EXT/plugins/my-sync.helper
 
 test_folder="$HOME/sync_test_folder"
 setup() {
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   [ ! -d $test_folder ] || rm -rf $test_folder
   mkdir -p "$test_folder"
 }
 
 teardown() {
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   [ ! -d $test_folder ] || rm -rf $test_folder
 }
 

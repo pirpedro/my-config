@@ -20,7 +20,7 @@ function setup() {
     fi
     rm -rf "$mount_folder"
   fi
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
 }
 
 function teardown() {
@@ -34,7 +34,7 @@ function teardown() {
     fi
     rm -rf "$mount_folder"
   fi
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
 }
 
 @test "crypt(encfs) - create new vault" {

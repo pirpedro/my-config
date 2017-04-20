@@ -24,11 +24,11 @@ source \$MY_CONFIG_EXT/functions.sh" >> "$recipe"; }
   source \$MY_CONFIG_EXT/functions.sh" >> "$recipe_with_resources"; }
   [ -f "$resource_file" ] || { touch "$resource_file";
                             echo "$resource_file_content" >> "$resource_file"; }
-  grep -v "^$recipe_name\$" "$(my config --exec-path)"/installed > "$(my config --exec-path)"/installed.tmp
-  mv -f "$(my config --exec-path)"/installed.tmp "$(my config --exec-path)"/installed
+  grep -v "^$recipe_name\$" ~/.myconfig/installed > ~/.myconfig/installed.tmp
+  mv -f ~/.myconfig/installed.tmp ~/.myconfig/installed
 
-  grep -v "^$recipe_resources_name\$" "$(my config --exec-path)"/installed > "$(my config --exec-path)"/installed.tmp
-  mv -f "$(my config --exec-path)"/installed.tmp "$(my config --exec-path)"/installed
+  grep -v "^$recipe_resources_name\$" ~/.myconfig/installed > ~/.myconfig/installed.tmp
+  mv -f ~/.myconfig/installed.tmp ~/.myconfig/installed
 }
 
 teardown() {

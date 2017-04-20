@@ -144,14 +144,14 @@ _my_crypt_open() {
       COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
       ;;
     *)
-      local vaults=$(git config --get-regexp --file="$HOME/.myconfig" crypt.*.name | awk '{print $2}')
+      local vaults=$(git config --get-regexp --file="$HOME/.myconfig/config" crypt.*.name | awk '{print $2}')
       COMPREPLY=($(compgen -W "$vaults" -- "$cur"))
       ;;
   esac
 }
 
 _my_crypt_close() {
-  local vaults=$(git config --get-regexp --file="$HOME/.myconfig" crypt.*.name | awk '{print $2}')
+  local vaults=$(git config --get-regexp --file="$HOME/.myconfig/config" crypt.*.name | awk '{print $2}')
   COMPREPLY=($(compgen -W "$vaults" -- "$cur"))
 }
 

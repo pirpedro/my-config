@@ -14,7 +14,7 @@ content_second="file2 has content."
 
 
 setup() {
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   [ ! -d $test_folder ] || rm -rf $test_folder
   mkdir -p "$test_folder"
   mkdir -p "$first_folder"
@@ -26,7 +26,7 @@ setup() {
 }
 
 teardown() {
-  [ ! -f ~/.myconfig ] || rm ~/.myconfig
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   [ ! -d $test_folder ] || rm -rf $test_folder
 }
 
