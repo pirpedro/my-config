@@ -11,6 +11,7 @@ USAGE=`cat << EOF
 <command> [options] <action>
     -v| --verbose                     Verbose mode.
     -d| --debug                       Debug mode.
+        --prefix                      Print installation folder.
         --version                     Print the version and exit.
     -h| --help                        Print this help.
 EOF`
@@ -171,7 +172,7 @@ for arg do
     -v|--verbose ) verbosity on;                       ;;
     -d|--debug ) set -x;                               ;;
     --version ) cat $MY_CONFIG_DIR/.version; exit      ;;
-    --exec-path) echo $MY_CONFIG_DIR; exit             ;;
+    --prefix) echo $MY_CONFIG_DIR; exit             ;;
     --ext-path ) echo $MY_CONFIG_EXT; exit             ;;
     --recipe-path ) echo $PACKAGE_LOCATION; exit          ;;
     --all-recipe-path ) echo $PACKAGES_AVAILABLE; exit    ;;

@@ -36,6 +36,7 @@ _set_env(){
 case "$1" in
 install)
 	_set_env
+  my_require homebrew
 ;;
 remove)
 ;;

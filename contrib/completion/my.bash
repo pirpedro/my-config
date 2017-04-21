@@ -254,7 +254,7 @@ _my_config(){
 _my_my() {
   local boolean_options="
     $global_boolean_options
-    --exec-path
+    --prefix
     --ext-path
     --recipe-path
     --all-recipe-path

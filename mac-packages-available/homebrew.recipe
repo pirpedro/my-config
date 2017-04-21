@@ -16,17 +16,16 @@ install)
 		brew update
 		brew upgrade
 
-    my_brew_install bash-completion
-    my_env 'if [ -f $(brew --prefix)/etc/bash_completion ]; then . $(brew --prefix)/etc/bash_completion; fi'
+    my_brew_install bash-completion@2
+    my_env 'if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then . $(brew --prefix)/share/bash-completion/bash_completion; fi'
 
 		# install cask
-        brew cask
-        my_brew_tap caskroom/versions
-        my_brew_tap homebrew/science
-        my_brew_tap caskroom/fonts
-        my_brew_tap caskroom/eid
-        my_brew_install homebrew/completions/brew-cask-completion
-
+    brew cask
+    my_brew_tap caskroom/versions
+    my_brew_tap homebrew/science
+    my_brew_tap caskroom/fonts
+    my_brew_tap caskroom/eid
+    my_brew_install homebrew/completions/brew-cask-completion
     my_brew_install gnu-sed --with-default-names
 
 	else

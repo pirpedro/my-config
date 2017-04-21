@@ -6,7 +6,7 @@ recipe_name="test_recipe"
 
 function setup {
   my_init
-  local root_dir=$(my config --exec-path)
+  local root_dir=$(my config --prefix)
   for file in $(find "$root_dir"  -name '"$recipe_name"*'); do
     if [ -f "$file" ]; then
       rm "$file"
@@ -15,7 +15,7 @@ function setup {
 }
 
 function teardown {
-  root_dir=$(my config --exec-path)
+  root_dir=$(my config --prefix)
   for file in $(find -L "$root_dir" -name "${recipe_name}*"); do
     if [ -f "$file" ]; then
       rm "$file"
