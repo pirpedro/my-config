@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # shellcheck source=ext/bash-common/bin/sh-common
-source $MY_CONFIG_EXT/bash-common/bin/sh-common
+source $MY_CONFIG_EXT/sh-common
 
 BASH_DIR=$HOME/.bash
 PROFILE=$BASH_DIR/my-config.sh

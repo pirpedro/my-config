@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #check if exists environment variable to manually change resources location
-MY_CONFIG_DIR=${MY_CONFIG_PATH:=$HOME/my-config}
+MY_CONFIG_DIR=${MY_CONFIG_PATH:=/usr/local/my-config}
 #path to subfolder with extra functions and files
 MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 #path to plugins folder
@@ -125,6 +125,9 @@ __config_init(){
     note "Initializing means the creation of useful files."
     if ask_boolean "Can we proceed?"; then
       note "So, let's start!"
+      for file in $PACKAGES_AVAILABLE/*.recipe; do
+        my config enable -c "$(__format_script_name $file)" || my config enable "$(__format_script_name $file)"
+      done
       __config_install initial
       note "Now you can use and extend all the scripts for your own behavior."
       note "Good work!"
@@ -188,11 +191,15 @@ if [ ! -e $PROFILE ]; then
   touch $PROFILE
 fi
 
-if ! __required check initial && equals "$PLUGIN" "config" && ! equals "$ACTION" "init"; then
-  verbosity on
-  warn "You didn't initialize '${0##*/} config' in your machine yet".
-  warn "Execute '${0##*/} config init' or see our manual for other options."
-  die
+if equals "$PLUGIN" "config" && ! __required check initial; then
+  case "$ACTION" in
+    list|install|remove)
+      verbosity on
+      warn "You didn't initialize '${0##*/} config' in your machine yet".
+      warn "Execute '${0##*/} config init' or see our manual for other options."
+      die
+    ;;
+  esac
 fi
 
 config_actions="config-init config-install config-remove config-list"

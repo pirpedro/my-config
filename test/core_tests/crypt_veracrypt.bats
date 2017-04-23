@@ -137,7 +137,7 @@ function assert_mounted {
   assert_mounted "$second_vault"
 }
 
-@test "crypt(encfs) - mount different vaults in different folders" {
+@test "crypt(veracrypt) - mount different vaults in different folders" {
   create_new "$first_vault"
   open_new "$first_vault"
   printf "veracrypt\n\n${password}\n${password}\n${pim}\n${random320}\n" | my crypt create "$second_vault"
@@ -158,7 +158,7 @@ function assert_mounted {
   assert_output "Any volume configuration is wrong. Please recreate it."
 }
 
-@test "crypt(encfs) - close vault" {
+@test "crypt(veracrypt) - close vault" {
   create_new "$first_vault"
   open_new "$first_vault"
   run my crypt close "$first_vault" && assert_success
@@ -166,7 +166,7 @@ function assert_mounted {
   assert [ -d "${mount_folder}/${first_vault}" ]
 }
 
-@test "crypt(encfs) - try to close an already closed vault" {
+@test "crypt(veracrypt) - try to close an already closed vault" {
   create_new "$first_vault"
   open_new "$first_vault"
   my crypt close "$first_vault"
@@ -174,7 +174,7 @@ function assert_mounted {
   assert_output "$first_vault is already closed."
 }
 
-@test "crypt(encfs) - full test" {
+@test "crypt(veracrypt) - full test" {
   create_new "$first_vault"
   open_new "$first_vault"
   #create file in mounted location

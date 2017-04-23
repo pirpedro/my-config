@@ -33,18 +33,6 @@ SCRIPT
       ln -sfF ubuntu-packages-available packages-available
 SCRIPT
 
-  config.vm.provision :shell,
-    inline:<<SCRIPT
-      cd /usr/local/my-config/packages-enabled
-      ln -sfF ../packages-available/*.recipe .
-      mkdir -p resource
-      chown -R vagrant resource
-      cd resource
-      for folder in ../../packages-available/resource/*; do
-        ln -sfF $folder .
-      done
-SCRIPT
-
   config.vm.provision "bats-installation",
     type: "shell",
     inline:<<SCRIPT

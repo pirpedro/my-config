@@ -1,0 +1,102 @@
+#!/bin/bash
+
+is_mac(){ [[ "$OSTYPE" == "darwin"* ]]; }
+is_linux(){ [ "$OSTYPE" == "linux-gnu" ]; }
+usage() {
+  echo "Usage; gitflow-installer.sh [install|uninstall] [stable|develop]"
+}
+
+PREFIX_BIN="/usr/local"
+ENVIRONMENT=${2:-"stable"}
+
+case "$ENVIRONMENT" in
+  stable)
+    PREFIX_DATA="/usr/local"
+  ;;
+  develop)
+    PREFIX_DATA="$HOME"
+  ;;
+esac
+
+REPO_NAME="my-config"
+REPO_LOCATION="https://github.com/pirpedro/$REPO_NAME"
+BINDIR="$PREFIX_BIN/bin"
+DATADIR="$PREFIX_DATA/$REPO_NAME"
+EXEC_FILES=("bin/my")
+
+install_stable(){
+  cd "$REPO_NAME" || exit
+  git checkout master
+  git pull && git submodule init && git submodule update
+  cd "$OLDPWD" || exit
+  mkdir -p "$DATADIR" || exit
+  install -v
+}
+
+install_develop(){
+  cd "$REPO_NAME" || exit
+  git checkout develop
+  git pull && git submodule init && git submodule update
+  cd "$OLDPWD" || exit
+}
+
+case "$1" in
+  help)
+    usage
+    exit
+  ;;
+  install)
+    if is_linux; then
+      echo "Checking if git is already installed..."
+      sudo apt-get install git git-core -y
+    fi
+
+    if [ -d "$REPO_NAME" -a -d "$REPO_NAME/.git" ]; then
+      echo "Using existing repo: $REPO_NAME"
+    else
+      echo "Cloning repo from GitHub to $REPO_NAME"
+      git clone --recursive "$REPO_LOCATION" "$REPO_NAME"
+    fi
+    case "$ENVIRONMENT" in
+      stable)
+        install_stable
+      ;;
+      develop)
+        install_develop
+      ;;
+      *)
+        usage
+        exit
+      ;;
+    esac
+
+
+    echo "Installing 'my' to $BINDIR"
+    for exec_file in ${EXEC_FILES[*]} ; do
+       sudo chmod ug+x "$DATADIR/$exec_file"
+		   sudo ln -sfF "$DATADIR/$exec_file" "$BINDIR"
+	  done
+
+    cd "$DATADIR" || exit
+    mkdir -p packages-enabled
+    if is_mac; then
+      ln -sfF mac-packages-available packages-available
+    else
+      ln -sfF ubuntu-packages-available packages-available
+    fi
+
+    cd packages-enabled || exit
+    ln -sfF ../packages-available/*.recipe .
+    mkdir -p resource
+    cd resource || exit
+    for folder in ../../packages-available/resource/*; do
+      ln -sfF $folder .
+    done
+  ;;
+  uninstall)
+  ;;
+  *)
+  usage
+  exit
+  ;;
+esac
