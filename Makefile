@@ -11,10 +11,11 @@ EXT_FILES+=ext/bash-common/bin/sh-extglob
 OS:=$(shell uname)
 
 ifeq ($(OS),Darwin)
-recipes:=$(wildcard mac-packages-available/*.recipe)
+recipes_folder:=mac-packages-available
 else
-recipes:=$(wildcard ubuntu-packages-available/*.recipe)
+recipes_folder:=ubuntu-packages-available
 endif
+recipes:=$(wildcard $(recipes_folder)/*.recipe)
 
 all:
 	@echo "usage: make install"
@@ -29,7 +30,7 @@ install:
 	cp -R ext/plugins $(datarootdir)/ext/plugins
 	install -d -m 0744 $(datarootdir)/packages-available
 	install -m 0744 $(recipes) $(datarootdir)/packages-available
-	cp -R packages-available/resource $(datarootdir)/packages-available/resource
+	cp -R $(recipes_folder)/resource $(datarootdir)/packages-available/resource
 	install -d -m 0744 $(datarootdir)/packages-enabled
 	install -m 0744 .version $(datarootdir)/.version
 ifeq ($(SUDO_USER),)
