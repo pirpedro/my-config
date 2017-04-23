@@ -24,15 +24,14 @@ BINDIR="$PREFIX_BIN/bin"
 DATADIR="$PREFIX_DATA/$REPO_NAME"
 EXEC_FILES=("bin/my")
 EXT_FILES=(ext/functions.sh ext/template ext/bash-common/bin/sh-common ext/bash-common/bin/sh-extglob)
-
+if is_mac; then
+  recipes_folder="mac-packages-available"
+else
+  recipes_folder="ubuntu-packages-available"
+fi
 
 install_stable(){
-  local recipes_folder recipes
-  if is_mac; then
-    recipes_folder="mac-packages-available"
-  else
-    recipes_folder="ubuntu-packages-available"
-  fi
+  local recipes
   cd "$REPO_NAME" || exit
   git checkout develop
   git pull && git submodule update --init --recursive
@@ -53,15 +52,17 @@ install_stable(){
 }
 
 install_develop(){
+  local recipes
   cd "$REPO_NAME" || exit
   git checkout develop
   git pull && git submodule update --init --recursive
-  cd "$OLDPWD" || exit
+  recipes=($(find "$recipes_folder" -iname '*.recipe'))
   echo "Installing 'my' to $BINDIR"
   for exec_file in ${EXEC_FILES[*]} ; do
      chmod u+x "$DATADIR/$exec_file"
      ln -sfF "$DATADIR/$exec_file" "$BINDIR"
   done
+  ln -sfF "$recipes_folder" packages-available
   echo "export MY_CONFIG_PATH=$DATADIR" >> ~/.bash_profile
 }
 
