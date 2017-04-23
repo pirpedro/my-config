@@ -36,7 +36,7 @@ function teardown {
 @test "config new - try to recreate an disabled recipe" {
   run my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  sudo my config disable "$recipe_name" || true
+  my config disable "$recipe_name" || true
   run my config new "$recipe_name" && assert_failure
   assert_output "$recipe_name recipe already exist."
 }
@@ -44,8 +44,8 @@ function teardown {
 @test "config new - try to recreate an enabled recipe" {
   run my config new "$recipe_name" && assert_success
   assert [ -f "$output" ]
-  sudo my config enable "$recipe_name" || true
-  run sudo my config new "$recipe_name" && assert_failure
+  my config enable "$recipe_name" || true
+  run my config new "$recipe_name" && assert_failure
   assert_output "$recipe_name recipe already exist."
 }
 
