@@ -1,5 +1,18 @@
 #!/bin/bash
 
+USAGE=`cat << EOF
+[<recipe_name>]
+EOF`
+LONG_USAGE=`cat << EOF
+Include a recipe and its resources in the list of enabled recipes to be installed.
+
+  options
+      -c        check if recipe is enabled rather than efectively enable it.
+
+     args
+      [<recipe_name>] a recipe name.
+EOF`
+
 MY_CONFIG_EXT=$(my config --ext-path)
 # shellcheck source=ext/functions.sh
 source $MY_CONFIG_EXT/functions.sh

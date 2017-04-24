@@ -1,5 +1,15 @@
 #!/bin/bash
 
+USAGE=`cat << EOF
+[<recipe_name>]
+EOF`
+LONG_USAGE=`cat << EOF
+Create a new (at first disabled) recipe.
+
+     args
+      [<recipe_name>] a recipe name.
+EOF`
+
 MY_CONFIG_EXT=$(my config --ext-path)
 PACKAGES_AVAILABLE=$(my config --all-recipe-path)
 EXTENSION=$(my config --default-extension)
