@@ -3,7 +3,7 @@ set -e
 is_mac(){ [[ "$OSTYPE" == "darwin"* ]]; }
 is_linux(){ [ "$OSTYPE" == "linux-gnu" ]; }
 usage() {
-  echo "Usage; gitflow-installer.sh [install|uninstall] [stable|develop]"
+  echo "Usage: installer [install|uninstall] [stable|develop]"
 }
 
 PREFIX_BIN="/usr/local"
