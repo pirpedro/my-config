@@ -47,7 +47,7 @@ See [command list](docs/commands.md) for more command information.
 ## Commands
 - [`my config`](docs/config.md) - manage recipes: creation,installation,list, etc.
 - [`my crypt`](docs/crypt.md) - manage creation and encryption of volumes.
-- [`my sync`](docs/sync.md) - track files and folders links in a easy way.
+- [`my sync`](docs/sync.md) - keep tracked and syncronized all linked files and folder in a easy way.
 
 
 ##Contributing
