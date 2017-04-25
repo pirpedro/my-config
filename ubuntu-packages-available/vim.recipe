@@ -1,0 +1,20 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+my_require git
+case "$1" in
+install)
+  sudo apt-get install -y vim
+  git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+  my_sync -f ~/.vimrc >/dev/null 2>&1
+
+  #install exuberant-ctags
+  sudo apt-get install -y exuberant-ctags
+
+  vim +PluginInstall +qall
+
+;;
+remove)
+;;
+esac

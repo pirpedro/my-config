@@ -1,0 +1,278 @@
+#!/bin/bash
+
+#shellcheck disable=SC2034
+USAGE=`cat << EOF
+<action> [options] [<args>]
+EOF`
+LONG_USAGE=`cat << EOF
+Common actions:
+
+  install           install an encryption mode [<veracrypt|encfs>].
+  remove            remove an encryption mode [<veracrypt|encfs>].
+  create            create necessary configuration for a new vault.
+  open              mount a previosly created vault.
+  close             umount a vault.
+
+  INSTALL
+    args
+      veracrypt     install veracrypt packages in your system.
+      encfs         install encfs packages in your system.
+
+  REMOVE
+    args
+      veracrypt     install veracrypt packages in your system.
+      encfs         install encfs packages in your system.
+
+  CREATE
+    args
+      [<vault_name>] unique name for your new vault.
+
+  OPEN
+    options
+      -s             use standard configuration to mount a vault.
+    args
+      [<vault_name>] unique name for a created vault.
+
+  CLOSE
+    args
+      [<vault_name>] unique name for a created vault.
+EOF`
+
+# shellcheck source=ext/functions.sh
+source "$(my config --ext-path)"/functions.sh
+
+ACTION="$1"; shift;
+
+function _install {
+  local MODE=${1:=veracrypt}
+  if __exists $MODE; then
+    die "You already installed all packages to enable $MODE usage."
+  fi
+
+  case "$MODE" in
+    veracrypt )
+        if __is_mac; then
+          #it´s necessary to manually install OSXFuse with MacFuse support
+          brew cask install veracrypt
+          ln -s /Applications/VeraCrypt.app/Contents/MacOS/VeraCrypt /usr/local/bin/veracrypt
+        else
+          sudo add-apt-repository ppa:unit193/encryption -y
+          sudo apt-get update
+          sudo apt-get install -y exfat-fuse exfat-utils
+          sudo apt-get install -y veracrypt
+        fi
+      ;;
+    encfs )
+        if __is_mac; then
+          my_brew_install homebrew/fuse/encfs
+        else
+          #encfs prompts a message warning about problems
+          #'sudo DEBIAN_FRONTEND=noninteractive'bypass this problem.
+          sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install encfs
+        fi
+      ;;
+    * )
+      warn "Mode $MODE not supported."
+     ;;
+  esac
+}
+
+function _remove {
+  local MODE=${1:=veracrypt}
+  if ! __exists $MODE; then
+    die "$MODE is not installed in your system."
+  fi
+  case "$MODE" in
+    veracrypt )
+        if __is_mac; then
+          brew cask uninstall veracrypt
+        else
+          sudo apt-get -y remove veracrypt
+        fi
+      ;;
+    encfs )
+        if __is_mac; then
+          brew uninstall homebrew/fuse/encfs
+        else
+          sudo apt-get -y remove encfs
+        fi
+      ;;
+    * )
+      warn "Mode $MODE not supported."
+     ;;
+  esac
+
+}
+
+function _create {
+  local volume_name volume_folder mode
+  if empty "$1"; then
+    ask --question="Choose volume name:" --free-answer
+    volume_name="${ask_answer:?}"
+    else
+    volume_name="$1"
+  fi
+  #check if device already exist
+  if my_config_get "crypt.${volume_name}.name" >/dev/null 2>&1; then
+    die "Volume $volume_name already exist."
+  fi
+
+  ask --question="Choose encryption tool:" --options="encfs,veracrypt" --default="veracrypt"
+  mode="${ask_answer:?}"
+  ask --question="Choose volume folder:" --default="~/.myvaults" --free-answer
+  volume_folder="${ask_answer:?}"
+
+  my_config_set "crypt.${volume_name}.mode" "$mode"
+  my_config_set "crypt.${volume_name}.name" "$volume_name"
+  my_config_set "crypt.${volume_name}.folder" "$volume_folder"
+
+  volume_folder=$(expand_path "$volume_folder")
+  local DEVICE="${volume_folder}/${volume_name}"
+  if test -f "$DEVICE"; then
+    my_config_remove_section "crypt.${volume_name}"
+    die_with_status 2 "Block device $DEVICE already exist. Choose another volume name."
+  fi
+  case "$mode" in
+    veracrypt )
+      if [ ! -d "$(dirname $DEVICE)" ]; then
+        mkdir -p "$(dirname $DEVICE)"
+      fi
+      veracrypt -t -c --encryption=AES-Twofish -k="" --filesystem=exFAT --hash=SHA512 --volume-type=normal --size=50M "$DEVICE.vault"
+      if equals "$?" 0; then
+        note -f "Next step is the execution of 'open' command."
+      fi
+    ;;
+    encfs )
+      note -f "Next step is the execution of 'open' command."
+    ;;
+    * )
+      my_config_remove_section "crypt.${volume_name}"
+      die_with_status 2 "Mode $MODE not supported."
+     ;;
+  esac
+}
+
+function _open {
+  for arg do
+    shift
+    case "$arg" in
+    -s | --standard) set_flag standard ;;
+    *) set -- "$@" "$arg"; ;;
+    esac
+  done
+
+  local volume_name volume_folder mount_folder mode
+  ! empty "$1" || die "No volume name passed."
+  volume_name="$1"
+  if ! my_config_get "crypt.${volume_name}.name" >/dev/null 2>&1 || \
+      ! my_config_get "crypt.${volume_name}.mode" >/dev/null 2>&1 ||
+      ! my_config_get "crypt.${volume_name}.folder" >/dev/null 2>&1; then
+      my_config_remove_section "crypt.${volume_name}" >/dev/null 2>&1
+      die "Any volume configuration for ${volume_name} is wrong. Please recreate it."
+  fi
+
+  if ! empty "$2" ; then
+    mount_folder="$2"
+  elif my_config_get "crypt.${volume_name}.mountpoint" >/dev/null 2>&1; then
+    mount_folder=$(my_config_get "crypt.${volume_name}.mountpoint")
+  else
+    local default
+    if __is_mac; then
+      default="/Volumes"
+    else
+      default="$HOME/myvaults"
+    fi
+    ask --question="Choose mount point:" --default="$default" --free-answer
+    mount_folder=${ask_answer:?}
+  fi
+  my_config_set "crypt.${volume_name}.mountpoint" "$mount_folder"
+  volume_name=$(my_config_get "crypt.${volume_name}.name")
+  mode=$(my_config_get "crypt.${volume_name}.mode")
+  volume_folder=$(my_config_get "crypt.${volume_name}.folder")
+  volume_folder=$(expand_path ${volume_folder})
+  mount_folder=$(expand_path ${mount_folder})
+  local DEVICE="${volume_folder}/${volume_name}"
+  local MOUNTPOINT="${mount_folder}/${volume_name}"
+  if mount | grep $MOUNTPOINT > /dev/null; then
+    die "${volume_name} is already mounted."
+  fi
+  case "$mode" in
+    veracrypt )
+        if [ ! -d $MOUNTPOINT ]; then
+          sudo mkdir -p $MOUNTPOINT
+        fi
+        veracrypt -t --mount --protect-hidden=no -k "" "$DEVICE.vault" $MOUNTPOINT
+      ;;
+    encfs )
+        [ -d "$DEVICE" ] || mkdir -p "$DEVICE"
+        [ -d "${mount_folder}" ] || mkdir -p "${mount_folder}"
+
+        local opts=""
+        if flag standard; then
+          opts="-S --standard"
+        fi
+        if __is_mac; then
+          encfs $DEVICE $MOUNTPOINT -- -o volname="My Vault" $opts
+        else
+          encfs $DEVICE $MOUNTPOINT $opts
+        fi
+      ;;
+    * )
+        die_with_status 2 "Mode $MODE not supported."
+     ;;
+  esac
+}
+
+function _close {
+  local volume_name volume_folder mount_point mode
+  local device
+  ! empty "$1" || die "No volume name passed."
+  volume_name="$1"
+  if ! my_config_get "crypt.${volume_name}.name" >/dev/null 2>&1 || \
+      ! my_config_get "crypt.${volume_name}.mode" >/dev/null 2>&1 ||
+      ! my_config_get "crypt.${volume_name}.folder" >/dev/null 2>&1 ||
+      ! my_config_get "crypt.${volume_name}.mountpoint" >/dev/null 2>&1; then
+      my_config_remove_section "crypt.${volume_name}" >/dev/null 2>&1
+      die "Any volume configuration is wrong. Please recreate it."
+  fi
+
+  volume_name=$(my_config_get "crypt.${volume_name}.name")
+  mode=$(my_config_get "crypt.${volume_name}.mode")
+  volume_folder=$(my_config_get "crypt.${volume_name}.folder")
+  volume_folder=$(expand_path ${volume_folder})
+  mount_point=$(my_config_get "crypt.${volume_name}.mountpoint")
+  mount_point=$(expand_path ${mount_point})
+  case "$mode" in
+    veracrypt )
+        device=${volume_folder}/${volume_name}
+        if ! veracrypt -t -d "$device.vault" > /dev/null 2>&1; then
+          die "${volume_name} is already closed."
+        fi
+      ;;
+    encfs )
+        device=${mount_point}/${volume_name}
+        if mount | grep $device > /dev/null; then
+          if __is_mac; then
+            sudo umount $device
+          else
+            fusermount -u $device
+          fi
+        else
+          die "${volume_name} is already closed."
+        fi
+
+      ;;
+    * )
+      die_with_status 2 "Mode $MODE not supported."
+     ;;
+  esac
+}
+
+case "$ACTION" in
+  install ) _install "$@" ;;
+  remove )  _remove "$@"  ;;
+  create )  _create "$@"  ;;
+  open )    _open "$@"    ;;
+  close )   _close "$@"   ;;
+  *)        usage; die;   ;;
+esac

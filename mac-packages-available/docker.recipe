@@ -1,0 +1,14 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+my_require homebrew
+case "$1" in
+install)
+  my_brew_cask_install docker
+  my_brew_install homebrew/completions/docker-completion
+  my_brew_install homebrew/completions/docker-compose-completion
+;;
+remove)
+;;
+esac

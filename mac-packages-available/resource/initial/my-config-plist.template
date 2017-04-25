@@ -1,0 +1,6 @@
+grep "^export" ~/.bash/my-config.sh | while IFS=' =' read ignoreexport envvar ignorevalue; do
+  launchctl setenv ${envvar} ${!envvar}
+done
+grep "^export" ~/.bash/path.sh | while IFS=' =' read ignoreexport envvar ignorevalue; do
+  launchctl setenv ${envvar} ${!envvar}
+done

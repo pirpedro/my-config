@@ -1,0 +1,109 @@
+#!/bin/bash
+set -e
+is_mac(){ [[ "$OSTYPE" == "darwin"* ]]; }
+is_linux(){ [ "$OSTYPE" == "linux-gnu" ]; }
+usage() {
+  echo "Usage: installer [install|uninstall] [stable|develop]"
+}
+
+PREFIX_BIN="/usr/local"
+ENVIRONMENT=${2:-"stable"}
+
+case "$ENVIRONMENT" in
+  stable)
+    PREFIX_DATA="/usr/local"
+  ;;
+  develop)
+    PREFIX_DATA="$HOME"
+  ;;
+esac
+
+REPO_NAME="my-config"
+REPO_LOCATION="https://github.com/pirpedro/$REPO_NAME"
+BINDIR="$PREFIX_BIN/bin"
+DATADIR="$PREFIX_DATA/$REPO_NAME"
+EXEC_FILES=("bin/my")
+EXT_FILES=(ext/functions.sh ext/template ext/bash-common/bin/sh-common ext/bash-common/bin/sh-extglob)
+if is_mac; then
+  recipes_folder="mac-packages-available"
+else
+  recipes_folder="ubuntu-packages-available"
+fi
+
+install_stable(){
+  local recipes
+  cd "$REPO_NAME" || exit
+  git checkout master
+  git pull && git submodule update --init --recursive
+  recipes=($(find "$recipes_folder" -iname '*.recipe'))
+  install -d -m 0755 "$PREFIX_BIN"/bin
+	install -m 0755 "${EXEC_FILES[@]}" "$PREFIX_BIN"/bin
+	install -d -m 0744 "$DATADIR"
+	install -d -m 0744 ext "$DATADIR"/ext
+	install -m 0744 "${EXT_FILES[@]}" "$DATADIR"/ext
+	cp -R ext/plugins "$DATADIR"/ext/plugins
+	install -d -m 0744 "$DATADIR"/packages-available
+	install -m 0744 "${recipes[@]}" "$DATADIR"/packages-available
+	cp -R "$recipes_folder"/resource "$DATADIR"/packages-available/resource
+	install -d -m 0744 "$DATADIR"/packages-enabled
+	install -m 0744 .version "$DATADIR"/.version
+  cd "$OLDPWD" || exit
+  rm -rf "$REPO_NAME" || exit
+}
+
+install_develop(){
+  local recipes
+  cd "$REPO_NAME" || exit
+  git checkout develop
+  git pull && git submodule update --init --recursive
+  recipes=($(find "$recipes_folder" -iname '*.recipe'))
+  echo "Installing 'my' to $BINDIR"
+  for exec_file in ${EXEC_FILES[*]} ; do
+     chmod u+x "$DATADIR/$exec_file"
+     ln -sfF "$DATADIR/$exec_file" "$BINDIR"
+  done
+  ln -sfF "$recipes_folder" packages-available
+  echo "export MY_CONFIG_PATH=$DATADIR" >> ~/.bash_profile
+}
+
+case "$1" in
+  help)
+    usage
+    exit
+  ;;
+  install)
+    if is_linux; then
+      echo "Checking if git is already installed..."
+      sudo apt-get install git git-core -y
+    fi
+
+      if [ -d "$REPO_NAME" ] && [ -d "$REPO_NAME/.git" ]; then
+        echo "Using existing repo: $REPO_NAME"
+      else
+        echo "Cloning repo from GitHub to $REPO_NAME"
+        git clone --recursive "$REPO_LOCATION" "$REPO_NAME"
+      fi
+    case "$ENVIRONMENT" in
+      stable)
+        install_stable
+      ;;
+      develop)
+        install_develop
+      ;;
+      *)
+        usage
+        exit
+      ;;
+    esac
+    if [ ! -z $SUDO_USER ]; then
+      chown -R "$SUDO_USER" "$DATADIR"
+    fi
+    echo "Installation complete in $DATADIR."
+  ;;
+  uninstall)
+  ;;
+  *)
+  usage
+  exit
+  ;;
+esac

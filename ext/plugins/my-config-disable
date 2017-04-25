@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#shellcheck disable=SC2034
+USAGE=`cat << EOF
+[<recipe_name>]
+EOF`
+LONG_USAGE=`cat << EOF
+Remove a recipe form the list of enabled recipes to be installed.
+
+  options
+      -c        check if recipe is disabled rather than efectively disable it.
+
+     args
+      [<recipe_name>] a recipe name.
+EOF`
+
+MY_CONFIG_EXT=$(my config --ext-path)
+# shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+EXTENSION=$(my config --default-extension)
+PACKAGE_LOCATION=$(my config --recipe-path)
+RESOURCE_LOCATION=$(my config --resource-path)
+
+for arg do
+  shift
+  case "$arg" in
+    -c | --check ) set_flag check_disable ;;
+    *) set -- "$@" "$arg"                 ;;
+  esac
+done
+
+if empty "$1"; then
+   die "You need to pass a recipe name."
+fi
+
+function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
+
+function __disable {
+  local recipe="$1"
+  if __is_enabled "$recipe"; then
+    rm "${PACKAGE_LOCATION:?}/$recipe$EXTENSION"
+    rm -rf "${RESOURCE_LOCATION:?}/$recipe"
+    exit ${FLAG_TRUE}
+  else
+    die "$recipe is already disabled or not exist."
+  fi
+
+}
+
+if flag check_disable; then
+  if ! __is_enabled "$1"; then
+    echo "$1"
+    exit ${FLAG_TRUE}
+  else
+    exit ${FLAG_FALSE}
+  fi
+else
+  __disable "$1"
+fi

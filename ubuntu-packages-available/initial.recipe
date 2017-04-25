@@ -1,0 +1,26 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+case "$1" in
+install)
+  files=( ~/.bashrc ~/.bash_profile ~/.bash/my-config.sh \
+              ~/.bash/aliases.sh ~/.bash/path.sh )
+  [ -d ~/.bash ] || mkdir ~/.bash
+  for file in ${files[*]}; do
+    [ -f "$file" ] || { touch "$file"; chmod +x "$file"; }
+  done
+  unset file
+  my_resource "profile" >> ~/.bash_profile
+  my_resource "profile" >> ~/.bashrc
+
+  ask --question="Select a path to sync your critical content" --free-answer --default="$HOME/vault/home"
+  my sync alias "$HOME" "${ask_answer}"
+  home_sync=(~/.ssh ~/.gnupg ~/.bash/my-config.sh ~/.bash/aliases.sh ~/.bash/path.sh)
+  for file in ${home_sync[*]}; do
+    my sync -f "$file" >/dev/null 2>&1
+  done
+  ;;
+remove)
+  ;;
+esac

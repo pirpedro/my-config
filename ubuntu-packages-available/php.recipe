@@ -1,0 +1,12 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+my_require apache
+case "$1" in
+install)
+    sudo apt-get install -y php libapache2-mod-php php-mcrypt php-mysql
+;;
+remove)
+;;
+esac

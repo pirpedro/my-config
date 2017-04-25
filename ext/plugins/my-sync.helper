@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+# shellcheck source=ext/functions.sh
+source "$(my config --ext-path)"/functions.sh
+
+__is_dir(){ [ -d "$1" ]; }
+
+__is_link(){ [ -L "$1" ]; }
+
+__is_regular_file(){ test -f "$1" && ! __is_link "$1"; }
+
+__exist_path() { __is_dir "$1" || __is_regular_file "$1" || __is_link "$1"; }
+
+__substitute_alias(){
+  local real_arg alias_names alias_value
+  real_arg="$1"
+  alias_names=($(my_config_get_regex sync.alias.*.name | awk '{print $2}' ))
+  for alias in ${alias_names[*]}; do
+    if contains "$real_arg" "$alias"; then
+      alias_value=$(my_config_get sync.alias-$alias.value)
+      real_arg=$(echo "$real_arg" | sed -e "s%$alias%$alias_value%g")
+    fi
+  done
+  echo "$real_arg"
+}
+
+__unset(){
+  my_config_remove_section "sync.link-$1" >/dev/null 2>&1
+}
+
+__toogle(){
+  local source target
+  source="$1"; target="$2"
+  if ! __is_link "$target"; then
+    mv "$target" "$source"
+  else
+    return ${FLAG_FALSE}
+  fi
+}
+
+__is_tracking(){
+  local source target path
+  source="$1"; target="$2"
+  __is_tracked_source "$1" || return ${FLAG_FALSE}
+  for path in $(my_config_get sync.link-"$source".target); do
+    if equals "$path" "$target"; then
+      return ${FLAG_TRUE}
+    fi
+  done
+  return ${FLAG_FALSE}
+}
+
+__is_tracked_source(){
+  local source
+  source="$1"
+  ! empty_output my_config_get_regex sync.link-$source.source
+}
+
+__include_target(){
+  local source target cur_target
+  source="$1"; target="$2"
+  cur_target=()
+  if my_config_get sync.link-"$source".target >/dev/null 2>&1; then
+    cur_target+=($(my_config_get sync.link-"$source".target))
+  fi
+  cur_target+=("$target")
+  my_config_set sync.link-"$source".target "$(echo "${cur_target[*]}")"
+}
+
+__track(){
+  local source target type
+  source="$1"; target="$2"; type="$3"
+  ! __is_tracking "$source" "$target" || return ${FLAG_FALSE}
+
+  if __include_target "$source" "$target"; then
+    my_config_set "sync.link-${source}.source" "$source"
+    my_config_set "sync.link-${source}.type" "$type"
+  fi
+}
+
+__link(){
+  local source target type
+  source="$1"; target="$2" type="link"
+  ! flag link_copy || type="sync"
+
+  if  __track "$source" "$target" "$type" || flag link_force; then
+    if __exist_path "$target"; then
+      if __is_dir "$target"; then
+        rm -r "$target"
+      else
+        rm "$target"
+      fi
+    fi
+    case "$type" in
+      link)
+          my_link "$source" "$target"
+        ;;
+      sync)
+          local options="-p"
+          ! __is_dir "$source" || options="$options -r"
+          cp $options "$source" "$target"
+        ;;
+    esac
+  else
+    die "Not possible."
+  fi
+}

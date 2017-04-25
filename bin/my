@@ -1,0 +1,230 @@
+#!/bin/bash
+
+#check if exists environment variable to manually change resources location
+MY_CONFIG_DIR=${MY_CONFIG_PATH:=/usr/local/my-config}
+#path to subfolder with extra functions and files
+MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
+#path to plugins folder
+MY_CONFIG_PLUGIN="$MY_CONFIG_EXT/plugins"
+
+USAGE=`cat << EOF
+<command> [options] <action>
+    -v| --verbose                     Verbose mode.
+    -d| --debug                       Debug mode.
+        --prefix                      Print installation folder.
+        --version                     Print the version and exit.
+    -h| --help                        Print this help.
+EOF`
+
+LONG_USAGE=`cat << EOF
+Common commands:
+
+  config              manage recipes: creation,installation,list, etc.
+  crypt               manage creation and encryption of volumes.
+
+  For help on any individual command run 'my COMMAND -h'.
+
+  CONFIG is the most important command. To see full help run
+                'my config --list-commands'
+EOF`
+
+function config_usage {
+  USAGE=`cat << EOF
+config <action> [all | <specific script]
+EOF`
+
+  LONG_USAGE=`cat << EOF
+Common commands:
+
+  install              install recipe(s).
+  remove               remove installed recipe(s).
+  list                 list enabled recipes.
+  enable               enable a recipe.
+  disable              disable a recipe.
+  new                  create a new recipe from template.
+
+EOF`
+}
+
+source $MY_CONFIG_EXT/functions.sh
+
+#CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
+#if [[ ! -e $CONFIGURATION_FILE ]]; then
+#  touch $CONFIGURATION_FILE
+#fi
+#__load_config_file $CONFIGURATION_FILE
+
+#directory where the script will search for config files to load
+PACKAGE_LOCATION="$MY_CONFIG_DIR/packages-enabled";
+PACKAGES_AVAILABLE="$MY_CONFIG_DIR/packages-available"
+PACKAGE_EXTERNAL="$PACKAGE_LOCATION/resource"
+
+#export useful variables
+export MY_CONFIG_DIR
+export MY_CONFIG_EXT
+export MY_CONFIG_PLUGIN
+export PACKAGE_LOCATION
+export PACKAGE_EXTERNAL
+
+#extension of the config files
+EXT=".recipe"
+
+#this function load files, give execution
+#permission for each one and execute the right action on it.
+__load(){
+  local files target action script_name
+  action="${1:-'install'}"
+  target="${2:-'all'}"
+
+	[ -d $PACKAGE_LOCATION ] || die "Packages directory does not exist."
+
+  if equals "$target" "all"; then
+    files=($( ls $PACKAGE_LOCATION/*$EXT));
+  else
+    [ -e $PACKAGE_LOCATION/$target$EXT ] || die "Configuration file for $target not found.";
+    files=( "$PACKAGE_LOCATION/$target$EXT" );
+  fi
+
+  for file in ${files[*]}
+	do
+		if [ -f $file ]; then
+      script_name=$(__format_script_name $file)
+      if __required check "$script_name"; then
+        note "The script $script_name is already installed"
+        continue
+      fi
+
+			if [ ! -x $file ]; then
+				sudo chmod +x $file
+			fi
+      note "$action $script_name: Action Started..."
+			source $PROFILE
+			$file $action $MY_CONFIG_DIR $MY_CONFIG_EXT
+      __required $action "$script_name"
+      note "$action $script_name: Action Finished."
+		fi
+	done
+}
+
+__config_install(){
+  __load "install" "$@"
+}
+
+__config_remove(){
+  __load "remove" "$@"
+}
+
+__config_init(){
+  verbosity on
+  if __required check initial; then
+    warn "You already initialize my-config in your system."
+    warn "Execute '${0##*/} -h' to learn about everything you can use."
+    exit 1;
+  else
+    note "Hi! Welcome to my config environment command."
+    note "Initializing means the creation of useful files."
+    if ask_boolean "Can we proceed?"; then
+      note "So, let's start!"
+      for file in $PACKAGES_AVAILABLE/*.recipe; do
+        my config enable -c "$(__format_script_name $file)" || my config enable "$(__format_script_name $file)"
+      done
+      __config_install initial
+      note "Now you can use and extend all the scripts for your own behavior."
+      note "Good work!"
+    else
+      note "Ok! Maybe next time."
+      note "See our manual and comeback as soon as possible."
+    fi
+  fi
+}
+
+__config_list() {
+  for arg do
+    shift
+    case "$arg" in
+      -a | --all) set_flag list_all     ;;
+      -q | --quiet) set_flag list_quiet ;;
+      *) set -- "$@" "$arg"
+    esac
+  done
+
+  flag list_quiet || echo "Available configuration files:"
+  local location=$PACKAGE_LOCATION
+  ! flag list_all || location=$PACKAGES_AVAILABLE
+  for file in $location/*$EXT
+  do
+    echo "$(__format_script_name $file)"
+  done
+}
+#check if the script has super user permissions
+#if [ ! "$(id -u)" = "0" ]; then
+#        warn "You need super user privileges to run some of the scripts."
+#	exit 1
+#fi
+
+! empty "$1" || { usage; die; }
+
+PLUGIN="$1"; shift;
+if ! startswith "$1" "-"; then
+  ACTION="$1"; shift;
+fi
+
+for arg do
+  shift
+  case "$arg" in
+    -v|--verbose ) verbosity on;                       ;;
+    -d|--debug ) set -x;                               ;;
+    --version ) cat $MY_CONFIG_DIR/.version; exit      ;;
+    --prefix) echo $MY_CONFIG_DIR; exit             ;;
+    --ext-path ) echo $MY_CONFIG_EXT; exit             ;;
+    --recipe-path ) echo $PACKAGE_LOCATION; exit          ;;
+    --all-recipe-path ) echo $PACKAGES_AVAILABLE; exit    ;;
+    --default-extension ) echo $EXT; exit              ;;
+    --resource-path ) echo $PACKAGE_EXTERNAL; exit ;;
+    --list-commands ) config_usage; usage; exit        ;;
+    *) set -- "$@" "$arg";                             ;;
+  esac
+done
+
+if [ ! -e $PROFILE ]; then
+  mkdir -p "$(dirname $PROFILE)"
+  touch $PROFILE
+fi
+
+if equals "$PLUGIN" "config" && ! __required check initial; then
+  case "$ACTION" in
+    list|install|remove)
+      verbosity on
+      warn "You didn't initialize '${0##*/} config' in your machine yet".
+      warn "Execute '${0##*/} config init' or see our manual for other options."
+      die
+    ;;
+  esac
+fi
+
+config_actions="config-init config-install config-remove config-list"
+extglob_on
+case "$PLUGIN-$ACTION" in
+  $(case_one "$config_actions") )
+    ACTION="__config_$ACTION";
+    extglob_restore
+    declare -F $ACTION >/dev/null && $ACTION "$@"
+    exit
+    ;;
+  config-*)
+    PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
+    ACTION=""
+    ;;
+  *)
+    PLUGIN=$MY_CONFIG_PLUGIN/my-$PLUGIN
+    ;;
+esac
+
+if [[ -e $PLUGIN ]]; then
+  if [[ ! -x $PLUGIN ]]; then
+    sudo chmod +x $PLUGIN
+  fi
+  $PLUGIN $ACTION "$@"
+else
+  usage
+fi

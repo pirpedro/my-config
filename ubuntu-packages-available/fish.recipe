@@ -1,0 +1,17 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+case "$1" in
+install)
+	apt-add-repository ppa:fish-shell/release-2
+  apt-get update
+	apt-get install fish
+  if ask_boolean "Change default shell to fish?"; then
+	   sudo chsh -s /usr/bin/fish
+  fi
+
+;;
+remove)
+;;
+esac

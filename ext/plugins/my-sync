@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2034
+USAGE=`cat << EOF
+[options] [<args>]
+EOF`
+LONG_USAGE=""
+# shellcheck source=ext/plugins/my-sync.helper
+source "$(my config --ext-path)"/plugins/my-sync.helper
+
+__sync_alias(){
+  local key value
+  key="$1"; value="$2"
+  ! empty "$key" || die "No alias name passed."
+  if empty "$value"; then
+    if ! my_config_get "sync.alias-$key.name" > /dev/null 2>&1; then
+      die "There isn't any alias named $key."
+    else
+      echo "$(my_config_get "sync.alias-$key.value")"
+      exit
+    fi
+  else
+    my_config_set "sync.alias-$key.name" "$key"
+    my_config_set "sync.alias-$key.value" "$value"
+  fi
+}
+
+__sync_unset(){
+  ! empty "$1" || { usage; die; }
+  local source
+  source=$(expand_path "$1");
+  source=$(__substitute_alias "$source")
+  __unset "$source"
+}
+
+__sync_list(){
+  sources=("$(my_config_get_regex sync.*.source | awk '{ print $2 }')")
+  ! equals ${#sources[@]} 0 || die "No synced files yet."
+  for source in ${sources[*]}; do
+    echo "Source: $source"
+    log "    Targets:"
+    for path in $(my_config_get sync.link-"$source".target); do
+      log "    - $path"
+    done
+  done
+}
+
+__sync_refresh(){
+  sources=("$(my_config_get_regex sync.*.source | awk '{ print $2 }')")
+  ! equals ${#sources[@]} 0 || die "Nothing to refresh."
+  local type
+  for source in ${sources[*]}; do
+    if ! __exist_path "$source" && \
+        ask_boolean "$source doesn't exist anymore. Remove sync configuration?"; then
+        __sync_unset "$source"
+        continue
+    fi
+
+    type=$(my_config_get sync.link-"$source".type)
+    for path in $(my_config_get sync.link-"$source".target); do
+      if ! __exist_path "$target" && \
+          ask_boolean "$target doesn't exist anymore. Remove sync configuration?"; then
+          __sync_unset "$source"
+          break
+      fi
+      case "$type" in
+        link)
+          if ! equals "$source" "$(location "$target")" && \
+             ask_boolean "$target is not a link to $source. Refresh link?"; then
+              __sync_link -f "$source" "$target"
+          fi
+          ;;
+        sync)
+          if __is_dir "$source"; then
+            rsync -a "$source" "$target"
+          else
+            __sync_link -c -f "$source" "$target"
+          fi
+          ;;
+        *)
+          log "Type $type can't be processed."
+          ;;
+      esac
+    done
+  done
+}
+
+__sync_link(){
+  ! empty "$1" || { usage; die;}
+  local  source target
+  for arg do
+    shift
+    case "$arg" in
+      -c | --copy) set_flag link_copy   ;;
+      -f | --force) set_flag link_force ;;
+      *) set -- "$@" "$arg"
+    esac
+  done
+
+  source=$(expand_path "$1");
+  if empty "$2"; then
+    target="$source"
+  else
+    target=$(expand_path "$2")
+  fi
+  source=$(__substitute_alias "$source")
+
+  ! equals "$source" "$target" || die "Fatal: Same location."
+
+  if __exist_path "$source"; then
+    if __exist_path "$target"; then
+      if flag link_force; then
+        __link "$source" "$target"
+      else
+        die "Target $target already exist. Use -f to force substitution."
+      fi
+    else
+      __link "$source" "$target"
+    fi
+  else
+    if __exist_path "$target"; then
+      __toogle "$source" "$target" || die
+      __link "$source" "$target" || die
+    else
+      die "Source and target paths doesn't exist."
+    fi
+  fi
+}
+
+actions="refresh list alias unset"
+extglob_on
+case "$1" in
+  $(case_one "$actions") ) ACTION="__sync_$1"; shift ;;
+  *) ACTION="__sync_link"                                 ;;
+esac
+extglob_restore
+declare -F $ACTION >/dev/null && $ACTION "$@"

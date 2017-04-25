@@ -1,0 +1,32 @@
+#!/bin/bash
+
+source $(my config --ext-path)/functions.sh
+
+case "$1" in
+install)
+  brew_install zsh
+  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+  zsh -c 'setopt EXTENDED_GLOB
+for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
+  cp "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
+done'
+  brew_install zsh-completions
+  echo "fpath=($(brew --prefix)/share/zsh-completions $(brew --prefix)share/zsh/site-functions \$fpath)" >> ~/.zshrc
+
+  my sync -f ~/.zlogin >/dev/null 2>&1
+  my sync -f ~/.zlogout >/dev/null 2>&1
+  my sync -f ~/.zpreztorc >/dev/null 2>&1
+  my sync -f ~/.zprofile >/dev/null 2>&1
+  my sync -f ~/.zshenv >/dev/null 2>&1
+  my sync -f ~/.zshrc >/dev/null 2>&1
+  if ask_boolean "Change default shell to zsh?"; then
+    chsh -s /bin/zsh
+  fi
+  zsh -c 'rm -f ~/.zcompdump; compinit'
+;;
+remove)
+;;
+update)
+  git pull ${ZDOTDIR:-$HOME}/.zprezto && git submodule update --recursive --remote ${ZDOTDIR:-$HOME}/.zprezto
+;;
+esac

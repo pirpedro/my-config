@@ -1,0 +1,14 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+my_require homebrew
+case "$1" in
+install)
+	my_brew_install postgres
+	ln -sfv /usr/local/opt/postgresql/*plist ~/Library/LaunchAgents
+	launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
+;;
+remove)
+;;
+esac

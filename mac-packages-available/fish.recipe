@@ -1,0 +1,16 @@
+#!/bin/bash
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+my_require homebrew
+case "$1" in
+install)
+	my_brew_install fish
+	echo "/usr/local/bin/fish" | sudo tee -a /etc/shells
+  if ask_boolean "Change default shell to fish?"; then
+    sudo -u $SUDO_USER chsh -s /usr/local/bin/fish
+  fi
+;;
+remove)
+;;
+esac

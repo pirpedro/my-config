@@ -4,6 +4,8 @@ source $(my config --ext-path)/functions.sh
 
 case "$1" in
 install)
+  brew_cask_install vagrant
+  brew_install vagrant-completion
 ;;
 remove)
 ;;
