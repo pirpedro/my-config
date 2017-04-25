@@ -32,15 +32,15 @@ brew install bats
 
 ###Running the suite
 Use one of the scripts located in `test` folder.
-- `run_core_tests.sh` - cover the internal functions and external commands execution.
-- `run_installation_tests.sh` - cover all process of installation.
-- `run_all_tests.sh` - execute all previously scripts.
+-   `run_core_tests.sh` - cover the internal functions and external commands execution.
+-   `run_installation_tests.sh` - cover all process of installation.
+-   `run_all_tests.sh` - execute all previously scripts.
 
 ### Built with
-- [bats - Bash Automated Testing System](https://github.com/sstephenson/bats).
-- [bats-support](https://github.com/ztombol/bats-support)
-- [bats-assert](https://github.com/ztombol/bats-assert)
-- [vagrant](https://www.vagrantup.com/)
+-   [bats - Bash Automated Testing System](https://github.com/sstephenson/bats).
+-   [bats-support](https://github.com/ztombol/bats-support)
+-   [bats-assert](https://github.com/ztombol/bats-assert)
+-   [vagrant](https://www.vagrantup.com/)
 
 
 

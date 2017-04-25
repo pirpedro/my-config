@@ -43,4 +43,5 @@ The `my crypt` plugin can install it for you. Check below [examples](#Examples).
     ```
     my crypt close new_vault
     ```
+
 Go back to [readme](../README.md) for installation steps and usage examples.
