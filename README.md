@@ -36,23 +36,19 @@ curl -L https://raw.githubusercontent.com/pirpedro/my-config/develop/contrib/ins
 
 If you are interested in running the test suite, see the [test session](docs/tests.cmd).
 
-###Usage
+### Usage
 
 See [command list](docs/commands.md) for more command information.
 
-
-
-
-
 ## Commands
-- [`my config`](docs/config.md) - manage recipes: creation,installation,list, etc.
-- [`my crypt`](docs/crypt.md) - manage creation and encryption of volumes.
-- [`my sync`](docs/sync.md) - keep tracked and syncronized all linked files and folder in a easy way.
+-   [`my config`](docs/config.md) - manage recipes: creation,installation,list, etc.
+-   [`my crypt`](docs/crypt.md) - manage creation and encryption of volumes.
+-   [`my sync`](docs/sync.md) - keep tracked and syncronized all linked files and folder in a easy way.
 
 
-##Contributing
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-awesome-feature`
-3. Commit your changes: `git commit -am 'Add some awesome feature'`
-4. Push to the branch: `git push origin my-new-awesome-feature`
-5. Submit a pull request and let us see it :smiley:
+## Contributing
+1.  Fork it!
+2.  Create your feature branch: `git checkout -b my-new-awesome-feature`
+3.  Commit your changes: `git commit -am 'Add some awesome feature'`
+4.  Push to the branch: `git push origin my-new-awesome-feature`
+5.  Submit a pull request and let us see it :smiley:
