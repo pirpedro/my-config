@@ -6,7 +6,7 @@ After some time, it's difficult to remind which are the symbolic links you made 
 
 ## Getting Started
 
-`my crypt` and `my sync` provide a useful combination to safely sync a external folder throw differents environments. Check [here](docs/sync_usecase.md) to see a use case.
+`my crypt` and `my sync` provide a useful combination to safely sync a external folder throw differents environments. Check [here](sync_usecase.md) to see a use case.
 
 ###  Prerequisites
 It just depends on `git`, to keep configuration files.

@@ -9,7 +9,7 @@ First of all, install one of the encryption tools supported.
 
 The `my crypt` plugin can install it for you. Check below [examples](#Examples).
 
-`my crypt` and `my sync` provide a useful combination to safely sync a external folder throw differents environments. Check [here](docs/sync_usecase.md) to see a use case.
+`my crypt` and `my sync` provide a useful combination to safely sync a external folder throw differents environments. Check [here](sync_usecase.md) to see a use case.
 
 ### Encryption tools supported
 -   [encfs](https://github.com/vgough/encfs) - it's a file system that maps an encrypted folder to a mount point.
