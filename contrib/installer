@@ -33,7 +33,7 @@ fi
 install_stable(){
   local recipes
   cd "$REPO_NAME" || exit
-  git checkout develop
+  git checkout master
   git pull && git submodule update --init --recursive
   recipes=($(find "$recipes_folder" -iname '*.recipe'))
   install -d -m 0755 "$PREFIX_BIN"/bin
