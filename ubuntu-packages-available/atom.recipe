@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source $(my config --ext-path)/functions.sh
+
+case "$1" in
+install)
+  sudo add-apt-repository ppa:webupd8team/atom -y
+  sudo apt-get update -y
+  sudo apt-get install atom
+;;
+remove)
+  sudo apt-get remove atom
+;;
+esac
