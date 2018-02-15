@@ -6,18 +6,21 @@ recipe_name="test_recipe"
 
 function setup {
   my_init
-  local root_dir=$(my config --prefix)
-  for file in $(sudo find "$root_dir"  -name '"$recipe_name"*'); do
-    if [ -f "$file" ]; then
+  local root_dir
+  root_dir=$(my config --prefix)
+  for file in $(sudo find -L "$root_dir" -name "${recipe_name}"*); do
+    if [ -f "$file" ] || [ -L "$file" ]; then
       sudo rm "$file"
     fi
   done
 }
 
 function teardown {
+  my_init
+  local root_dir
   root_dir=$(my config --prefix)
-  for file in $(sudo find -L "$root_dir" -name "${recipe_name}*"); do
-    if [ -f "$file" ]; then
+  for file in $(sudo find -L "$root_dir" -name "${recipe_name}"*); do
+    if [ -f "$file" ] || [ -L "$file" ]; then
       sudo rm "$file"
     fi
   done

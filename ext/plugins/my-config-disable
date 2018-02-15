@@ -1,18 +1,15 @@
 #!/bin/bash
 
 #shellcheck disable=SC2034
-USAGE=`cat << EOF
-[<recipe_name>]
-EOF`
-LONG_USAGE=`cat << EOF
-Remove a recipe form the list of enabled recipes to be installed.
+printf -v USAGE "%s" "[<recipe_name>]"
+
+printf -v LONG_USAGE "%s" "Remove a recipe form the list of enabled recipes to be installed.
 
   options
       -c        check if recipe is disabled rather than efectively disable it.
 
      args
-      [<recipe_name>] a recipe name.
-EOF`
+      [<recipe_name>] a recipe name."
 
 MY_CONFIG_EXT=$(my config --ext-path)
 # shellcheck source=ext/functions.sh
@@ -50,7 +47,6 @@ function __disable {
 
 if flag check_disable; then
   if ! __is_enabled "$1"; then
-    echo "$1"
     exit ${FLAG_TRUE}
   else
     exit ${FLAG_FALSE}

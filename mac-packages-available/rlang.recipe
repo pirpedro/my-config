@@ -3,6 +3,7 @@
 source $MY_CONFIG_EXT/functions.sh
 
 my_require homebrew
+my_require java
 case "$1" in
 install)
 	my_brew_install r

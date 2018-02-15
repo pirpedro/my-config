@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source $(my config --ext-path)/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+my_require virtualbox
 
 case "$1" in
 install)

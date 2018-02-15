@@ -4,6 +4,8 @@ source $MY_CONFIG_EXT/functions.sh
 
 case "$1" in
 install)
+  my_brew_install python
+  pip2 install --upgrade pip setuptools
 ;;
 remove)
 ;;

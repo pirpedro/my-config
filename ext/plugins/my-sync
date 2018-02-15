@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck disable=SC2034
-USAGE=`cat << EOF
-[options] [<args>]
-EOF`
+printf -v USAGE "%s" "[options] [<args>]"
 LONG_USAGE=""
 # shellcheck source=ext/plugins/my-sync.helper
 source "$(my config --ext-path)"/plugins/my-sync.helper

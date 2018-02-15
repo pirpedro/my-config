@@ -5,7 +5,7 @@ source $MY_CONFIG_EXT/functions.sh
 my_require homebrew
 case "$1" in
 install)
-    my_brew_cask_install ansible
+    my_brew_install ansible
 ;;
 remove)
 ;;

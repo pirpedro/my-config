@@ -50,29 +50,29 @@ SCRIPT
     end
   end
 
-  config.vm.define "osx" do |osx|
-    osx.vm.box = "jhcook/osx-yosemite-10.10"
-    osx.vm.hostname = "stevejobs"
-    osx.vm.provider :virtualbox do |provider|
-      provider.name = "my-config-osx"
-      provider.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
-    end
-    osx.vm.provision "available-packages",
-      type:"shell",
-      preserve_order:true,
-      inline:<<SCRIPT
-        cd /usr/local/my-config
-        ln -sfF mac-packages-available packages-available
-SCRIPT
-    osx.vm.provision "bats-installation",
-      type:"shell",
-      preserve_order:true,
-      inline:<<SCRIPT
-        cd /tmp
-        git clone https://github.com/sstephenson/bats.git
-        cd bats
-        chmod +x install.sh
-        ./install.sh /usr/local
-SCRIPT
-  end
+#  config.vm.define "osx" do |osx|
+#    osx.vm.box = "jhcook/osx-yosemite-10.10"
+#    osx.vm.hostname = "stevejobs"
+#    osx.vm.provider :virtualbox do |provider|
+#      provider.name = "my-config-osx"
+#      provider.customize ["modifyvm", :id, "--audio", "none", "--usb", "on", "--usbehci", "off"]
+#    end
+#    osx.vm.provision "available-packages",
+#      type:"shell",
+#      preserve_order:true,
+#      inline:<<SCRIPT
+#        cd /usr/local/my-config
+#        ln -sfF mac-packages-available packages-available
+#SCRIPT
+#    osx.vm.provision "bats-installation",
+#      type:"shell",
+#      preserve_order:true,
+#      inline:<<SCRIPT
+#        cd /tmp
+#        git clone https://github.com/sstephenson/bats.git
+#        cd bats
+#        chmod +x install.sh
+#        ./install.sh /usr/local
+#SCRIPT
+#  end
 end

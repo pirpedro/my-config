@@ -1,11 +1,8 @@
 #!/bin/bash
 
 #shellcheck disable=SC2034
-USAGE=`cat << EOF
-<action> [options] [<args>]
-EOF`
-LONG_USAGE=`cat << EOF
-Common actions:
+printf -v USAGE "%s" "<action> [options] [<args>]"
+printf -v LONG_USAGE "%s" "Common actions:
 
   install           install an encryption mode [<veracrypt|encfs>].
   remove            remove an encryption mode [<veracrypt|encfs>].
@@ -35,8 +32,7 @@ Common actions:
 
   CLOSE
     args
-      [<vault_name>] unique name for a created vault.
-EOF`
+      [<vault_name>] unique name for a created vault."
 
 # shellcheck source=ext/functions.sh
 source "$(my config --ext-path)"/functions.sh
@@ -64,7 +60,8 @@ function _install {
       ;;
     encfs )
         if __is_mac; then
-          my_brew_install homebrew/fuse/encfs
+          my_brew_cask_install osxfuse
+          my_brew_install encfs
         else
           #encfs prompts a message warning about problems
           #'sudo DEBIAN_FRONTEND=noninteractive'bypass this problem.
@@ -92,7 +89,7 @@ function _remove {
       ;;
     encfs )
         if __is_mac; then
-          brew uninstall homebrew/fuse/encfs
+          brew uninstall encfs
         else
           sudo apt-get -y remove encfs
         fi

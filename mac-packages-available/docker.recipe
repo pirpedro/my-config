@@ -5,9 +5,11 @@ source $MY_CONFIG_EXT/functions.sh
 my_require homebrew
 case "$1" in
 install)
-  my_brew_cask_install docker
-  my_brew_install homebrew/completions/docker-completion
-  my_brew_install homebrew/completions/docker-compose-completion
+  my_brew_install docker
+  my_brew_install docker-compose
+  brew link --overwrite docker-compose
+  my_brew_install docker-completion
+  my_brew_install docker-compose-completion
 ;;
 remove)
 ;;

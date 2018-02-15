@@ -1,14 +1,10 @@
 #!/bin/bash
 
-USAGE=`cat << EOF
-[<recipe_name>]
-EOF`
-LONG_USAGE=`cat << EOF
-Create a new (at first disabled) recipe.
+printf -v USAGE "%s" "[<recipe_name>]"
+printf -v LONG_USAGE "%s" "Create a new (at first disabled) recipe.
 
      args
-      [<recipe_name>] a recipe name.
-EOF`
+      [<recipe_name>] a recipe name."
 
 MY_CONFIG_EXT=$(my config --ext-path)
 PACKAGES_AVAILABLE=$(my config --all-recipe-path)

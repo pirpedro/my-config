@@ -4,6 +4,8 @@ source $MY_CONFIG_EXT/functions.sh
 
 case "$1" in
 install)
+  my_brew_cask_install virtualbox
+  my_brew_cask_install virtualbox-extension-pack
 ;;
 remove)
 ;;

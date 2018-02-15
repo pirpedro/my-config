@@ -7,17 +7,14 @@ MY_CONFIG_EXT="$MY_CONFIG_DIR/ext"
 #path to plugins folder
 MY_CONFIG_PLUGIN="$MY_CONFIG_EXT/plugins"
 
-USAGE=`cat << EOF
-<command> [options] <action>
+printf -v USAGE "%s" "<command> [options] <action>
     -v| --verbose                     Verbose mode.
     -d| --debug                       Debug mode.
         --prefix                      Print installation folder.
         --version                     Print the version and exit.
-    -h| --help                        Print this help.
-EOF`
+    -h| --help                        Print this help."
 
-LONG_USAGE=`cat << EOF
-Common commands:
+printf -v LONG_USAGE "%s" "Common commands:
 
   config              manage recipes: creation,installation,list, etc.
   crypt               manage creation and encryption of volumes.
@@ -25,25 +22,19 @@ Common commands:
   For help on any individual command run 'my COMMAND -h'.
 
   CONFIG is the most important command. To see full help run
-                'my config --list-commands'
-EOF`
+                'my config --list-commands'"
 
 function config_usage {
-  USAGE=`cat << EOF
-config <action> [all | <specific script]
-EOF`
+  printf -v USAGE "%s" "config <action> [all | <specific script]"
 
-  LONG_USAGE=`cat << EOF
-Common commands:
+  printf -v LONG_USAGE "%s" "Common commands:
 
   install              install recipe(s).
   remove               remove installed recipe(s).
   list                 list enabled recipes.
   enable               enable a recipe.
   disable              disable a recipe.
-  new                  create a new recipe from template.
-
-EOF`
+  new                  create a new recipe from template."
 }
 
 source $MY_CONFIG_EXT/functions.sh

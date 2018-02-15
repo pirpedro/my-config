@@ -6,19 +6,22 @@ recipe_name="test_recipe"
 
 function setup {
   my_init
-  local root_dir=$(my config --prefix)
-  for file in $(find "$root_dir"  -name '"$recipe_name"*'); do
-    if [ -f "$file" ]; then
-      rm "$file"
+  local root_dir
+  root_dir=$(my config --prefix)
+  for file in $(sudo find -L "$root_dir" -name "${recipe_name}"*); do
+    if [ -f "$file" ] || [ -L "$file" ]; then
+      sudo rm "$file"
     fi
   done
 }
 
 function teardown {
+  my_init
+  local root_dir
   root_dir=$(my config --prefix)
-  for file in $(find -L "$root_dir" -name "${recipe_name}*"); do
-    if [ -f "$file" ]; then
-      rm "$file"
+  for file in $(sudo find -L "$root_dir" -name "${recipe_name}"*); do
+    if [ -f "$file" ] || [ -L "$file" ]; then
+      sudo rm "$file"
     fi
   done
 }
@@ -35,7 +38,8 @@ function teardown {
 
 @test "config enable - an disabled recipe" {
   my config new "$recipe_name"
-  run my config enable "$recipe_name" && assert_success
+  run my config enable "$recipe_name"
+  assert_success
 }
 
 @test "config enable - with an already enabled recipe" {
