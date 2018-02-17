@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2034
+printf -v USAGE "%s" "[options] [<args>]"
+LONG_USAGE=""
+# shellcheck source=ext/plugins/my-config.helper
+source $MY_CONFIG_EXT/plugins/my-config.helper
+
+__restore(){
+  local url
+  if ask_boolean "This will overwrite local hooks. Proceed?"; then
+    __configure_gist_url
+    url=$(__get_gist_url)
+    if ! empty $url; then
+      rm -rf $HOOK_FOLDER
+      git clone --depth=1 --branch=master $url $HOOK_FOLDER > /dev/null 2>&1
+      rm -rf $HOOK_FOLDER/.git
+      note -f "Restore completed."
+    fi
+  fi
+}
+
+__restore

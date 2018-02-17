@@ -19,6 +19,6 @@ load_lib bats-assert
 
 my_init(){
   [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
-  printf '\n\n' | run my config init
+  printf '\n' | run my config init
   assert_success
 }

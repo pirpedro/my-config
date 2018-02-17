@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck source=ext/functions.sh
-source "$(my config --ext-path)"/functions.sh
+source $MY_CONFIG_EXT/functions.sh
 
 __is_dir(){ [ -d "$1" ]; }
 

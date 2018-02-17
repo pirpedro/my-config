@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+printf -v USAGE "%s" "[<recipe_name>]"
+printf -v LONG_USAGE "%s" "Create a new (at first disabled) recipe.
+
+     args
+      [<recipe_name>] a recipe name."
+
+TARGET="$1"; shift;
+ACTION="${1:-install}"; shift
+# shellcheck source=ext/plugins/my-config.helper
+source $MY_CONFIG_EXT/plugins/my-config.helper
+
+__extra(){
+  local target action
+  target="$1"
+  action="$2"
+  __open_hook_file "${target}.${action}"
+  note "Hook to ${action} ${target} created."
+}
+
+verbosity on
+! empty "$TARGET" || die "A target recipe must be informed."
+__extra "$TARGET" "$ACTION"

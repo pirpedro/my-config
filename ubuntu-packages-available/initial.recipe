@@ -11,15 +11,15 @@ install)
     [ -f "$file" ] || { touch "$file"; chmod +x "$file"; }
   done
   unset file
-  my_resource "profile" >> ~/.bash_profile
-  my_resource "profile" >> ~/.bashrc
+  [ -f ~/.bash_profile ] || touch ~/.bash_profile
+  [ -f ~/.bashrc ] || touch ~/.bashrc
+  if ! grep -xq "$(my_resource 'profile' | head -n1)" ~/.bash_profile; then
+      my_resource "profile" >> ~/.bash_profile
+  fi
 
-  ask --question="Select a path to sync your critical content" --free-answer --default="$HOME/vault/home"
-  my sync alias "$HOME" "${ask_answer}"
-  home_sync=(~/.ssh ~/.gnupg ~/.bash/my-config.sh ~/.bash/aliases.sh ~/.bash/path.sh)
-  for file in ${home_sync[*]}; do
-    my sync -f "$file" >/dev/null 2>&1
-  done
+  if ! grep -xq "$(my_resource 'profile' | head -n1)" ~/.bashrc; then
+      my_resource "profile" >> ~/.bashrc
+  fi
   ;;
 remove)
   ;;

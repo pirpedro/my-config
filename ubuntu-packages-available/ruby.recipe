@@ -18,7 +18,7 @@ install)
   rbenv global 2.3.0
   echo "gem: --no-document" > ~/.gemrc
   gem install bundler
-  gem install rails 5.0.2
+  #gem install rails 5.0.2
   gem install pry
   rbenv rehash
 

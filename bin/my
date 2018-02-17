@@ -64,17 +64,14 @@ EXT=".recipe"
 #permission for each one and execute the right action on it.
 __load(){
   local files target action script_name
-  action="${1:-'install'}"
-  target="${2:-'all'}"
+  action="$1"
+  target="$2"
 
 	[ -d $PACKAGE_LOCATION ] || die "Packages directory does not exist."
+  ! empty ${target} || die "${FUNCNAME[0]}: No argument passed."
 
-  if equals "$target" "all"; then
-    files=($( ls $PACKAGE_LOCATION/*$EXT));
-  else
-    [ -e $PACKAGE_LOCATION/$target$EXT ] || die "Configuration file for $target not found.";
-    files=( "$PACKAGE_LOCATION/$target$EXT" );
-  fi
+  [ -e $PACKAGE_LOCATION/$target$EXT ] || die "Configuration file for $target not found.";
+  files=( "$PACKAGE_LOCATION/$target$EXT" );
 
   for file in ${files[*]}
 	do
@@ -92,6 +89,7 @@ __load(){
 			source $PROFILE
 			$file $action $MY_CONFIG_DIR $MY_CONFIG_EXT
       __required $action "$script_name"
+      __run_hook "$script_name" "$action"
       note "$action $script_name: Action Finished."
 		fi
 	done
@@ -106,25 +104,24 @@ __config_remove(){
 }
 
 __config_init(){
-  verbosity on
   if __required check initial; then
-    warn "You already initialize my-config in your system."
-    warn "Execute '${0##*/} -h' to learn about everything you can use."
+    warn -f "You already initialize my-config in your system."
+    warn -f "Execute '${0##*/} -h' to learn about everything you can use."
     exit 1;
   else
-    note "Hi! Welcome to my config environment command."
-    note "Initializing means the creation of useful files."
+    note -f "Hi! Welcome to my config environment command."
+    note -f "Initializing means the creation of useful files."
     if ask_boolean "Can we proceed?"; then
-      note "So, let's start!"
+      note -f "So, let's start!"
       for file in $PACKAGES_AVAILABLE/*.recipe; do
         my config enable -c "$(__format_script_name $file)" || my config enable "$(__format_script_name $file)"
       done
       __config_install initial
-      note "Now you can use and extend all the scripts for your own behavior."
-      note "Good work!"
+      note -f "Now you can use and extend all the scripts for your own behavior."
+      note -f "Good work!"
     else
-      note "Ok! Maybe next time."
-      note "See our manual and comeback as soon as possible."
+      note -f "Ok! Maybe next time."
+      note -f "See our manual and comeback as soon as possible."
     fi
   fi
 }
@@ -185,9 +182,8 @@ fi
 if equals "$PLUGIN" "config" && ! __required check initial; then
   case "$ACTION" in
     list|install|remove)
-      verbosity on
-      warn "You didn't initialize '${0##*/} config' in your machine yet".
-      warn "Execute '${0##*/} config init' or see our manual for other options."
+      warn -f "You didn't initialize '${0##*/} config' in your machine yet".
+      warn -f "Execute '${0##*/} config init' or see our manual for other options."
       die
     ;;
   esac

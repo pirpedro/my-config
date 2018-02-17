@@ -16,7 +16,6 @@ function setup {
 }
 
 function teardown {
-  my_init
   local root_dir
   root_dir=$(my config --prefix)
   for file in $(sudo find -L "$root_dir" -name "${recipe_name}"*); do

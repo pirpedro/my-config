@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+__gist_login(){
+  if __exists gist; then
+    note -f 'We use __gist__ to backup/restore configuration files. Please login to your gist github account:'
+    #gist --login
+  else
+    die "Gist not installed."
+  fi
+}
+
+__configure_gist_url(){
+  local url
+  if ! my_config_get "config.gist" > /dev/null 2>&1; then
+    __gist_login
+    if ask_boolean "Do you have a previously gist URL for __my__ tool usage?"; then
+      ask --question="Insert yor gist URL:" --free-answer
+      if ! empty ${ask_answer}; then
+        my_config_set "config.gist" ${ask_answer}
+      else
+        die "${FUNCNAME[0]}: No url passed."
+      fi
+    else
+      note -f "Creating new gist file..."
+      url=$(echo "Gist for backup/restore pirpedro/my-config tool configuration." | gist -p -f README.md -d 'automatic update by http://github.com/pirpedro/my-config')
+      my_config_set "config.gist" ${url}
+    fi
+  fi
+}
+
+__get_gist_url(){
+  my_config_get "config.gist"
+}

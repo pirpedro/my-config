@@ -8,6 +8,7 @@ PROFILE=$BASH_DIR/my-config.sh
 ALIAS_FILE=$BASH_DIR/aliases.sh
 PATH_FILE=$BASH_DIR/path.sh
 CONFIGURATION_FOLDER="$HOME/.myconfig"
+HOOK_FOLDER=$CONFIGURATION_FOLDER/hooks
 
 #format the script name for a user friendly package name
 __format_script_name(){
@@ -67,7 +68,10 @@ __exists(){
 my_env(){
   ! empty "$1" || die "No argument passed to '$0' function."
 	if [ $# -eq 1 ]; then
-    echo $1 >> $PROFILE
+    if ! grep -xq "$1" $PROFILE; then
+      echo $1 >> $PROFILE
+      eval "$1"
+    fi
     return
   fi
 
@@ -75,7 +79,9 @@ my_env(){
   	launchctl setenv $1 $2
 	fi
 	export $1=$2
-	echo export $1=$2 >> $PROFILE
+  if ! grep -xq "export $1=$2"; then
+	   echo export $1=$2 >> $PROFILE
+  fi
 }
 
 my_alias(){
@@ -133,7 +139,7 @@ my_path(){
 }
 
 my_require() {
-  my config install -v "$@"
+  my config install "$@"
 }
 
 my_resource() {
@@ -273,4 +279,37 @@ my_brew_cask_install() {
     note "Installing $1..."
     brew cask install "$@"
   fi
+}
+
+__create_hooks_folder(){
+  [ -d $CONFIGURATION_FOLDER ] || mkdir -p $CONFIGURATION_FOLDER
+}
+
+__open_hook_file(){
+  local scriptfile
+  __create_hooks_folder
+  ! empty "$1" || die "${FUNCNAME[0]}: No argument passed."
+  scriptfile=$HOOK_FOLDER/$1
+  __create_if_not_exist "$scriptfile"
+  if empty_file "$scriptfile"; then
+    echo "#!/usr/bin/env bash" >> "$scriptfile"
+  fi
+  "${EDITOR:-/usr/bin/vi}" $scriptfile
+  chmod +x $scriptfile
+}
+
+__run_hook(){
+  local target action scriptfile exitcode
+  target="$1"; shift;
+  action="$1"; shift;
+  scriptfile="${HOOK_FOLDER}/${target}.${action}"
+  exitcode=0
+  if [ -x "$scriptfile" ]; then
+    "$scriptfile" "$@"
+    exitcode=$?
+    if ! equals ${exitcode} 0; then
+      die "Hook ${action} hook for ${target} ended with exit code ${exitcode}"
+    fi
+  fi
+
 }
