@@ -39,7 +39,7 @@ function config_usage {
 
 source $MY_CONFIG_EXT/functions.sh
 
-#CONFIGURATION_FILE="$MY_CONFIG_DIR/my-config.conf"
+#CONFIGURATION_FILE="$MY_CONFIG_DIR/config.conf"
 #if [[ ! -e $CONFIGURATION_FILE ]]; then
 #  touch $CONFIGURATION_FILE
 #fi

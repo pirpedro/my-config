@@ -3,10 +3,10 @@
 # shellcheck source=ext/bash-common/bin/sh-common
 source $MY_CONFIG_EXT/sh-common
 
-BASH_DIR=$HOME/.bash
-PROFILE=$BASH_DIR/my-config.sh
-ALIAS_FILE=$BASH_DIR/aliases.sh
-PATH_FILE=$BASH_DIR/path.sh
+ENV_DIR=$HOME/.myenv
+PROFILE=$ENV_DIR/config.sh
+ALIAS_FILE=$ENV_DIR/aliases.sh
+PATH_FILE=$ENV_DIR/path.sh
 CONFIGURATION_FOLDER="$HOME/.myconfig"
 HOOK_FOLDER=$CONFIGURATION_FOLDER/hooks
 
@@ -180,30 +180,37 @@ __required(){
   esac
 }
 
-CONFIGURATION_FILE=$CONFIGURATION_FOLDER/config
+
+
+my_config_file(){
+  #leaves only the first element of the config variable
+  echo "${1%%.*}"
+}
 
 my_config(){
-  __create_if_not_exist "$CONFIGURATION_FILE"
-  git config --file $CONFIGURATION_FILE "$@"
+  local file
+  file="$1"; shift;
+  __create_if_not_exist "$CONFIGURATION_FOLDER/$file"
+  git config --file "$CONFIGURATION_FOLDER/$file" "$@"
 }
 my_config_get() {
-  my_config --get "$1"
+  my_config "$(my_config_file $1)" --get "$1"
 }
 
 my_config_get_regex(){
-  my_config --get-regexp "$1"
+  my_config "$(my_config_file $1)" --get-regexp "$1"
 }
 
 my_config_set() {
-  my_config "$1" "$2"
+  my_config "$(my_config_file $1)" "$1" "$2"
 }
 
 my_config_unset(){
-  my_config --unset "$1"
+  my_config "$(my_config_file $1)" --unset "$1"
 }
 
 my_config_remove_section(){
-  my_config --remove-section "$1"
+  my_config "$(my_config_file $1)" --remove-section "$1"
 }
 
 my_brew_install() {

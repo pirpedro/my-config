@@ -42,18 +42,18 @@ Some things can happen now:
     my sync list -v
     ```
 
-3.  Create an alias from __~/.zsh__ folder to __~/.bash__ folders.
+3.  Create an alias from __~/.zsh__ folder to __~/.myenv__ folders.
     ```
-    my sync alias ~/.bash ~/.zsh
+    my sync alias ~/.myenv ~/.zsh
     ```
 
 4.  Using the above example, we can use alias to keep `my sync` command easier, like:
     ```
-    my sync ~/.bash/configuration_file
+    my sync ~/.myenv/configuration_file
     ```
     Using the previous configured alias, it is the same as
     ```
-    my sync ~/.zsh/configuration_file ~/.bash/configuration_file
+    my sync ~/.zsh/configuration_file ~/.myenv/configuration_file
     ```
 
 5.  Untrack a source.

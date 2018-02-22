@@ -16,7 +16,7 @@ printf -v LONG_USAGE "%s" "Standalone actions:
   untrack         untrack a project.
 
   TRACK
-    my project track [ directory [ proj_name] ] 
+    my project track [ directory [ proj_name] ]
 
       Without args try to track the current directory.
       Without proj_name, the reference name for this project

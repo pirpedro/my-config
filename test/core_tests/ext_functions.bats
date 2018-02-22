@@ -12,9 +12,10 @@ old_profile=$PROFILE
 old_alias=$ALIAS_FILE
 old_path=$PATH_FILE
 old_installed=$INSTALLED_FILE
-old_configuration=$CONFIGURATION_FILE
+
 
 function setup(){
+  [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   PROFILE=$tmp_file
   [ -f "$tmp_file" ] || touch "$tmp_file"
   chmod +x $tmp_file
@@ -22,7 +23,6 @@ function setup(){
   ALIAS_FILE=$tmp_file
   PATH_FILE=$tmp_file
   INSTALLED_FILE=$tmp_file
-  CONFIGURATION_FILE=$tmp_file
 }
 
 function teardown(){
@@ -31,7 +31,6 @@ function teardown(){
   ALIAS_FILE=$old_alias
   PATH_FILE=$old_path
   INSTALLED_FILE=$old_installed
-  CONFIGURATION_FILE=$old_configuration
 }
 
 @test "format_script_name" {

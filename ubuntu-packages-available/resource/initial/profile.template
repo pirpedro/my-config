@@ -1,6 +1,6 @@
 ###############   my-config configuration script   ###############
-if [ -d ~/.bash ]; then
-for i in ~/.bash/*.sh; do
+if [ -d ~/.myenv ]; then
+for i in ~/.myenv/*.sh; do
   if [ -r $i ]; then
      . $i
   fi

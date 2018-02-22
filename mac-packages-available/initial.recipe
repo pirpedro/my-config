@@ -3,11 +3,11 @@
 source $MY_CONFIG_EXT/functions.sh
 
 _set_env(){
-  files=( ~/.profile ~/.bash/my-config.sh ~/.bash/aliases.sh ~/.bash/path.sh \
+  files=( ~/.profile ~/.myenv/config.sh ~/.myenv/aliases.sh ~/.myenv/path.sh \
           ~/Library/LaunchAgents/environment.plist \
           ~/Library/LaunchAgents/environment.user.plist \
-          ~/.bash/my-config-plist )
-  [ -d ~/.bash ] || mkdir ~/.bash
+          ~/.myenv/config-plist )
+  [ -d ~/.myenv ] || mkdir ~/.myenv
   for file in ${files[*]}; do
     [ -f "$file" ] || { touch "$file"; chmod +x "$file"; }
   done
@@ -16,8 +16,8 @@ _set_env(){
       my_resource "profile" >> ~/.profile
   fi
   my_resource "etcprofile" | sudo tee -a /etc/profile
-  if ! grep -xq "$(my_resource 'my-config-plist' | head -n1)" ~/.bash/my-config-plist; then
-      my_resource "my-config-plist" >> ~/.bash/my-config-plist
+  if ! grep -xq "$(my_resource 'my-config-plist' | head -n1)" ~/.myenv/config-plist; then
+      my_resource "my-config-plist" >> ~/.myenv/config-plist
   fi
   my_resource "environment-plist" | sudo tee -a ~/Library/LaunchAgents/environment.plist ~/Library/LaunchAgents/environment.user.plist
   launchctl load -w ~/Library/LaunchAgents/environment.user.plist
