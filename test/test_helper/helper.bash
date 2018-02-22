@@ -21,4 +21,7 @@ my_init(){
   [ ! -d ~/.myconfig ] || rm -rf ~/.myconfig
   printf '\n' | run my config init
   assert_success
+  if [ -f ~/.bash_profile ]; then
+    source ~/.bash_profile
+  fi
 }

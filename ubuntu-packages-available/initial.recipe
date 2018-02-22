@@ -16,9 +16,15 @@ install)
   if ! grep -xq "$(my_resource 'profile' | head -n1)" ~/.bash_profile; then
       my_resource "profile" >> ~/.bash_profile
   fi
+  if ! grep -xq "$(my_resource 'my-project-wrap-function' | head -n1)" ~/.bash_profile; then
+      my_resource "my-project-wrap-function" >> ~/.bash_profile
+  fi
 
   if ! grep -xq "$(my_resource 'profile' | head -n1)" ~/.bashrc; then
       my_resource "profile" >> ~/.bashrc
+  fi
+  if ! grep -xq "$(my_resource 'my-project-wrap-function' | head -n1)" ~/.bashrc; then
+      my_resource "my-project-wrap-function" >> ~/.bashrc
   fi
   ;;
 remove)

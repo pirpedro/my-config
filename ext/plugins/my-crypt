@@ -35,7 +35,7 @@ printf -v LONG_USAGE "%s" "Common actions:
       [<vault_name>] unique name for a created vault."
 
 # shellcheck source=ext/functions.sh
-source "$(my config --ext-path)"/functions.sh
+source $MY_CONFIG_EXT/functions.sh
 
 ACTION="$1"; shift;
 

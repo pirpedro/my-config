@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+
+#shellcheck disable=SC2034
+printf -v USAGE "%s" "[ [track|path|list] | proj_name [exec | status | untrack] ]"
+printf -v LONG_USAGE "%s" "Standalone actions:
+
+  track           start to track a specific project.
+  path            show dir location of a specific project.
+  list            list all projects that are current tracked.
+
+  Project's specific actions:
+
+  exec            execute a specific function on the entrypoint.sh
+                  script located in project root folder.
+  status          show usefull informations.
+  untrack         untrack a project.
+
+  TRACK
+    my project track [ directory [ proj_name] ] 
+
+      Without args try to track the current directory.
+      Without proj_name, the reference name for this project
+      will be the folder name.
+
+  PATH
+    my project path project_name
+
+  LIST
+    my project list
+
+  EXEC
+    my project project_name [exec]
+
+      Without project_name try to execute in current directory
+      if it is a tracked project.
+      'exec' is the default command for projects, so if not informed
+      will execute the 'open' action in entrypoint.sh
+
+  STATUS
+    my project [project_name] status
+
+  UNTRACK
+    my project [project_name] untrack"
+
+
+# shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+! empty "$1" || die "No project informed."
+ENTRYPOINT="entrypoint.sh"
+
+__project_check_if_exists(){
+  ! empty "$1" || die "${FUNCNAME[0]}: No argument passed."
+  my_config_get "project.$1.name"> /dev/null 2>&1
+}
+
+__project_name(){
+  local dir
+  dir=${1:-`pwd`}
+  echo $(basename $dir)
+}
+
+__project_type(){
+  ! empty "$1" || die "${FUNCNAME[0]}: No argument passed."
+  local proj_name proj_path
+  proj_name="$1"
+  proj_path="$(my_config_get project.$proj_name.path)"
+  [ -d "$proj_path" ] || { echo "invalid"; return; }
+  cd "$proj_path" || die "${FUNCNAME[0]}: Directory not exist."
+  if git rev-parse --git-dir >/dev/null 2>&1; then
+    my_config_set "project.$proj_name.git" "$(git remote -v | head -n 1 | awk '{print $2}')"
+    echo "git"
+  else
+    echo "dir"
+  fi
+}
+
+__project_info_update(){
+  __project_type "$1" > /dev/null 2>&1
+}
+
+blue_format=$(tput bold; tput setaf 4)
+green_format=$(tput setaf 2)
+yellow_format=$(tput setaf 3)
+#bold=$(tput bold)
+reset=$(tput sgr0)
+
+__project_list(){
+  local elems path fields
+  elems=("$(my_config_get_regex project.*.name | awk '{ print $2 }')")
+  ! equals ${#elems[@]} 0 || die "No projects tracked yet."
+  for elem in ${elems[*]}; do
+    status="${blue_format}%15s${reset} ${green_format}[%s]${reset} ${yellow_format}(%s)${reset}"
+    path="$(my_config_get project.$elem.path)"
+    fields=("${elem}" "${path}" "$(__project_type $elem)")
+    printf "$status \n" "${fields[@]}"
+  done
+}
+
+__project_status(){
+  local proj path fields status
+  proj="$1"; shift;
+  status="${blue_format}%s project is tracked.${reset}\n${green_format}Location:${reset} ${yellow_format}%s${reset}\n"
+  fields=("$proj")
+  path="$(my_config_get project.$proj.path)"
+  if [ ! -d "$path" ]; then
+  fields+=("Invalid directory!")
+  else
+    fields+=("$path")
+  fi
+  __project_info_update "$proj"
+  if my_config_get "project.$proj.git" >/dev/null 2>&1; then
+    status+="${green_format}     Git:${reset} ${yellow_format}%s${reset}\n"
+    fields+=("$(git remote -v | head -n 1 | awk '{ print $2 }')")
+  fi
+
+  printf "$status" "${fields[@]}"
+}
+
+__project_track(){
+  local path proj_name
+  case "$#" in
+    0 ) path="$(pwd)"; proj_name="$(__project_name $path)" ;;
+    1 ) path="$1"; proj_name="$(__project_name $path)"     ;;
+    2 ) path="$1"; proj_name="$2"                               ;;
+  esac
+  path="$(expand_path $path)"
+  [ -d "$path" ] || die "$path is not a valid directory."
+  ! __project_check_if_exists $proj_name || die "Project $proj_name is already tracked."
+
+  my_config_set "project.$proj_name.name" "$proj_name"
+  my_config_set "project.$proj_name.path" "$path"
+
+  if [ ! -f "$path/$ENTRYPOINT" ]; then
+    echo "#!/usr/bin/env bash
+    case \"\$1\" in
+      open) echo \"Project loaded.\" ;;
+      *) echo \"Project actions: [open]\" ;;
+    esac
+    " > "$path/$ENTRYPOINT"
+    chmod +x "$path/$ENTRYPOINT"
+  else
+    __project_exec "$proj_name" "install"
+  fi
+  note -f "Project ${proj_name} is now tracked."
+}
+
+__project_untrack(){
+  local proj
+  proj="$1"; shift;
+  __project_exec "$proj" "remove"
+  my_config_remove_section "project.$proj"
+  note -f "Project ${proj} is not tracked anymore."
+}
+
+__project_path(){
+  local proj_name
+  ! empty "$1" || die "No project name informed."
+  proj_name="$1"
+  if ! my_config_get "project.$proj_name.path" >/dev/null 2>&1; then
+    die "Project doesn't exist."
+  else
+    my_config_get "project.$proj_name.path"
+  fi
+}
+
+__project_exec(){
+  local proj proj_path exitcode
+  proj="$1"; shift;
+  action="${1:-open}"; shift;
+  proj_path=$(my_config_get "project.$proj.path")
+  scriptfile="${proj_path}/$ENTRYPOINT"
+  exitcode=0
+  if [ -x "$scriptfile" ]; then
+    cd "$proj_path" || die "Couldn't enter in project $proj_name folder."
+    "$scriptfile" "$action" "$@"
+    exitcode=$?
+    if ! equals ${exitcode} 0; then
+      die "Entrypoint for $proj ended with exit code $exitcode."
+    fi
+  fi
+}
+
+
+actions="path track list"
+project_actions="exec status untrack"
+projects=$(my_config_get_regex project.*.name | awk '{ print $2 }')
+extglob_on
+case "$1" in
+  $(case_one "$actions") ) ACTION="__project_$1"; shift ;;
+  $(case_one "$project_actions") )
+    ACTION="__project_$1"; shift
+    cur_location=$(pwd)
+    proj_exist=${FLAG_FALSE}
+    for project in $projects; do
+      if equals "$cur_location" "$(my_config_get project.$project.path)"; then
+        set -- "$project" "$@"
+        proj_exist=${FLAG_TRUE}
+        break
+      fi
+    done
+    if ! check_boolean $proj_exist ; then
+      die "Not a valid command or project."
+    fi
+  ;;
+  $(case_one "$projects") )
+    project="$1"; shift
+    if ! empty "$1"; then
+      ACTION="__project_$1"; shift;
+    else
+      ACTION="__project_exec"
+    fi
+    set -- "$project" "$@"
+  ;;
+  *) die "Not a valid command or project."                                 ;;
+esac
+extglob_restore
+declare -F $ACTION >/dev/null && $ACTION "$@"
+case "$TARGET" in
+  pattern )
+    ;;
+esac

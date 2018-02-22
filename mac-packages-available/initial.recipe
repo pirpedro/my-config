@@ -11,14 +11,22 @@ _set_env(){
   for file in ${files[*]}; do
     [ -f "$file" ] || { touch "$file"; chmod +x "$file"; }
   done
-  my_resource "profile" >> ~/.profile
+
+  if ! grep -xq "$(my_resource 'profile' | head -n1)" ~/.profile; then
+      my_resource "profile" >> ~/.profile
+  fi
   my_resource "etcprofile" | sudo tee -a /etc/profile
-  my_resource "my-config-plist" >> ~/.bash/my-config-plist
+  if ! grep -xq "$(my_resource 'my-config-plist' | head -n1)" ~/.bash/my-config-plist; then
+      my_resource "my-config-plist" >> ~/.bash/my-config-plist
+  fi
   my_resource "environment-plist" | sudo tee -a ~/Library/LaunchAgents/environment.plist ~/Library/LaunchAgents/environment.user.plist
   launchctl load -w ~/Library/LaunchAgents/environment.user.plist
   sudo chown root ~/Library/LaunchAgents/environment.plist
   sudo launchctl load -w ~/Library/LaunchAgents/environment.plist
   my sync "$HOME/.profile" "$HOME/.bash_profile"
+  if ! grep -xq "$(my_resource 'my-project-wrap-function' | head -n1)" ~/.profile; then
+      my_resource "my-project-wrap-function" >> ~/.profile
+  fi
 }
 
 case "$1" in
