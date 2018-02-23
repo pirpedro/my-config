@@ -25,9 +25,9 @@ DATADIR="$PREFIX_DATA/$REPO_NAME"
 EXEC_FILES=("bin/my")
 EXT_FILES=(ext/functions.sh ext/template ext/bash-common/bin/sh-common ext/bash-common/bin/sh-extglob)
 if is_mac; then
-  recipes_folder="mac-packages-available"
+  recipes_folder="packages-available-mac"
 else
-  recipes_folder="ubuntu-packages-available"
+  recipes_folder="packages-available-ubuntu"
 fi
 
 install_stable(){

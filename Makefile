@@ -11,9 +11,9 @@ EXT_FILES+=ext/bash-common/bin/sh-extglob
 OS:=$(shell uname)
 
 ifeq ($(OS),Darwin)
-recipes_folder:=mac-packages-available
+recipes_folder:=packages-available-mac
 else
-recipes_folder:=ubuntu-packages-available
+recipes_folder:=packages-available-ubuntu
 endif
 recipes:=$(wildcard $(recipes_folder)/*.recipe)
 

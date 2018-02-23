@@ -11,8 +11,8 @@ Vagrant.configure("2") do |config|
       ln -sfF /vagrant/.version $my_conf_dir/
       ln -sfF /vagrant/bin $my_conf_dir/
       ln -sfF /vagrant/ext $my_conf_dir/
-      ln -sfF /vagrant/ubuntu-packages-available $my_conf_dir/
-      ln -sfF /vagrant/mac-packages-available $my_conf_dir/
+      ln -sfF /vagrant/packages-available-ubuntu $my_conf_dir/
+      ln -sfF /vagrant/packages-available-mac $my_conf_dir/
       ln -sfF /vagrant/test $my_conf_dir/
       mkdir -p $my_conf_dir/packages-enabled
       ln -sfF $my_conf_dir/bin/my /usr/local/bin/my
@@ -30,7 +30,7 @@ SCRIPT
     type: "shell",
     inline:<<SCRIPT
       cd /usr/local/my-config
-      ln -sfF ubuntu-packages-available packages-available
+      ln -sfF packages-available-ubuntu packages-available
 SCRIPT
 
   config.vm.provision "bats-installation",
@@ -62,7 +62,7 @@ SCRIPT
 #      preserve_order:true,
 #      inline:<<SCRIPT
 #        cd /usr/local/my-config
-#        ln -sfF mac-packages-available packages-available
+#        ln -sfF packages-available-mac packages-available
 #SCRIPT
 #    osx.vm.provision "bats-installation",
 #      type:"shell",
