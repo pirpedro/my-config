@@ -1,0 +1,18 @@
+###############   my-project wrapper script   ###############
+my() {
+  local path
+  if [[ "$1" == "project" ]]; then
+    if /usr/bin/env my project path "$2" > /dev/null 2>&1; then
+      path="$(/usr/bin/env my project path $2)"
+      if [ -d "$path" ]; then
+        cd "$path" || return 1
+      else
+        echo "Project $2 folder doesn't exist."
+        return 1
+      fi
+    fi
+  fi
+  /usr/bin/env my "$@"
+  return $?
+}
+##################################################################

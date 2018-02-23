@@ -1,0 +1,11 @@
+######################   zsh configuration script   ######################
+fpath=(${MY_CONFIG_PATH:-/usr/local/my-config}/contrib/completion $fpath)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  fpath=($(brew --prefix)/share/zsh-completions
+  $(brew --prefix)/share/zsh/site-functions
+  $fpath)
+fi
+[[ -e ~/.myenv/config.sh ]] && emulate sh -c 'source ~/.myenv/config.sh'
+[[ -e ~/.myenv/aliases.sh ]] && emulate sh -c 'source ~/.myenv/aliases.sh'
+[[ -e ~/.myenv/path.sh ]] && emulate sh -c 'source ~/.myenv/path.sh'
+##########################################################################

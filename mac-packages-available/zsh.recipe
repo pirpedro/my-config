@@ -1,6 +1,6 @@
 #!/bin/bash
-
-source $(my config --ext-path)/functions.sh
+#shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
 
 case "$1" in
 install)
@@ -11,14 +11,13 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
   cp "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done'
   brew_install zsh-completions
-  echo "fpath=($(brew --prefix)/share/zsh-completions $(brew --prefix)share/zsh/site-functions \$fpath)" >> ~/.zshrc
+  if ! grep -xq "$(my_resource 'profile' | head -n1)" ~/.zshrc; then
+      my_resource "profile" >> ~/.zshrc
+  fi
+  if ! grep -xq "$(my_resource 'my-project-wrap-function' | head -n1)" ~/.zshrc; then
+      my_resource "my-project-wrap-function" >> ~/.zshrc
+  fi
 
-  my sync -f ~/.zlogin >/dev/null 2>&1
-  my sync -f ~/.zlogout >/dev/null 2>&1
-  my sync -f ~/.zpreztorc >/dev/null 2>&1
-  my sync -f ~/.zprofile >/dev/null 2>&1
-  my sync -f ~/.zshenv >/dev/null 2>&1
-  my sync -f ~/.zshrc >/dev/null 2>&1
   if ask_boolean "Change default shell to zsh?"; then
     chsh -s /bin/zsh
   fi
