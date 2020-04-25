@@ -6,19 +6,12 @@ printf -v LONG_USAGE "%s" "Create a new (at first disabled) recipe.
      args
       [<recipe_name>] a recipe name."
 
-TARGET="$1"; shift;
-ACTION="${1:-install}"; shift
-# shellcheck source=ext/plugins/my-config.helper
-source $MY_CONFIG_EXT/plugins/my-config.helper
-
-__extra(){
+__config_extra(){
   local target action
-  target="$1"
-  action="$2"
+  target="$1"; shift;
+  action="${1:-install}"; shift
+  verbosity on
+  ! empty "$target" || die "A target recipe must be informed."
   __open_hook_file "${target}.${action}"
   note "Hook to ${action} ${target} created."
 }
-
-verbosity on
-! empty "$TARGET" || die "A target recipe must be informed."
-__extra "$TARGET" "$ACTION"

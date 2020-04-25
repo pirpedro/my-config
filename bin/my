@@ -64,18 +64,18 @@ EXT=".recipe"
 #permission for each one and execute the right action on it.
 __load(){
   local files target action script_name
-  action="$1"
-  target="$2"
-
+  action="$1"; shift;
+  targets="$*"
 	[ -d $PACKAGE_LOCATION ] || die "Packages directory does not exist."
-  ! empty ${target} || die "${FUNCNAME[0]}: No argument passed."
+  ! empty ${targets} || die "${FUNCNAME[0]}: No argument passed."
 
-  [ -e $PACKAGE_LOCATION/$target$EXT ] || die "Configuration file for $target not found.";
-  files=( "$PACKAGE_LOCATION/$target$EXT" );
-
+  for target in $targets; do
+    [ -e $PACKAGE_LOCATION/$target$EXT ] || die "Configuration file for $target not found.";
+    files+=( "$PACKAGE_LOCATION/$target$EXT" );
+  done
   for file in ${files[*]}
 	do
-		if [ -f $file ]; then
+  	if [ -f $file ]; then
       script_name=$(__format_script_name $file)
       if __required check "$script_name"; then
         note "The script $script_name is already installed"
@@ -126,12 +126,17 @@ __config_init(){
   fi
 }
 
+__config_list_plugin(){
+  find $MY_CONFIG_EXT/plugins -mindepth 1 -maxdepth 1 -exec basename {} \;
+}
+
 __config_list() {
   for arg do
     shift
     case "$arg" in
-      -a | --all) set_flag list_all     ;;
-      -q | --quiet) set_flag list_quiet ;;
+      -a | --all) set_flag list_all        ;;
+      -q | --quiet) set_flag list_quiet    ;;
+      --plugin) __config_list_plugin; return ;;
       *) set -- "$@" "$arg"
     esac
   done
@@ -153,10 +158,9 @@ __config_list() {
 ! empty "$1" || { usage; die; }
 
 PLUGIN="$1"; shift;
-if ! startswith "$1" "-"; then
-  ACTION="$1"; shift;
-fi
-
+# if ! startswith "$1" "-"; then
+#   ACTION="$1"; shift;
+# fi
 for arg do
   shift
   case "$arg" in
@@ -179,39 +183,44 @@ if [ ! -e $PROFILE ]; then
   touch $PROFILE
 fi
 
-if equals "$PLUGIN" "config" && ! __required check initial; then
-  case "$ACTION" in
-    list|install|remove)
-      warn -f "You didn't initialize '${0##*/} config' in your machine yet".
-      warn -f "Execute '${0##*/} config init' or see our manual for other options."
-      die
-    ;;
-  esac
-fi
+# if equals "$PLUGIN" "config" && ! __required check initial; then
+#   case "$ACTION" in
+#     list|install|remove)
+#       warn -f "You didn't initialize '${0##*/} config' in your machine yet".
+#       warn -f "Execute '${0##*/} config init' or see our manual for other options."
+#       die
+#     ;;
+#   esac
+# fi
 
-config_actions="config-init config-install config-remove config-list"
 extglob_on
-case "$PLUGIN-$ACTION" in
-  $(case_one "$config_actions") )
+case "$PLUGIN" in
+  config)
+    if ! startswith "$1" "-"; then
+      ACTION="$1"; shift;
+    fi
+
+    if ! __required check initial; then
+      case "$ACTION" in
+        list|install|remove)
+          warn -f "You didn't initialize '${0##*/} config' in your machine yet".
+          warn -f "Execute '${0##*/} config init' or see our manual for other options."
+          die
+        ;;
+      esac
+    fi
+    [ -f $MY_CONFIG_PLUGIN/config/my-config-$ACTION ] && source $MY_CONFIG_PLUGIN/config/my-config-$ACTION
     ACTION="__config_$ACTION";
     extglob_restore
     declare -F $ACTION >/dev/null && $ACTION "$@"
-    exit
+    exit "$?"
     ;;
-  config-*)
-    PLUGIN=$MY_CONFIG_PLUGIN/my-config-$ACTION
-    ACTION=""
+  $(case_one "$(__config_list_plugin)"))
+    extglob_restore
+    PLUGIN=$MY_CONFIG_PLUGIN/$PLUGIN/my-$PLUGIN
+    [ -x $PLUGIN ] || sudo chmod +x $PLUGIN
+    $PLUGIN "$@"
+    exit "$?"
     ;;
-  *)
-    PLUGIN=$MY_CONFIG_PLUGIN/my-$PLUGIN
-    ;;
+  *) die "$PLUGIN is not a valid command" ;;
 esac
-
-if [[ -e $PLUGIN ]]; then
-  if [[ ! -x $PLUGIN ]]; then
-    sudo chmod +x $PLUGIN
-  fi
-  $PLUGIN $ACTION "$@"
-else
-  usage
-fi

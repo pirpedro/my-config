@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2034
 printf -v USAGE "%s" "[options] [<args>]"
 LONG_USAGE=""
 # shellcheck source=ext/plugins/my-config.helper
-source $MY_CONFIG_EXT/plugins/my-config.helper
+source $MY_CONFIG_EXT/plugins/config/my-config.helper
 
-__restore(){
+__config_restore(){
   local url
   if ask_boolean "This will overwrite local hooks. Proceed?"; then
     __configure_gist_url
@@ -19,5 +18,3 @@ __restore(){
     fi
   fi
 }
-
-__restore

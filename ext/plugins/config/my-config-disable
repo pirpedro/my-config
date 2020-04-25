@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+printf -v USAGE "%s" "[<recipe_name>]"
+printf -v LONG_USAGE "%s" "Remove a recipe form the list of enabled recipes to be installed.
+
+  options
+      -c        check if recipe is disabled rather than efectively disable it.
+
+     args
+      [<recipe_name>] a recipe name."
+
+EXTENSION=$(my config --default-extension)
+
+function __is_enabled { [ -f $PACKAGE_LOCATION/$1$EXTENSION ]; }
+
+function __disable {
+  local recipe="$1"
+  if __is_enabled "$recipe"; then
+    rm "${PACKAGE_LOCATION:?}/$recipe$EXTENSION"
+    rm -rf "${PACKAGE_EXTERNAL:?}/$recipe"
+    exit ${FLAG_TRUE}
+  else
+    die "$recipe is already disabled or not exist."
+  fi
+
+}
+
+__config_disable(){
+  for arg do
+    shift
+    case "$arg" in
+      -c | --check ) set_flag check_disable ;;
+      *) set -- "$@" "$arg"                 ;;
+    esac
+  done
+
+  if empty "$1"; then
+     die "You need to pass a recipe name."
+  fi
+
+  if flag check_disable; then
+    if ! __is_enabled "$1"; then
+      exit ${FLAG_TRUE}
+    else
+      exit ${FLAG_FALSE}
+    fi
+  else
+    __disable "$1"
+  fi
+}

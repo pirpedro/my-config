@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+printf -v USAGE "%s" "[<recipe_name>]"
+printf -v LONG_USAGE "%s" "Create a new (at first disabled) recipe.
+
+     args
+      [<recipe_name>] a recipe name."
+
+EXTENSION=$(my config --default-extension)
+
+__config_new(){
+  local target
+  target="$1"
+  if empty "$target"; then
+    die "You need to pass a recipe name."
+  fi
+  if [[ -f $PACKAGES_AVAILABLE/$target$EXTENSION ]]; then
+    die "$target recipe already exist."
+  fi
+  cp $MY_CONFIG_EXT/template $PACKAGES_AVAILABLE/$target$EXTENSION
+  echo "$PACKAGES_AVAILABLE/$target$EXTENSION"
+}

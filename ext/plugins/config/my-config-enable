@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 printf -v USAGE "%s" "[<recipe_name>]"
 printf -v LONG_USAGE "%s" "Include a recipe and its resources in the list of enabled recipes to be installed.
@@ -9,26 +9,9 @@ printf -v LONG_USAGE "%s" "Include a recipe and its resources in the list of ena
      args
       [<recipe_name>] a recipe name."
 
-MY_CONFIG_EXT=$(my config --ext-path)
-# shellcheck source=ext/functions.sh
-source $MY_CONFIG_EXT/functions.sh
-
-PACKAGES_AVAILABLE=$(my config --all-recipe-path)
 EXTENSION=$(my config --default-extension)
-PACKAGE_LOCATION=$(my config --recipe-path)
-RESOURCE_LOCATION=$(my config --resource-path)
 
-for arg do
-  shift
-  case "$arg" in
-    -c | --check ) set_flag check_enable ;;
-    *) set -- "$@" "$arg"                 ;;
-  esac
-done
 
-if empty "$1"; then
-   die "You need to pass a recipe name."
-fi
 
 function __is_enabled { [ -f "$PACKAGE_LOCATION/$1$EXTENSION" ]; }
 
@@ -37,16 +20,30 @@ function __enable {
   if ! __is_enabled "$recipe" && test -f "$PACKAGES_AVAILABLE/$recipe$EXTENSION"; then
     ln -sf "$PACKAGES_AVAILABLE/$recipe$EXTENSION" $PACKAGE_LOCATION/
     if [ -d "$PACKAGES_AVAILABLE/resource/$recipe" ]; then
-      [ -d "$RESOURCE_LOCATION" ] || mkdir -p "$RESOURCE_LOCATION"
-      [ -e "$RESOURCE_LOCATION/$recipe" ] || ln -sf "$PACKAGES_AVAILABLE/resource/$recipe" "$RESOURCE_LOCATION/$recipe"
+      [ -d "$PACKAGE_EXTERNAL" ] || mkdir -p "$PACKAGE_EXTERNAL"
+      [ -e "$PACKAGE_EXTERNAL/$recipe" ] || ln -sf "$PACKAGES_AVAILABLE/resource/$recipe" "$PACKAGE_EXTERNAL/$recipe"
     fi
   else
       die "$recipe is already enabled or not exist."
   fi
 }
 
-if flag check_enable; then
-  __is_enabled "$1"
-else
-  __enable "$1"
-fi
+__config_enable(){
+  for arg do
+    shift
+    case "$arg" in
+      -c | --check ) set_flag check_enable ;;
+      *) set -- "$@" "$arg"                 ;;
+    esac
+  done
+
+  if empty "$1"; then
+     die "You need to pass a recipe name."
+  fi
+
+  if flag check_enable; then
+    __is_enabled "$1"
+  else
+    __enable "$1"
+  fi
+}

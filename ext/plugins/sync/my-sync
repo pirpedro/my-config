@@ -4,7 +4,7 @@
 printf -v USAGE "%s" "[options] [<args>]"
 LONG_USAGE=""
 # shellcheck source=ext/plugins/my-sync.helper
-source $MY_CONFIG_EXT/plugins/my-sync.helper
+source $MY_CONFIG_EXT/plugins/sync/my-sync.helper
 
 __sync_alias(){
   local key value

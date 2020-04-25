@@ -2,11 +2,12 @@
 set -e
 # shellcheck disable=SC2034
 printf -v USAGE "%s" "[options] [<args>]"
+# shellcheck disable=SC2034
 LONG_USAGE=""
 # shellcheck source=ext/plugins/my-config.helper
-source $MY_CONFIG_EXT/plugins/my-config.helper
+source $MY_CONFIG_EXT/plugins/config/my-config.helper
 
-__backup(){
+__config_backup(){
   local url
   if ask_boolean "This will overwrite remote hooks. Proceed?"; then
     __configure_gist_url
@@ -16,8 +17,4 @@ __backup(){
       note -f "Backup completed."
     fi
   fi
-
-
 }
-
-__backup

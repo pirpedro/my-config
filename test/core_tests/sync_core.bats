@@ -4,7 +4,7 @@ TEST_FOLDER="$(pwd)"
 load "$TEST_FOLDER"/test_helper/helper.bash
 
 MY_CONFIG_EXT="${TEST_FOLDER%%'/test'}"/ext
-source $MY_CONFIG_EXT/plugins/my-sync.helper
+source $MY_CONFIG_EXT/plugins/sync/my-sync.helper
 
 test_folder="$HOME/sync_test_folder"
 setup() {

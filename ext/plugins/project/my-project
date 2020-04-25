@@ -216,7 +216,3 @@ case "$1" in
 esac
 extglob_restore
 declare -F $ACTION >/dev/null && $ACTION "$@"
-case "$TARGET" in
-  pattern )
-    ;;
-esac

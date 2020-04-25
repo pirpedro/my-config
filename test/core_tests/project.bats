@@ -11,7 +11,6 @@ proj_test="projtest"
 proj_test_location=${proj_folder}/${proj_test}
 proj_test_sub="projsub"
 proj_test_sub_location=${proj_folder}/subdir/${proj_test_sub}
-proj_test_git="projgit"
 
 assert_config_file(){
   assert [ "$1" == "$(my_config_get project.$1.name)" ]
