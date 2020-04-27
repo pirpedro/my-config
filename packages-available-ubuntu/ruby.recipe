@@ -6,24 +6,21 @@ my_require git
 case "$1" in
 install)
   sudo apt-get install -y curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
-  git clone -- https://github.com/sstephenson/rbenv.git ~/.rbenv
+  git clone -- https://github.com/rbenv/rbenv.git ~/.rbenv
   my_path ~/.rbenv/bin
   my_env "if which rbenv > /dev/null; then eval \"\$(rbenv init -)\"; fi"
 
-  git clone -- https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+  git clone -- https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
   git clone -- https://github.com/carsomyr/rbenv-bundler.git ~/.rbenv/plugins/bundler
   my_path ~/.rbenv/plugins/ruby-build/bin
 
-  rbenv install 2.3.0
-  rbenv global 2.3.0
+  rbenv install 2.3.1
+  rbenv global 2.3.1
   echo "gem: --no-document" > ~/.gemrc
   gem install bundler
   #gem install rails 5.0.2
   gem install pry
   rbenv rehash
-
-   # A few Rails features, such as the Asset Pipeline, depend on a Javascript runtime. Remember to install Node.js to provide this functionality.
-
 
 ;;
 remove)

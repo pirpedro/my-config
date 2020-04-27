@@ -5,7 +5,7 @@ source $MY_CONFIG_EXT/functions.sh
 case "$1" in
 install)
   files=( ~/.bashrc ~/.bash_profile ~/.myenv/config.sh \
-              ~/.myenv/aliases.sh ~/.myenv/path.sh )
+              ~/.myenv/aliases.sh ~/.myenv/path )
   [ -d ~/.myenv ] || mkdir ~/.myenv
   for file in ${files[*]}; do
     [ -f "$file" ] || { touch "$file"; chmod +x "$file"; }

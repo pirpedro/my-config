@@ -7,5 +7,5 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 [[ -e ~/.myenv/config.sh ]] && emulate sh -c 'source ~/.myenv/config.sh'
 [[ -e ~/.myenv/aliases.sh ]] && emulate sh -c 'source ~/.myenv/aliases.sh'
-[[ -e ~/.myenv/path.sh ]] && emulate sh -c 'source ~/.myenv/path.sh'
+[[ -e ~/.myenv/path ]] && emulate sh -c 'source ~/.myenv/path'
 ##########################################################################

@@ -3,7 +3,7 @@
 source $MY_CONFIG_EXT/functions.sh
 
 _set_env(){
-  files=( ~/.profile ~/.myenv/config.sh ~/.myenv/aliases.sh ~/.myenv/path.sh \
+  files=( ~/.profile ~/.myenv/config.sh ~/.myenv/aliases.sh ~/.myenv/path \
           ~/Library/LaunchAgents/environment.plist \
           ~/Library/LaunchAgents/environment.user.plist \
           ~/.myenv/config-plist )

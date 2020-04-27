@@ -1,9 +1,12 @@
 ###############   my-config configuration script   ###############
 if [ -d ~/.myenv ]; then
-for i in ~/.myenv/*.sh; do
-  if [ -r $i ]; then
-     . $i
+  if [ -f ~/.myenv/path ]; then
+    . ~/.myenv/path
   fi
+  for i in ~/.myenv/*.sh; do
+    if [ -r $i ]; then
+       . $i
+    fi
 done
 unset i
 fi

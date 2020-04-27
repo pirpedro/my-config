@@ -5,7 +5,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   $(brew --prefix)/share/zsh/site-functions
   $fpath)
 fi
+[[ -e ~/.myenv/path]] && emulate sh -c 'source ~/.myenv/path'
+[[ -e ~/.myenv/profle.sh ]] && emulate sh -c 'source ~/.myenv/profile.sh'
 [[ -e ~/.myenv/config.sh ]] && emulate sh -c 'source ~/.myenv/config.sh'
 [[ -e ~/.myenv/aliases.sh ]] && emulate sh -c 'source ~/.myenv/aliases.sh'
-[[ -e ~/.myenv/path.sh ]] && emulate sh -c 'source ~/.myenv/path.sh'
 ##########################################################################
