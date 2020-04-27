@@ -6,7 +6,7 @@ source $MY_CONFIG_EXT/sh-common
 ENV_DIR=$HOME/.myenv
 PROFILE=$ENV_DIR/config.sh
 ALIAS_FILE=$ENV_DIR/aliases.sh
-PATH_FILE=$ENV_DIR/path.sh
+PATH_FILE=$ENV_DIR/path
 CONFIGURATION_FOLDER="$HOME/.myconfig"
 HOOK_FOLDER=$CONFIGURATION_FOLDER/hooks
 
