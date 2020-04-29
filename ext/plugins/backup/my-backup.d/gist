@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+my_require gist
+
+__gist_login(){
+  ! empty_file "$HOME/.gist" || gist --login
+}
+
+__backup_gist(){
+  local name from to opts
+  name="$1"; from="$2"; to="$3"
+  if my_config_get "backup.$name.opts">/dev/null 2>&1; then
+    opts=$(my_config_get "backup.$name.opts")
+  fi
+  [ -e $from ] || return ${FLAG_FALSE}
+  __gist_login
+  gist -u $opts $to $from > /dev/null 2>&1
+}
+
+__restore_gist(){
+  local name from to
+  name="$1"; from="$2"; to="$3"
+  if [ -d $(dirname $to) ]; then
+    rm -rf $to
+    git clone --depth=1 --branch=master $from $to > /dev/null 2>&1
+    rm -rf $to/.git
+  fi
+
+}

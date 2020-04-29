@@ -1,0 +1,7 @@
+__backup_from_mysql(){
+  echo rsync
+}
+
+__backup_to_mysql(){
+  echo rsync
+}

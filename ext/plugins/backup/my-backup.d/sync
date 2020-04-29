@@ -1,0 +1,32 @@
+#!/usr/bin/env bash --
+
+__backup_sync(){
+  local name from to opts remote
+  name="$1"; from="$2"; to="$3";
+  if my_config_get "backup.$name.opts">/dev/null 2>&1; then
+    opts=$(my_config_get "backup.$name.opts")
+  fi
+  if my_config_get "backup.$name.remote">/dev/null 2>&1; then
+    remote=$(my_config_get "backup.$name.remote")
+  fi
+  [ -e $from ] || die "$from is not a valid directory or file."
+  cd "$(dirname $from)" || return ${FLAG_FALSE}
+  if flag compress; then
+    backup="$TEMP_DIR/$(__backup_name $name).tar.gz"
+    tar -zcvf $backup -C "$(basename $from)" || die "Couldn't compress files."
+    if empty "$remote"; then
+      [ -d $to ] || { rm -rf $backup; die "$to is not a valid directory."; }
+      mv $backup $to/
+    else
+      scp $opts $backup $remote:$to
+    fi
+  else
+
+
+  fi
+
+}
+
+__restore_sync(){
+ echo local
+}

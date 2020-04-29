@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2034
+printf -v USAGE "%s" "[options] [<args>]"
+LONG_USAGE=""
+# shellcheck source=ext/plugins/my-backup.helper
+source $MY_CONFIG_EXT/plugins/backup/my-backup.helper
+TYPE_FOLDER=$MY_CONFIG_EXT/plugins/backup/my-backup.d
+
+blue_format=$(tput bold; tput setaf 4)
+green_format=$(tput setaf 2)
+yellow_format=$(tput setaf 3)
+#bold=$(tput bold)
+reset=$(tput sgr0)
+
+__backup_name(){
+  echo "$1-$(date '+%Y-%m-%d-%H-%M')"
+}
+
+__backup_check_if_exists(){
+  ! empty "$1" || die "${FUNCNAME[0]}: No argument passed."
+  my_config_get "backup.$1.name"> /dev/null 2>&1
+}
+
+__retrieve_type() {
+  local name="$1"; shift;
+  ! empty "$name" || { echo "sync"; return ${FLAG_TRUE}; }
+  for tp in $TYPE_FOLDER/*; do
+    if equals "$name" "${tp##*/}"; then
+      echo "${tp##*/}"; return ${FLAG_TRUE}
+    fi
+  done
+  return ${FLAG_FALSE}
+}
+
+__backup_list(){
+  local elems src type target
+  elems=("$(my_config_get_regex backup.*.name | awk '{ print $2 }')")
+  ! equals ${#elems[@]} 0 || die "No projects tracked yet."
+  for elem in ${elems[*]}; do
+    status="${blue_format}%15s${reset} - ${yellow_format}%s: ${reset}${green_format}(%s)${reset} ${green_format}(%s)${reset}"
+    src="$(my_config_get backup.$elem.src)"
+    target="$(my_config_get backup.$elem.target)"
+    type="$(my_config_get backup.$elem.type)"
+    fields=("${elem}" "${type}" "${src}" "${target}" )
+    printf "$status \n" "${fields[@]}"
+  done
+}
+
+__backup_new() {
+  local name src target type script opts
+  extglob_on
+  for arg do
+    shift
+    flag ignore_next && { unset_flag ignore_next; continue; }
+    case $arg in
+      -r|--rotate) set_flag rotate                    ;;
+      -c|--compress) set_flag compress                ;;
+      -s|--script) script="$1"; set_flag ignore_next  ;;
+      --sudo) set_flag sudo                           ;;
+      -t|--type) type="$1"; set_flag ignore_next      ;;
+      --opts) opts="$1"; set_flag ignore_next         ;;
+      --remote) remote="$1"; set_flag ignore_next     ;;
+      -*) die "Argument $arg is not valid."           ;;
+      *) set -- "$@" "$arg"                           ;;
+    esac
+  done
+  extglob_restore
+
+  ! empty "$1" && ! startswith "$1" "-" || die "No backup name informed."
+  ! empty "$1" && ! startswith "$2" "-" || die "No source informed."
+  ! empty "$1" && ! startswith "$3" "-" || die "No target informed"
+  name="$1"; src="$2"; target="$3"
+  ! __backup_check_if_exists $name || die "Backup with name $name already exist."
+  empty "$script" && {
+                      type="$(__retrieve_type $type)"
+                      check_boolean "$?" || die "Not a valid backup type."; }
+  [ -e $src ] && src="$(expand_path $src)"
+  [ -e $target ] && target="$(expand_path $target)"
+  my_config_set "backup.$name.name" "$name"
+  my_config_set "backup.$name.source" "$src"
+  my_config_set "backup.$name.target" "$target"
+  if ! empty "$script"; then
+    [ -f $script ] || die "$script is not a valid file"
+    my_config_set "backup.$name.script" "$(expand_path $script)"
+  else
+    my_config_set "backup.$name.type" "$type"
+  fi
+  empty "$opts" || my_config_set "backup.$name.opts" "$opts"
+  empty "$remote" || my_config_set "backup.$name.remote" "$remote"
+  flag rotate && my_config_set --bool "backup.$name.rotate" "$(flag rotate)"
+  flag compress && my_config_set --bool "backup.$name.compress" "$(flag compress)"
+  flag sudo && my_config_set --bool "backup.$name.sudo" "$(flag sudo)"
+}
+
+__backup_remove(){
+  local name
+  name="$1"; shift;
+  my_config_remove_section "backup.$name"
+  note -f "Backup ${name} is removed."
+}
+
+
+__backup_exec(){
+  local name src target type opts to from
+  extglob_on
+  for arg do
+    shift
+    flag ignore_next && { unset_flag ignore_next; continue; }
+    case $arg in
+      --restore) set_flag restore             ;;
+      --to) to="$1"; set_flag ignore_next     ;;
+      --from) from="$1"; set_flag ignore_next ;;
+    esac
+  done
+  name="$1"; shift;
+  src=$(my_config_get "backup.$name.source")
+  target=$(my_config_get "backup.$name.target")
+  type=$(my_config_get "backup.$name.type")
+  source "$TYPE_FOLDER"/$type || die "Type functions not found"
+  #doing preparatives from source
+
+  declare -F "__backup_$type" >/dev/null && "__backup_$type" $name $src $target
+  check_boolean "$?"|| die "Backup aborted."
+  note -f "Backup completed."
+}
+
+actions="new remove list"
+bkp_names=$(my_config_get_regex backup.*.name | awk '{ print $2 }')
+extglob_on
+case "$1" in
+  $(case_one "$actions") ) ACTION="__backup_$1"; shift ;;
+  $(case_one "$bkp_names") )
+    bkp="$1"; shift
+    if ! empty "$1"; then
+      ACTION="__backup_$1"; shift;
+    else
+      ACTION="__backup_exec"
+    fi
+    set -- "$bkp" "$@"
+  ;;
+  *) die "Not a valid command or project."                                 ;;
+esac
+extglob_restore
+declare -F $ACTION >/dev/null && $ACTION "$@"

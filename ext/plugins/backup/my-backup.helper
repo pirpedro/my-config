@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# shellcheck source=ext/functions.sh
+source $MY_CONFIG_EXT/functions.sh
+
+# Give preference to user tmp directory for security
+if [ -e "$HOME/tmp" ];then
+  TEMP_DIR="$HOME/tmp"
+else
+  TEMP_DIR="/tmp"
+fi
+
+__backup_filename(){
+  local date
+  ! empty "$1" || die "${FUNCNAME[0]}: No argument passed."
+  date=$(date "+%Y-%m-%dT%H:%M:%S")
+  echo "$1-$date"
+}
